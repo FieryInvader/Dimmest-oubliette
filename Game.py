@@ -6,7 +6,6 @@ pygame.init()
 class Square(pygame.sprite.Sprite):     #Note: create specific hero classes for abilities and stuff
     def __init__(self, x, y,name):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(f"images/{name}.png")
         self.image = pygame.image.load(f"images/heroes/{name}.png")
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
@@ -30,8 +29,6 @@ display = screen.set_mode((screen_width,screen_height))
 
 #load background
 bg = pygame.image.load('images/dungeon/hallway2.png')
-
-bg = pygame.image.load('images/hallway2.png')
 
 #Calculate tiles that need to fit in screen + 1 for buffer
 tiles = math.ceil(screen_width / bg.get_width()) + 1
@@ -91,6 +88,7 @@ while run:
         
     if key[pygame.K_a]:
         scroll += 2
+>>>>>>> Stashed changes
     
     #insert the background image into the screen queue while scrolling
     for i in range(0,tiles):
