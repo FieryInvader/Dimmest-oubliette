@@ -108,16 +108,10 @@ class Highwayman(Person):
         self.crit = self.crit + 0.2
         self.speed += 2
 
-<<<<<<< Updated upstream
-=======
-class Bandit(Person):
-    def __init__(self,x,y,name):
-        pass
-=======
 class Cutthroat(Person):
     def __init__(self,x,y,name,position):
         super().__init__(x, y, name, 12, 0.725, 0.12,0.025, 3, position)
->>>>>>> Stashed changes
+
         
     def Slice_and_dice(self):
         self_tile = [0,1,2]
