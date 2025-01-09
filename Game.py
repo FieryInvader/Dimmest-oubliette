@@ -286,13 +286,7 @@ def draw_hero(hero):
     display.blit(icon, (445 + next_icon, 607))       
     
 
-class Bandit(Person):
-    def __init__(self,x,y,name):
-        pass
 
-def draw_text(text, text_col, x, y):
-    img = pygame.font.SysFont('Times New Roman', 26).render(text, True, text_col)
-    screen.blit(img, x, y)
     
 clock = pygame.time.Clock()
 FPS = 60
