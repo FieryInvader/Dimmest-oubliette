@@ -44,6 +44,33 @@ party.add(reynauld)
 party.add(paracelcus)
 party.add(junia)
 
+
+class Person():
+    def __init__(self,x, y, name, health, accuracy, critical, damage,
+                 dodge, speed):
+        #visuals
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(f"images/{name}.png")
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+        #stats
+        self.hp = health
+        self.stress = 0
+        self.acc = accuracy
+        self.crit = critical
+        self.dmg = damage
+        self.dodge = dodge
+        self.speed = speed
+        
+class Highwayman(Person):
+    def __init__(self, x, y, name):
+        #initialize parent class
+        self.dmg_range = [i for i in range(5,11)]
+        super().__init__(x, y, name, 23 , 0.9, 0.05 , self.dmg_range, 0.14, 7)
+        
+        
+        
+
 run = True
 while run:
     clock.tick(FPS)
@@ -51,7 +78,10 @@ while run:
     key = pygame.key.get_pressed()
     
     if key[pygame.K_d]:
-        scroll -= 0.8
+        scroll -= 3
+        
+    if key[pygame.K_a]:
+        scroll += 2
     
     for i in range(0,tiles):
         display.blit(bg, (i * bg.get_width() + scroll,0))
