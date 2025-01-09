@@ -1,5 +1,6 @@
 import pygame
 import math
+import random
 
 pygame.init()
 
@@ -63,6 +64,7 @@ class Person():
         self.dmg = damage
         self.dodge = dodge
         self.speed = speed
+        self.dmgmod = 0
         
 class Highwayman(Person):
     def __init__(self, x, y, name):
@@ -70,21 +72,41 @@ class Highwayman(Person):
         self.dmg_range = [i for i in range(5,11)]
         super().__init__(x, y, name, 23 , 0.9, 0.05 , self.dmg_range, 0.14, 7)
         
-    def wicked_slice():
+    def wicked_slice(self):
+        self_tile = [0,1]
+        target = [0,1]
+        dmg = (random.choice(self.dmg_range) + self.dmgmod) * 1.10
+        crit = self.crit 
+        acc = self.acc 
         
+    def pistol_shot(self):
+        self_tile = [1,2,3]
+        target = [1,2,3]
+        dmg = (random.choice(self.dmg_range) + self.dmgmod) * 0.95
+        crit = self.crit + 0.075
+        acc = self.acc - 0.05
         
-    def pistol_shot():
+    def grapeshot_blast(self):
+        self_tile = [1,2]
+        target = (0,1,2)
+        dmg = (random.choice(self.dmg_range) + self.dmgmod) * -0.4
+        crit = self.crit - 0.09
+        acc = self.acc - 0.2
         
+    def open_vein(self):
+        self_tile = [0,1,2]
+        target = [0,1]
+        dmg = (random.choice(self.dmg_range) + self.dmgmod) * -0.15
+        crit = 0
+        acc = self.acc
+        #apply_bleed(target)
         
-    def grapeshot_blast():
-        
-        
-    def open_vein():
-        
-        
-    def take_aim():
-        
-        
+    def take_aim(self):
+        self_tile = [0,1,2,3]
+        self.acc += 0.15
+        self.dmg = 2
+        self.crit = self.crit + 0.2
+        self.speed += 2
 
 #main game loop
 run = True
