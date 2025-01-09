@@ -108,6 +108,16 @@ class Highwayman(Person):
         self.crit = self.crit + 0.2
         self.speed += 2
 
+=======
+class Bandit(Person):
+    def __init__(self,x,y,name):
+        pass
+        
+    
+tile_size = 1000
+party_position = 0
+map_tiles = [0,0,1,0,0,1]
+#main game loop
 run = True
 while run:
     clock.tick(FPS)
@@ -116,15 +126,23 @@ while run:
     #update scroll only when d is pressed
     if key[pygame.K_d]:
         scroll -= 3
+        party_position += 3
         
     if key[pygame.K_a]:
         scroll += 2
+        party_position -= 2
 
     
     #insert the background image into the screen queue while scrolling
     for i in range(0,tiles):
         display.blit(bg, (i * bg.get_width() + scroll,0))
         
+    # Check for battle triggers
+    current_tile = party_position // tile_size  # Calculate which tile the player is on (round down)
+    if map_tiles[current_tile] == 1:
+        print("AAAAAAAAAAAAAAAAAAAAA")
+        
+    
     #When we have scrolled past the screen reset the queue
     if abs(scroll) > bg.get_width():
         scroll = 0
