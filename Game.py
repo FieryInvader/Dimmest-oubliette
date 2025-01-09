@@ -199,7 +199,7 @@ class Vestal(Person):
 class Cutthroat(Person):
     def __init__(self,x,y,name,position):
         #fixer pls
-        super().__init__(x, y, name, 12, 0.725, 0.12,0.025, 3, position)
+        super().__init__(x, y, name, 12, 0.12,0.025, 3, position)
         
     def Slice_and_dice(self):
         self_tile = [0,1,2]
