@@ -7,6 +7,7 @@ pygame.init()
 class Square(pygame.sprite.Sprite):     #Note: create specific hero classes for abilities and stuff
     def __init__(self, x, y,name):
         pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(f"images/heroes/{name}.png")
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
     
@@ -49,28 +50,27 @@ party.add(junia)
 
 
 class Person():
-    def __init__(self,x, y, name, health, accuracy, critical, damage,
-                 dodge, speed):
+    def __init__(self,x, y, name, health, critical,
+                 dodge, speed,position):
         #visuals
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load(f"images/{name}.png")
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
+        self.position = position
         #stats
         self.hp = health
         self.stress = 0
-        self.acc = accuracy
         self.crit = critical
-        self.dmg = damage
         self.dodge = dodge
         self.speed = speed
         self.dmgmod = 0
         
 class Highwayman(Person):
-    def __init__(self, x, y, name):
+    def __init__(self, x, y, name, position):
         #initialize parent class
         self.dmg_range = [i for i in range(5,11)]
-        super().__init__(x, y, name, 23 , 0.9, 0.05 , self.dmg_range, 0.14, 7)
+        super().__init__(x, y, name, 23 , 0.9, 0.05 , 0.14, 7,position)
         
     def wicked_slice(self):
         position = [0,1]
@@ -104,19 +104,54 @@ class Highwayman(Person):
     def take_aim(self):
         position = [0,1,2,3]
         self.acc += 0.15
-        self.dmg = 2
+        self.dmgmod = 2
         self.crit = self.crit + 0.2
         self.speed += 2
 
+<<<<<<< Updated upstream
 =======
 class Bandit(Person):
     def __init__(self,x,y,name):
         pass
+=======
+class Cutthroat(Person):
+    def __init__(self,x,y,name,position):
+        super().__init__(x, y, name, 12, 0.725, 0.12,0.025, 3, position)
+>>>>>>> Stashed changes
         
-    
+    def Slice_and_dice(self):
+        self_tile = [0,1,2]
+        target = (0,1)
+        dmg = random.choice(range(3,6))
+        crit = 0.12
+        
+    def Uppercut_Slice(self):
+        self_tile = [0,1]
+        target = [0,1]
+        dmg = random.choice(range(2,5))
+        crit = 0.06
+
+    def Shank(self):
+        self_tile = [0,1,2]
+        target = [0,1,2,3]
+        dmg = random.choice(range(4,9))
+        crit = 0.06
+        #apply_bleed(target,ammount,duration)
+
+class Fusilier(Person):
+    def __init__(self, x, y, name,position):
+        super().__init__(x,y,name,12,0.725,0.01,0.075,6)
+        
+    def Blanket(self):
+        self_tile = [1,2,3]
+        target = (0,1,2,3)
+        dmg = random.choice(range(1,5))
+        crit = 0.02
+        
+COMBAT = pygame.USEREVENT + 1
 tile_size = 1000
 party_position = 0
-map_tiles = [0,0,1,0,0,1]
+map_tiles = [0,0,1,0,2,1]
 #main game loop
 run = True
 while run:
@@ -140,15 +175,20 @@ while run:
     # Check for battle triggers
     current_tile = party_position // tile_size  # Calculate which tile the player is on (round down)
     if map_tiles[current_tile] == 1:
-        print("AAAAAAAAAAAAAAAAAAAAA")
+        pygame.event.post(pygame.event.Event(COMBAT))
         
     
     #When we have scrolled past the screen reset the queue
     if abs(scroll) > bg.get_width():
         scroll = 0
     for event in pygame.event.get():
+        fighting = False
         if event.type == pygame.QUIT:
             run = False
+        if event.type == COMBAT:
+            fighting = True
+            while fighting:
+                pass
 
 
 
