@@ -246,15 +246,16 @@ display = screen.set_mode((screen_width,screen_height))
 red = (255,0,0)
 dark_red = (168,10,10)
 yellow = (233,200,85)
-grey = (80,80,80) 
+grey = (200,200,200) 
 black = (0,0,0)
 white = (200,200,200)
 
-font = pygame.font.SysFont('Times New Roman', 20)      
+font = pygame.font.SysFont('Comic sans', 20) 
+font_small = pygame.font.SysFont('Comic sans', 16)     
  
 #Text creation
-def draw_text(text, font, text_col, x, y):
-    img = font.render(text, True, text_col)
+def draw_text(text, font, colour, x, y):
+    img = font.render(text, True, colour)
     display.blit(img, (x, y))
     
 def draw_panel():
@@ -267,7 +268,6 @@ def draw_panel():
     display.blit(right_panel, (1380, 575))
     display.blit(panel_hero, (220, 700))
     display.blit(panel_banner, (194, 580))
-    
 
 def draw_hero(hero):
     icon = pygame.image.load(f"images/heroes/{hero.name}_icon.png")
@@ -283,21 +283,17 @@ def draw_hero(hero):
     display.blit(icon, (445 + next_icon, 607))
     next_icon += 62
     icon = pygame.image.load("images/heroes/ability_pass.png")
-    display.blit(icon, (445 + next_icon, 607))       
-    
+    display.blit(icon, (445 + next_icon, 607))   
 
-class Bandit(Person):
-    def __init__(self,x,y,name):
-        pass
-
-def draw_text(text, text_col, x, y):
-    img = pygame.font.SysFont('Times New Roman', 26).render(text, True, text_col)
-    screen.blit(img, x, y)
+    health = f"{hero.current_hp}/{hero.max_hp}"
+    draw_text(health, font_small, dark_red, 280, 707)
+    stress = f"{hero.stress}/100"
+    draw_text(stress, font_small, grey, 280, 730)
     
 clock = pygame.time.Clock()
 FPS = 60
-screen_width = 1800
-screen_height = 1000
+screen_width = 1600
+screen_height = 900
 screen = pygame.display
 screen.set_caption('Dimmest oubliette')
 display = screen.set_mode((screen_width,screen_height))
@@ -313,10 +309,10 @@ tiles = math.ceil(screen_width / bg.get_width()) + 1
 scroll = 0
 
 #hero init (well theyre not bloody villains)
-dismas = Highwayman(400, 560,'Dismas',1)
-reynauld = Crusader(530,555,'Reynauld',0)
-paracelcus = Plague_Doctor(230,560,'Paracelsus',2)
-junia = Vestal(100,560,'Junia',3)
+dismas = Highwayman(400, 400,'Dismas',1)
+reynauld = Crusader(530,390,'Reynauld',0)
+paracelcus = Plague_Doctor(230,400,'Paracelsus',2)
+junia = Vestal(100,400,'Junia',3)
 
 #creating a group of sprites for heroes
 party = pygame.sprite.Group()
@@ -325,18 +321,18 @@ party.add(reynauld)
 party.add(paracelcus)
 party.add(junia)
 
-
-        
    
-enemy1 = Cutthroat(800, 560, 'cutthroat', 0)        
-enemy2 = Cutthroat(900, 560, 'cutthroat', 1)
-enemy3 = Fusilier(1000, 560, 'fusilier', 2)
-enemy4 = Fusilier(1100, 560, 'fusilier', 3)
+enemy1 = Cutthroat(800, 400, 'cutthroat', 0)        
+enemy2 = Cutthroat(900, 400, 'cutthroat', 1)
+enemy3 = Fusilier(1000, 400, 'fusilier', 2)
+enemy4 = Fusilier(1100, 400, 'fusilier', 3)
 
 COMBAT = pygame.USEREVENT + 1
 tile_size = 1000
 party_position = 0
 map_tiles = [0,0,1,0,2,1]
+
+
 #main game loop
 run = True
 while run:
