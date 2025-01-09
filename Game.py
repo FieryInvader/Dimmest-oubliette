@@ -88,7 +88,7 @@ while run:
         
     if key[pygame.K_a]:
         scroll += 2
->>>>>>> Stashed changes
+
     
     #insert the background image into the screen queue while scrolling
     for i in range(0,tiles):
