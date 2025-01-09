@@ -17,12 +17,13 @@ white = (200,200,200)
 #apply_stun(self,target)
 
 class Person(pygame.sprite.Sprite):
-    def __init__(self,x, y, name, health, critical, dodge, speed):
+    def __init__(self,x, y, name, health, critical, dodge, speed,position):
         #visuals
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load(f"images/heroes/{name}.png")
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
+        self.position = position
         #stats
         self.hp = health
         self.stress = 0
@@ -32,12 +33,49 @@ class Person(pygame.sprite.Sprite):
         self.dmgmod = 0
         self.deathblow_res = 0.67
         
+    def draw(self):
+        display.blit(self.image, self.rect)
+
+class Cutthroat(Person):
+    def __init__(self,x,y,name,position):
+        super().__init__(x, y, name, 12, 0.12,0.025, 3, position)
+
+        
+    def Slice_and_dice(self):
+        self_tile = [0,1,2]
+        target = (0,1)
+        dmg = random.choice(range(3,6))
+        crit = 0.12
+        
+    def Uppercut_Slice(self):
+        self_tile = [0,1]
+        target = [0,1]
+        dmg = random.choice(range(2,5))
+        crit = 0.06
+
+    def Shank(self):
+        self_tile = [0,1,2]
+        target = [0,1,2,3]
+        dmg = random.choice(range(4,9))
+        crit = 0.06
+        #apply_bleed(target,ammount,duration)
+
+class Fusilier(Person):
+    def __init__(self, x, y, name,position):
+        super().__init__(x,y,name,12,0.725,0.01,0.075,6)
+        
+    def Blanket(self):
+        self_tile = [1,2,3]
+        target = (0,1,2,3)
+        dmg = random.choice(range(1,5))
+        crit = 0.02
+        
         
 class Highwayman(Person):
-    def __init__(self, x, y, name):
+    def __init__(self, x, y, name,position):
         #initialize parent class
         self.dmg_range = [i for i in range(5,11)]
-        super().__init__(x, y, name, 23, 0.05, 0.1, 5)
+        super().__init__(x, y, name, 23, 0.05, 0.1, 5,position)
         
     def wicked_slice(self):
         ability_type = 'Attack'
@@ -81,10 +119,10 @@ class Highwayman(Person):
         self.speed += 2
         
 class Crusader(Person):
-    def __init__(self, x, y, name):
+    def __init__(self, x, y, name,position):
         #initialize parent class
         self.dmg_range = [i for i in range(6,13)]
-        super().__init__(x, y, name, 33, 0.03, 0.05, 1)
+        super().__init__(x, y, name, 33, 0.03, 0.05, 1,position)
         
     def smite(self):
         ability_type = 'Attack'
@@ -123,10 +161,10 @@ class Crusader(Person):
         #stressheal(target,1)
         
 class Plague_Doctor(Person):
-    def __init__(self, x, y, name):
+    def __init__(self, x, y, name,position):
         #initialize parent class
         self.dmg_range = [i for i in range(4,8)]
-        super().__init__(x, y, name, 22, 0.02, 0.01, 7)
+        super().__init__(x, y, name, 22, 0.02, 0.01, 7,position)
         
     def noxious_blast(self):
         ability_type = 'Attack'
@@ -172,10 +210,10 @@ class Plague_Doctor(Person):
         #cure(target)
         
 class Vestal(Person):
-    def __init__(self, x, y, name):
+    def __init__(self, x, y, name,position):
         #initialize parent class
         self.dmg_range = [i for i in range(4,9)]
-        super().__init__(x, y, name, 24, 0.01, 0.01, 4)
+        super().__init__(x, y, name, 24, 0.01, 0.01, 4,position)
         
     def dazzling_light(self):
         ability_type = 'Attack'
@@ -224,8 +262,8 @@ def draw_text(text, text_col, x, y):
     
 clock = pygame.time.Clock()
 FPS = 60
-screen_width = 1500
-screen_height = 900
+screen_width = 1800
+screen_height = 1000
 screen = pygame.display
 screen.set_caption('Dimmest oubliet')
 display = screen.set_mode((screen_width,screen_height))
@@ -241,10 +279,10 @@ tiles = math.ceil(screen_width / bg.get_width()) + 1
 scroll = 0
 
 #hero init
-dismas = Highwayman(400, 560,'dismas')
-reynauld = Crusader(530,555,'reynauld')
-paracelcus = Plague_Doctor(230,560,'paracelsus')
-junia = Vestal(100,560,'junia')
+dismas = Highwayman(400, 560,'dismas',1)
+reynauld = Crusader(530,555,'reynauld',0)
+paracelcus = Plague_Doctor(230,560,'paracelsus',2)
+junia = Vestal(100,560,'junia',3)
 
 #creating a group of sprites for heroes
 party = pygame.sprite.Group()
@@ -253,103 +291,12 @@ party.add(reynauld)
 party.add(paracelcus)
 party.add(junia)
 
+   
+enemy1 = Cutthroat(800, 560, 'cutthroat', 0)        
+enemy2 = Cutthroat(900, 560, 'cutthroat', 1)
+enemy3 = Fusilier(1000, 560, 'fusilier', 2)
+enemy4 = Fusilier(1100, 560, 'fusilier', 3)
 
-
-=======
-class Person():
-    def __init__(self,x, y, name, health, critical,
-                 dodge, speed,position):
-        #visuals
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(f"images/{name}.png")
-        self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
-        self.position = position
-        #stats
-        self.hp = health
-        self.stress = 0
-        self.crit = critical
-        self.dodge = dodge
-        self.speed = speed
-        self.dmgmod = 0
-        
-class Highwayman(Person):
-    def __init__(self, x, y, name, position):
-        #initialize parent class
-        self.dmg_range = [i for i in range(5,11)]
-        super().__init__(x, y, name, 23 , 0.9, 0.05 , 0.14, 7,position)
-        
-    def wicked_slice(self):
-        position = [0,1]
-        target = [0,1]
-        dmg = (random.choice(self.dmg_range) + self.dmgmod) * 1.15
-        crit = self.crit + 0.05
-        acc = self.acc  - 0.1
-        
-    def pistol_shot(self):
-        position = [1,2,3]
-        target = [1,2,3]
-        dmg = (random.choice(self.dmg_range) + self.dmgmod) * 0.95
-        crit = self.crit + 0.075
-        acc = self.acc - 0.05
-        
-    def grapeshot_blast(self):
-        position = [1,2]
-        target = (0,1,2)
-        dmg = (random.choice(self.dmg_range) + self.dmgmod) * -0.4
-        crit = self.crit - 0.09
-        acc = self.acc - 0.2
-        
-    def open_vein(self):
-        position = [0,1,2]
-        target = [0,1]
-        dmg = (random.choice(self.dmg_range) + self.dmgmod) * -0.15
-        crit = 0
-        acc = self.acc
-        #apply_bleed(target)
-        
-    def take_aim(self):
-        position = [0,1,2,3]
-        self.acc += 0.15
-        self.dmgmod = 2
-        self.crit = self.crit + 0.2
-        self.speed += 2
-
-class Cutthroat(Person):
-    def __init__(self,x,y,name,position):
-        super().__init__(x, y, name, 12, 0.725, 0.12,0.025, 3, position)
-
->>>>>>> 28cd73204d5f87db91fff00af67fd9b2d740640d
-        
-    def Slice_and_dice(self):
-        self_tile = [0,1,2]
-        target = (0,1)
-        dmg = random.choice(range(3,6))
-        crit = 0.12
-        
-    def Uppercut_Slice(self):
-        self_tile = [0,1]
-        target = [0,1]
-        dmg = random.choice(range(2,5))
-        crit = 0.06
-
-    def Shank(self):
-        self_tile = [0,1,2]
-        target = [0,1,2,3]
-        dmg = random.choice(range(4,9))
-        crit = 0.06
-        #apply_bleed(target,ammount,duration)
-
-class Fusilier(Person):
-    def __init__(self, x, y, name,position):
-        super().__init__(x,y,name,12,0.725,0.01,0.075,6)
-        
-    def Blanket(self):
-        self_tile = [1,2,3]
-        target = (0,1,2,3)
-        dmg = random.choice(range(1,5))
-        crit = 0.02
-        
 COMBAT = pygame.USEREVENT + 1
 tile_size = 1000
 party_position = 0
@@ -389,12 +336,11 @@ while run:
             run = False
         if event.type == COMBAT:
             fighting = True
+            
             while fighting:
                 pass
 
-
-
-
+    enemy1.draw()
     party.draw(display)
     pygame.display.update()
 
