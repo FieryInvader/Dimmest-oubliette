@@ -6,7 +6,6 @@ pygame.init()
 class Square(pygame.sprite.Sprite):     #Note: create specific hero classes for abilities and stuff
     def __init__(self, x, y,name):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(f"images/heroes/{name}.png")
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
     
@@ -16,8 +15,6 @@ class Square(pygame.sprite.Sprite):     #Note: create specific hero classes for 
     #     elif key[pygame.K_a]:
     #         self.rect.move_ip(-1,0)
 
-
-#display setup
 clock = pygame.time.Clock()
 FPS = 60
 screen_width = 1500
@@ -73,6 +70,19 @@ class Highwayman(Person):
         self.dmg_range = [i for i in range(5,11)]
         super().__init__(x, y, name, 23 , 0.9, 0.05 , self.dmg_range, 0.14, 7)
         
+    def wicked_slice():
+        
+        
+    def pistol_shot():
+        
+        
+    def grapeshot_blast():
+        
+        
+    def open_vein():
+        
+        
+    def take_aim():
         
         
 
