@@ -31,8 +31,12 @@ class Person(pygame.sprite.Sprite):
         self.deathblow_res = 0.67
 
         
-    def draw(self):
-        display.blit(self.image, self.rect)
+    def draw(self, flip = False):
+        if flip == True:
+            display.blit(pygame.transform.flip(self.image, True, False), self.rect)
+        else:
+            display.blit(self.image, self.rect)
+        
 
 class Highwayman(Person):
     def __init__(self, x, y, name,position):
@@ -323,10 +327,17 @@ party.add(paracelcus)
 party.add(junia)
 
    
-enemy1 = Cutthroat(800, 400, 'cutthroat', 0)        
-enemy2 = Cutthroat(900, 400, 'cutthroat', 1)
-enemy3 = Fusilier(1000, 400, 'fusilier', 2)
-enemy4 = Fusilier(1100, 400, 'fusilier', 3)
+enemy1 = Cutthroat(900, 410, 'cutthroat', 0)        
+enemy2 = Cutthroat(1070, 410, 'cutthroat', 1)
+enemy3 = Fusilier(1240, 410, 'fusilier', 2)
+enemy4 = Fusilier(1400, 410, 'fusilier', 3)
+
+enemy_list = []
+enemy_list.append(enemy1)
+enemy_list.append(enemy2)
+enemy_list.append(enemy3)
+enemy_list.append(enemy4)
+
 
 COMBAT = pygame.USEREVENT + 1
 tile_size = 1000
@@ -373,8 +384,9 @@ while run:
             
             while fighting:
                 pass
-
-    enemy1.draw()
+#Testing, move this code inside the combat
+    for enemy in enemy_list:
+        enemy.draw(flip=True)
     party.draw(display)
     pygame.display.update()
 
