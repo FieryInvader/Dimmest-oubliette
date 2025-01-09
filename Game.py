@@ -198,18 +198,19 @@ class Vestal(Person):
         target = (0,1,2,3)
         #heal(target,5)
         
-    def prayer(self):
-        ability_type = 'Util'
+    def judgement(self):
+        ability_type = 'Attack'
         position = [2,3]
-        target = [0,1,2,3]
-        #if target.stress >= 5
-            #stressheal(target,2)
+        target = (0,1,2,3)
+        dmg = (random.choice(self.dmg_range) + self.dmgmod) * 0.5
+        crit = self.crit * 1.05
+        acc = 0.85
         
     def illumination(self):
         ability_type = 'Attack'
         position = [0,1,2,3]
         target = [0,1,2,3]
-        dmg = (random.choice(self.dmg_range) + self.dmgmod) * 1.5
+        dmg = (random.choice(self.dmg_range) + self.dmgmod) * 2
         crit = self.crit * 1.05
         acc = 0.90
 
