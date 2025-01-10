@@ -29,7 +29,7 @@ def apply_bleed(target,damage,rounds):
 #apply_stun(self,target)
 
 #button class
-class Button():
+class Button(pygame.sprite.Sprite):
     def __init__(self, surface, x, y, image, ability):
         self.x = x
         self.y = y
@@ -55,6 +55,7 @@ class Button():
             else:
                 icon = pygame.image.load("images/heroes/focused_pass.png")
                 display.blit(icon, (self.x-36, self.y-15)) 
+                
             if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False: #on click
                 self.clicked = True
 
@@ -62,8 +63,8 @@ class Button():
         #     self.clicked = False
 
         if self.clicked == True:
-            if self.ability != False:
-                self.ability.selected()
+            if self.ability != "pass":
+                self.ability.selected(self.x,self.y)
                 action -= 1
             else:
                 icon = pygame.image.load("images/heroes/selected_pass.png")
@@ -143,12 +144,20 @@ class ability():
         self.dot = dot
         self.cure = cure
         
-    def selected(self):
+    def selected(self,x,y):
         icon = pygame.image.load("images/heroes/selected_ability.png")
-        display.blit(icon, (self.x-15, self.y-15)) 
+        display.blit(icon, (x-15, y-15))
         for t in self.target:
-            target_icon = pygame.image.load("images/targets/target_1.png")
-            display.blit(target_icon, (900 + 150*t, 450))
+            if type(t)==tuple:
+                for a in t:
+                    target_icon = pygame.image.load("images/targets/target_1.png")
+                    display.blit(target_icon, (820 + 150*a, 460))
+                    if a != 3:
+                        plus = pygame.image.load("images/targets/plus.png")
+                        display.blit(plus, (957 + 150*a, 600))
+            else:
+                target_icon = pygame.image.load("images/targets/target_1.png")
+                display.blit(target_icon, (820 + 150*t, 460))
         
         
         
@@ -184,7 +193,7 @@ class Crusader(Person):
         self.smite = ability('smite',[0,1], [0,1],random.choice(self.dmg_range) + self.dmgmod , 'Attack', self.crit,0.85)
         self.zealous_accusation = ability('zealous_accusation',[0,1],[(0,1)],math.floor((random.choice(self.dmg_range)+self.dmgmod)* 0.6),'Attack',self.crit*0.96,0.85)
         self.stunning_blow = ability('stunning_blow',[0,1],[0,1],math.floor((random.choice(self.dmg_range) + self.dmgmod) * 0.5),'Attack',self.crit,0.9)
-        self.inspiring_cry = ability('ispiring_cry',[0,1,2,3],[0,1,2,3],1,'Util',self.crit,1)
+        self.inspiring_cry = ability('inspiring_cry',[0,1,2,3],[0,1,2,3],1,'Util',self.crit,1)
         self.battle_heal = ability('battle_heal',[0,1,2,3],[0,1,2,3],random.choice([2,3]),'Util',self.crit,1)
       
         self.abilities.append(self.smite)
@@ -289,6 +298,7 @@ def draw_panel():
 
 def draw_hero(hero):
     #hero icon
+    # group = pygame.sprite.Group()
     icon = pygame.image.load(f"images/heroes/{hero.name}_icon.png")
     display.blit(icon, (245, 605))
     draw_text(hero.name, font, yellow, 320, 620)
@@ -318,6 +328,12 @@ def draw_hero(hero):
     ability_pass = Button(display, 445 + next_icon, 607, img, "pass")
     ability_pass.draw()
     next_icon += 62  
+    # ability0.add(group)
+    # ability1.add(group)
+    # ability2.add(group)
+    # ability3.add(group)
+    # ability4.add(group)
+    # ability_pass(group)
     
     #hero stats 
     draw_text(f"{hero.current_hp}/{hero.max_hp}", font_small, dark_red, 310, 707)
@@ -342,14 +358,14 @@ scroll = 0
 #hero init (well theyre not bloody villains)
 dismas = Highwayman(400, 400,'Dismas',1)
 reynauld = Crusader(530,400,'Reynauld',0)
-paracelcus = Plague_Doctor(230,400,'Paracelsus',2)
+paracelsus = Plague_Doctor(230,400,'Paracelsus',2)
 junia = Vestal(100,400,'Junia',3)
 
 #creating a group of sprites for heroes
 party = []
 party.append(dismas)
 party.append(reynauld)
-party.append(paracelcus)
+party.append(paracelsus)
 party.append(junia)
 
    
@@ -395,9 +411,10 @@ while run:
     current_tile = party_position // tile_size  # Calculate which tile the player is on (round down)
     if map_tiles[current_tile] == 1:
         pygame.event.post(pygame.event.Event(COMBAT))
-        
+     
     draw_panel()
-    draw_hero(dismas)
+    draw_hero(paracelsus)
+    
     #When we have scrolled past the screen reset the queue
     if abs(scroll) > bg.get_width():
         scroll = 0
