@@ -26,7 +26,8 @@ def apply_bleed(target,damage,rounds):
         indicator[1] += b[1]
     return indicator
 
-#apply_stun(self,target)
+def apply_stun(target):
+    target.action_token -= 1
 
 #button class
 class Button(pygame.sprite.Sprite):
@@ -131,8 +132,13 @@ class Person(pygame.sprite.Sprite):
                 display.blit(full_stress, (self.x-40+i*9.5,self.y+160))
                 
     def take_action(self):
-        pass
+        action = True
+        while action:
+            draw_hero(self)
+            pygame.display.update()
             
+    
+
 class ability():
     def __init__(self,name,position,target,dmg,Type,crit,accuracy,status = '', rounds = 0,dot = 0, cure = False):
         self.name = name
@@ -150,6 +156,7 @@ class ability():
     def selected(self,x,y):
         icon = pygame.image.load("images/heroes/selected_ability.png")
         display.blit(icon, (x-15, y-15))
+        pos = pygame.mouse.get_pos()
         for t in self.target:
             if type(t)==tuple:
                 for a in t:
@@ -161,6 +168,30 @@ class ability():
             else:
                 target_icon = pygame.image.load("images/targets/target_1.png")
                 display.blit(target_icon, (820 + 150*t, 460))
+            for enemy in enemy_list:
+                if enemy.position == t:
+                    if enemy.collidepoint(pos): #ON HOVER
+                        if pygame.mouse.get_pressed()[0] == 1:
+                            if self.ability != "pass":
+                                self.proc(enemy)
+                            else:
+                                icon = pygame.image.load("images/heroes/focused_pass.png")
+                                display.blit(icon, (self.x-36, self.y-15)) 
+                                
+                            if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False: #on click
+                                self.clicked = True
+                    
+    def proc(self,target):
+        if self.Type == 'Attack':
+            apply_dmg(target, self.dmg)
+            if self.status == 'Blight':
+                apply_blight(target, self.dot, self.rounds)
+            elif self.status == 'Bleed':
+                apply_bleed(target, self.dot, self.rounds)
+            elif self.status == 'Stun':
+                apply_stun(target)
+        else:
+            pass#problem for another day
         
         
         
@@ -434,16 +465,21 @@ while run:
         if event.type == COMBAT:
             fighting = True
             initiative = []
-            while fighting:
-                for member in party:
-                    initiative.append((random.choice(range(9)) + member.speed,0,member))
+        while fighting:
+            for member in party:
+                initiative.append((random.choice(range(9)) + member.speed,0,member))
+            for enemy in enemy_list:
+                initiative.append((random.choice(range(9)) + enemy.speed,1,enemy))
+            initiative.sort(key = lambda tup: tup[1])
+            for roll, team, person in initiative:
                 for enemy in enemy_list:
-                    initiative.append((random.choice(range(9)) + enemy.speed,1,enemy))
-                initiative.sort(key = lambda tup: tup[1])
-                for roll, team, person in initiative:
-                    if team == 0:
-                        draw_hero(person)
-                        pygame.display.update()
+                    enemy.draw(enemy.current_hp,flip=True)
+                
+                for member in party:
+                    member.draw(member.current_hp)
+                if team == 0:
+                    pygame.display.update()
+                    person.take_action()
             
             
 #Testing, move this code inside the combat
