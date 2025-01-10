@@ -53,9 +53,23 @@ class Button(pygame.sprite.Sprite):
                 icon = pygame.image.load("images/heroes/focused_pass.png")
                 display.blit(icon, (self.x-36, self.y-15))
             if pygame.mouse.get_pressed()[0] == 1:
-                self.ability.selected()
+                if self.ability != "pass":
+                    icon = pygame.image.load("images/heroes/selected_ability.png")
+                    display.blit(icon, (self.x-15, self.y-15)) 
+                else:
+                    icon = pygame.image.load("images/heroes/selected_pass.png")
+                    display.blit(icon, (self.x-36, self.y-15))               
             
-                    
+    
+    def wait_action(self):
+        action_taken = False
+        pos = pygame.mouse.get_pos()
+        if not action_taken:
+            if self.rect.collidepoint(pos): #ON HOVER
+                if pygame.mouse.get_pressed()[0] == 1:
+                    action_taken = True
+        return action_taken,self
+
                 
 #     def draw(self):
 #         #draw button
@@ -154,7 +168,6 @@ class Person(pygame.sprite.Sprite):
     #     if
             
 
-            
     
 
 class ability():
@@ -403,10 +416,8 @@ def draw_hero(hero):
     draw_text("DMG", font_med, grey, 260, 800)
     draw_text("DODGE", font_med, grey, 260, 820)
     draw_text("SPD", font_med, grey, 260, 840)
-    button_list = [ability0,ability1,ability2,ability3,ability4,ability_pass]
-
-    return button_list
     
+    return [ability0,ability1,ability2,ability3,ability4,ability_pass]
 
 #load background
 bg = pygame.image.load('images/dungeon/hallway2.png')
@@ -488,21 +499,30 @@ while run:
             fighting = True
             initiative = []
         if fighting:
+            for enemy in enemy_list:
+                enemy.draw(enemy.current_hp,flip=True)
+            for member in party:
+                member.draw(member.current_hp)
             for member in party:
                 initiative.append((random.choice(range(9)) + member.speed,0,member))
             for enemy in enemy_list:
                 initiative.append((random.choice(range(9)) + enemy.speed,1,enemy))
             initiative.sort(key = lambda tup: tup[1])
             for roll, team, person in initiative:
-                for enemy in enemy_list:
-                    enemy.draw(enemy.current_hp,flip=True)
-                
-                for member in party:
-                    member.draw(member.current_hp)
                 if team == 0:
-                    draw_hero(person)
-            
-            
+                    buttons = draw_hero(person)
+                    stop = False
+                    while not stop:
+                        pygame.display.update()
+                        pos = pygame.mouse.get_pos()
+                        for event in pygame.event.get():
+                            fighting = False
+                            if event.type == pygame.QUIT:
+                                pygame.quit()
+                            for button in buttons:
+                                
+                                if event.type == pygame.MOUSEBUTTONDOWN and button.rect.collidepoint(pos):
+                                    stop = True
     
     for member in party:
         member.draw(member.current_hp)
