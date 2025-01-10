@@ -44,12 +44,25 @@ class Button():
         self.surface.blit(self.image, (self.rect.x, self.rect.y))
 
         return action 
+#Colours
+red = (255,0,0)
+dark_red = (168,10,10)
+yellow = (233,200,85)
+grey = (200,200,200) 
+black = (0,0,0)
+white = (200,200,200)
+dark_grey = (100,100,100)
+
+empty_stress = pygame.image.load(f"images/heroes/stress_empty.png")
+full_stress = pygame.image.load(f"images/heroes/stress_full.png")
 
 #Classes for our heroes
 class Person(pygame.sprite.Sprite):
     def __init__(self, x, y, name, health, critical, dodge, speed, position):
         #visuals
         pygame.sprite.Sprite.__init__(self)
+        self.x = x
+        self.y = y
         self.name = name
         self.image = pygame.image.load(f"images/heroes/{name}.png")
         self.rect = self.image.get_rect()
@@ -66,11 +79,22 @@ class Person(pygame.sprite.Sprite):
         self.deathblow_res = 0.67
 
         
-    def draw(self, flip = False):
+    def draw(self,hp, flip = False):
+        self.current_hp = hp
+        ratio = self.current_hp / self.max_hp
         if flip == True:
             display.blit(pygame.transform.flip(self.image, True, False), self.rect)
+            pygame.draw.rect(display, dark_grey, (self.x-40,self.y+150,100,10))
+            pygame.draw.rect(display, red, (self.x-40,self.y+150,100*ratio,10))
         else:
             display.blit(self.image, self.rect)
+            pygame.draw.rect(display, dark_grey, (self.x-40,self.y+150,100,10))
+            pygame.draw.rect(display, red, (self.x-40,self.y+150,100*ratio,10))
+            for i in range(11):
+                display.blit(empty_stress, (self.x-40+i*9.5,self.y+160))
+            for i in range(self.stress):
+                display.blit(full_stress, (self.x-40+i*9.5,self.y+160))
+            
         
 
 class Highwayman(Person):
@@ -282,13 +306,6 @@ screen = pygame.display
 screen.set_caption('Dimmest oubliette')
 display = screen.set_mode((screen_width,screen_height))
 
-#Colours
-red = (255,0,0)
-dark_red = (168,10,10)
-yellow = (233,200,85)
-grey = (200,200,200) 
-black = (0,0,0)
-white = (200,200,200)
 
 font = pygame.font.SysFont('Comic sans', 20) 
 font_small = pygame.font.SysFont('Comic sans', 16)     
@@ -356,22 +373,22 @@ scroll = 0
 
 #hero init (well theyre not bloody villains)
 dismas = Highwayman(400, 400,'Dismas',1)
-reynauld = Crusader(530,390,'Reynauld',0)
+reynauld = Crusader(530,400,'Reynauld',0)
 paracelcus = Plague_Doctor(230,400,'Paracelsus',2)
 junia = Vestal(100,400,'Junia',3)
 
 #creating a group of sprites for heroes
-party = pygame.sprite.Group()
-party.add(dismas)
-party.add(reynauld)
-party.add(paracelcus)
-party.add(junia)
+party = []
+party.append(dismas)
+party.append(reynauld)
+party.append(paracelcus)
+party.append(junia)
 
    
 enemy1 = Cutthroat(900, 410, 'cutthroat', 0)        
-enemy2 = Cutthroat(1070, 410, 'cutthroat', 1)
-enemy3 = Fusilier(1240, 410, 'fusilier', 2)
-enemy4 = Fusilier(1400, 410, 'fusilier', 3)
+enemy2 = Cutthroat(1050, 410, 'cutthroat', 1)
+enemy3 = Fusilier(1200, 410, 'fusilier', 2)
+enemy4 = Fusilier(1350, 410, 'fusilier', 3)
 
 enemy_list = []
 enemy_list.append(enemy1)
@@ -416,6 +433,7 @@ while run:
     #When we have scrolled past the screen reset the queue
     if abs(scroll) > bg.get_width():
         scroll = 0
+    
     for event in pygame.event.get():
         fighting = False
         if event.type == pygame.QUIT:
@@ -425,10 +443,14 @@ while run:
             
             while fighting:
                 pass
+            
+            
 #Testing, move this code inside the combat
     for enemy in enemy_list:
-        enemy.draw(flip=True)
-    party.draw(display)
+        enemy.draw(enemy.current_hp,flip=True)
+    
+    for member in party:
+        member.draw(member.current_hp)
     pygame.display.update()
 
 pygame.quit()
