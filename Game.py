@@ -184,17 +184,11 @@ class Plague_Doctor(Person):
                         "blinding_gas", "battlefield_medicine"]
         super().__init__(x, y, name, 22, 0.02, 0.01, 7, position)
         
-        noxious_blast = ability([1,2,3],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.2,self.crit,0.95,status = 'Blight',rounds = 3,dot= 5 )
-        plague_grenade = ability([1,2,3],[(2,3)],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.1,self.crit,0.95,status = 'Blight',rounds = 3,dot= 4 )
-        blinding_gas = ability([2,3],[(2,3)],0,0,0.95,status = 'Stun')        
+        noxious_blast = ability([1,2,3],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.2,'Attack',self.crit,0.95,status = 'Blight',rounds = 3,dot= 5 )
+        plague_grenade = ability([1,2,3],[(2,3)],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.1,'Attack',self.crit,0.95,status = 'Blight',rounds = 3,dot= 4 )
+        blinding_gas = ability([2,3],[(2,3)],0,'Attack',0,0.95,status = 'Stun')        
         battlefield_medicine = ability([2,3],[0,1,2,3],1,'Util',self.crit,1)
         
-    def battlefield_medicine(self):
-        ability_type = 'Util'
-        position = [2,3]
-        target = [0,1,2,3]
-        #heal(target,1)
-        #cure(target)
         
 class Vestal(Person):
     def __init__(self, x, y, name, position):
