@@ -129,6 +129,9 @@ class Person(pygame.sprite.Sprite):
                 display.blit(empty_stress, (self.x-40+i*9.5,self.y+160))
             for i in range(self.stress):
                 display.blit(full_stress, (self.x-40+i*9.5,self.y+160))
+                
+    def take_action(self):
+        pass
             
 class ability():
     def __init__(self,name,position,target,dmg,Type,crit,accuracy,status = '', rounds = 0,dot = 0, cure = False):
@@ -256,6 +259,9 @@ class Cutthroat(Person):
         self.abilities.append(self.Slice_and_dice)
         self.abilities.append(self.Uppercut_Slice)
         self.abilities.append(self.Shank)
+        
+    def take_action(self):
+        pass
 
 class Fusilier(Person):
     def __init__(self, x, y, name,position):
@@ -263,6 +269,9 @@ class Fusilier(Person):
         self.abilities = []
         self.Blanket = ability('Blanket',[1,2,3],[(0,1,2,3)],random.choice(range(1,6)),'Attack',0.02,0.725)
         self.abilities.append(self.Blanket)
+        
+    def take_action(self):
+        pass
 
     
 #Variables
@@ -432,8 +441,8 @@ while run:
                 for enemy in enemy_list:
                     initiative.append((random.choice(range(9)) + enemy.speed,1,enemy.position))
                 initiative.sort(key = lambda tup: tup[1])
-                print(initiative)
-                fighting = False
+                for person in initiative:
+                    person.take_action()
             
             
 #Testing, move this code inside the combat
