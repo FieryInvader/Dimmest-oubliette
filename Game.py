@@ -30,11 +30,10 @@ def apply_bleed(target,damage,rounds):
 
 #button class
 class Button():
-    def __init__(self, surface, x, y, image, ability, ability_pass = False):
+    def __init__(self, surface, x, y, image, ability):
         self.x = x
         self.y = y
         self.ability = ability
-        self.ability_pass = ability_pass
         self.image = image
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
@@ -44,32 +43,32 @@ class Button():
     def draw(self):
         #draw button
         self.surface.blit(self.image, (self.rect.x, self.rect.y))
-        
-        action = False
+        action = 1
 		#get mouse position
         pos = pygame.mouse.get_pos()
 
 		#check mouseover and clicked conditions
         if self.rect.collidepoint(pos): #ON HOVER
-            if self.ability_pass == False:
+            if self.ability != "pass":
                 icon = pygame.image.load("images/heroes/focused_ability.png")
                 display.blit(icon, (self.x-15, self.y-15)) 
             else:
                 icon = pygame.image.load("images/heroes/focused_pass.png")
                 display.blit(icon, (self.x-36, self.y-15)) 
             if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False: #on click
-                action = True
                 self.clicked = True
 
         # if pygame.mouse.get_pressed()[0] == 0:
         #     self.clicked = False
 
         if self.clicked == True:
-            if self.ability_pass == False:
+            if self.ability != False:
                 self.ability.selected()
+                action -= 1
             else:
                 icon = pygame.image.load("images/heroes/selected_pass.png")
                 display.blit(icon, (self.x-32, self.y-15)) 
+                action -= 1
 
         return action 
 
@@ -108,7 +107,11 @@ class Person(pygame.sprite.Sprite):
         self.blight = []
         self.bleed = []
         self.deathblow_res = 0.67
+        self.action_token = 0
 
+    def pass_ability(self):
+        self.action_token -= 1
+        
         
     def draw(self,hp, flip = False):
         self.current_hp = hp
@@ -300,12 +303,11 @@ def draw_hero(hero):
     ability3 = Button(display, 445 + next_icon, 607, img_list[3], hero.abilities[3])
     ability3.draw()
     next_icon += 62
-    img = pygame.image.load("images/heroes/ability_move.png")
-    move = Button(display, 445 + next_icon, 607, img)
-    move.draw()
+    ability4= Button(display, 445 + next_icon, 607, img_list[4], hero.abilities[4])
+    ability4.draw()
     next_icon += 62
     img = pygame.image.load("images/heroes/ability_pass.png")
-    ability_pass = Button(display, 445 + next_icon, 607, img, True)
+    ability_pass = Button(display, 445 + next_icon, 607, img, "pass")
     ability_pass.draw()
     next_icon += 62  
     
