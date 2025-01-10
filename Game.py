@@ -1,7 +1,6 @@
 import pygame
 import math
 import random
-import button
 
 pygame.init()
 
@@ -9,10 +8,46 @@ pygame.init()
 #apply_bleed(self,target,damage,rounds)
 #apply_stun(self,target)
 
+#button class
+class Button():
+    def __init__(self, surface, x, y, image, ability_pass = False):
+        self.x = x
+        self.y = y
+        self.ability_pass = ability_pass
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+        self.clicked = False
+        self.surface = surface
+        
+    def draw(self):
+        action = False
+		#get mouse position
+        pos = pygame.mouse.get_pos()
+
+		#check mouseover and clicked conditions
+        if self.rect.collidepoint(pos): #ON HOVER
+            if self.ability_pass == False:
+                icon = pygame.image.load("images/heroes/focused_ability.png")
+                display.blit(icon, (self.x-15, self.y-15)) 
+            else:
+                icon = pygame.image.load("images/heroes/focused_pass.png")
+                display.blit(icon, (self.x-36, self.y-15)) 
+            if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False: #on click
+                action = True
+                self.clicked = True
+
+        if pygame.mouse.get_pressed()[0] == 0:
+            self.clicked = False
+
+		#draw button
+        self.surface.blit(self.image, (self.rect.x, self.rect.y))
+
+        return action 
 
 #Classes for our heroes
 class Person(pygame.sprite.Sprite):
-    def __init__(self,x, y, name, health, critical, dodge, speed, position):
+    def __init__(self, x, y, name, health, critical, dodge, speed, position):
         #visuals
         pygame.sprite.Sprite.__init__(self)
         self.name = name
@@ -235,7 +270,7 @@ class Fusilier(Person):
         dmg = random.choice(range(1,5))
         crit = 0.02
         
- 
+
     
 #Variables
 clock = pygame.time.Clock()
@@ -280,29 +315,35 @@ def draw_hero(hero):
     draw_text(hero.name, font, yellow, 320, 620)
     draw_text(hero.hero_class, font, grey, 320, 640)
     next_icon = 0 
+    img_list = []
     for ability in hero.abilities:
-        icon = pygame.image.load(f"images/{hero.hero_class}/{ability}.png")
-        display.blit(icon, (445 + next_icon, 607))
-        next_icon += 62
-    icon = pygame.image.load("images/heroes/ability_move.png")
-    display.blit(icon, (445 + next_icon, 607))
+        img = pygame.image.load(f"images/{hero.hero_class}/{ability}.png")
+        img_list.append(img)
+    ability0 = Button(display, 445 + next_icon, 607, img_list[0])
+    ability0.draw()
     next_icon += 62
-    icon = pygame.image.load("images/heroes/ability_pass.png")
-    display.blit(icon, (445 + next_icon, 607))   
+    ability1 = Button(display, 445 + next_icon, 607, img_list[1])
+    ability1.draw()
+    next_icon += 62
+    ability2 = Button(display, 445 + next_icon, 607, img_list[2])
+    ability2.draw()
+    next_icon += 62
+    ability3 = Button(display, 445 + next_icon, 607, img_list[3])
+    ability3.draw()
+    next_icon += 62
+    img = pygame.image.load("images/heroes/ability_move.png")
+    move = Button(display, 445 + next_icon, 607, img)
+    move.draw()
+    next_icon += 62
+    img = pygame.image.load("images/heroes/ability_pass.png")
+    ability_pass = Button(display, 445 + next_icon, 607, img, True)
+    ability_pass.draw()
+    next_icon += 62  
 
     health = f"{hero.current_hp}/{hero.max_hp}"
     draw_text(health, font_small, dark_red, 280, 707)
-    stress = f"{hero.stress}/100"
+    stress = f"{hero.stress}/10"
     draw_text(stress, font_small, grey, 280, 730)
-    
-clock = pygame.time.Clock()
-FPS = 60
-screen_width = 1600
-screen_height = 900
-screen = pygame.display
-screen.set_caption('Dimmest oubliette')
-display = screen.set_mode((screen_width,screen_height))
-
 
 #load background
 bg = pygame.image.load('images/dungeon/hallway2.png')
