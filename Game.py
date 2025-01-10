@@ -95,6 +95,18 @@ class Person(pygame.sprite.Sprite):
             for i in range(self.stress):
                 display.blit(full_stress, (self.x-40+i*9.5,self.y+160))
             
+class ability():
+    def __init__(self,position,target,dmg,Type,crit,accuracy,status = '', rounds = 0,dot = 0, cure = False):
+        self.position = position
+        self.target = target
+        self.dmg = dmg
+        self.Type = Type
+        self.crit = crit
+        self.accuracy = accuracy
+        self.status = status
+        self.rounds = rounds
+        self.dot = dot
+        self.cure = cure
         
 
 class Highwayman(Person):
@@ -148,35 +160,11 @@ class Crusader(Person):
                         "stunning_blow", "inspiring_cry"]
         super().__init__(x, y, name, 33, 0.03, 0.05, 1, position)
         
-    def smite(self):
-        ability_type = 'Attack'
-        position = [0,1]
-        target = [0,1]
-        dmg = (random.choice(self.dmg_range) + self.dmgmod) * 1
-        crit = self.crit
-        acc = 0.85
-        
-    def zealous_accusation(self):
-        ability_type = 'Attack'
-        position = [0,1]
-        target = (0,1)
-        dmg = (random.choice(self.dmg_range) + self.dmgmod) * 0.5
-        crit = self.crit - 0.04
-        acc = 0.85
-        
-    def stunning_blow(self):
-        ability_type = 'Attack'
-        position = [0,1]
-        target = [0,1]
-        dmg = (random.choice(self.dmg_range) + self.dmgmod) * -0.5
-        crit = self.crit 
-        acc = 0.9
-        
-    def inspiring_cry(self):
-        ability_type = 'Util'
-        position = [0,1,2,3]
-        target = [0,1,2,3]
-        #stressheal(target,1)
+        smite = ability([0,1], [0,1],random.choice(self.dmg_range) + self.dmgmod , 'Attack', self.crit,0.85)
+        zealous_accusation = ability([0,1],[(0,1)],math.floor((random.choice(self.dmg_range)+self.dmgmod)* 0.6),'Attack',self.crit*0.96,0.85)
+        stunning_blow = ability([0,1],[0,1],math.floor((random.choice(self.dmg_range) + self.dmgmod) * 0.5),'Attack',self.crit,0.9)
+        inspiring_cry = ability([0,1,2,3],[0,1,2,3],1,'Util',self.crit,1)
+
         
 class Plague_Doctor(Person):
     def __init__(self, x, y, name, position):
@@ -187,32 +175,10 @@ class Plague_Doctor(Person):
                         "blinding_gas", "battlefield_medicine"]
         super().__init__(x, y, name, 22, 0.02, 0.01, 7, position)
         
-    def noxious_blast(self):
-        ability_type = 'Attack'
-        position = [1,2,3]
-        target = [0,1]
-        dmg = (random.choice(self.dmg_range) + self.dmgmod) * 0.2
-        crit = self.crit * 1.05
-        acc = 0.95
-        #apply_blight(target,5,3)
-        
-    def plague_grenade(self):
-        ability_type = 'Attack'
-        position = [2,3]
-        target = (2,3)
-        dmg = (random.choice(self.dmg_range) + self.dmgmod) * 0.1
-        crit = self.crit * 1
-        acc = 0.95
-        #apply_blight(target,4,3)
-        
-    def blinding_gas(self):
-        ability_type = 'Attack'
-        position = [2,3]
-        target = (2,3)
-        dmg = 0
-        crit = 0
-        acc = 0.95
-        #apply_stun(target)
+        noxious_blast = ability([1,2,3],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.2,self.crit,0.95,status = 'Blight',rounds = 3,dot= 5 )
+        plague_grenade = ability([1,2,3],[(2,3)],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.1,self.crit,0.95,status = 'Blight',rounds = 3,dot= 4 )
+        blinding_gas = ability([2,3],[(2,3)],0,0,0.95,status = 'Stun')        
+        battlefield_medicine = ability([2,3],[0,1,2,3],1,'Util',self.crit,1)
         
     def battlefield_medicine(self):
         ability_type = 'Util'
@@ -286,7 +252,7 @@ class Cutthroat(Person):
 
 class Fusilier(Person):
     def __init__(self, x, y, name,position):
-        super().__init__(x,y,name,12,0.725,0.01,0.075,6)
+        super().__init__(x,y,name,12,0.01,0.075,6,position)
         
     def Blanket(self):
         self_tile = [1,2,3]
@@ -440,9 +406,15 @@ while run:
             run = False
         if event.type == COMBAT:
             fighting = True
-            
+            initiative = []
             while fighting:
-                pass
+                for member in party:
+                    initiative.append((random.choice(range(9)) + member.speed,0,member.position))
+                for enemy in enemy_list:
+                    initiative.append((random.choice(range(9)) + enemy.speed,1,enemy.position))
+                initiative.sort(key = lambda tup: tup[1])
+                print(initiative)
+                fighting = False
             
             
 #Testing, move this code inside the combat
