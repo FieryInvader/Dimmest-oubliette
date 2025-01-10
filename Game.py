@@ -393,7 +393,7 @@ enemy_list.append(enemy4)
 COMBAT = pygame.USEREVENT + 1
 tile_size = 1000
 party_position = 0
-map_tiles = [0,0,1,0,2,1]
+map_tiles = [0,1,0,2,0,1]
 
 
 #main game loop
@@ -422,7 +422,6 @@ while run:
         pygame.event.post(pygame.event.Event(COMBAT))
      
     draw_panel()
-    draw_hero(paracelsus)
     
     #When we have scrolled past the screen reset the queue
     if abs(scroll) > bg.get_width():
@@ -437,12 +436,14 @@ while run:
             initiative = []
             while fighting:
                 for member in party:
-                    initiative.append((random.choice(range(9)) + member.speed,0,member.position))
+                    initiative.append((random.choice(range(9)) + member.speed,0,member))
                 for enemy in enemy_list:
-                    initiative.append((random.choice(range(9)) + enemy.speed,1,enemy.position))
+                    initiative.append((random.choice(range(9)) + enemy.speed,1,enemy))
                 initiative.sort(key = lambda tup: tup[1])
-                for person in initiative:
-                    person.take_action()
+                for roll, team, person in initiative:
+                    if team == 0:
+                        draw_hero(person)
+                        pygame.display.update()
             
             
 #Testing, move this code inside the combat
