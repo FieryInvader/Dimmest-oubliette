@@ -41,38 +41,52 @@ class Button(pygame.sprite.Sprite):
         self.clicked = False
         self.surface = surface
         
+        
     def draw(self):
-        #draw button
         self.surface.blit(self.image, (self.rect.x, self.rect.y))
-        action = 1
-		#get mouse position
         pos = pygame.mouse.get_pos()
-
-		#check mouseover and clicked conditions
         if self.rect.collidepoint(pos): #ON HOVER
             if self.ability != "pass":
                 icon = pygame.image.load("images/heroes/focused_ability.png")
                 display.blit(icon, (self.x-15, self.y-15)) 
             else:
                 icon = pygame.image.load("images/heroes/focused_pass.png")
-                display.blit(icon, (self.x-36, self.y-15)) 
+                display.blit(icon, (self.x-36, self.y-15))
+            if pygame.mouse.get_pressed()[0] == 1:
+                self.ability.selected()
+            
+                    
                 
-            if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False: #on click
-                self.clicked = True
+#     def draw(self):
+#         #draw button
+#         self.surface.blit(self.image, (self.rect.x, self.rect.y))
+#         action = 1
+# 		#get mouse position
+#         pos = pygame.mouse.get_pos()
+#         while not self.clicked:
+#     		#check mouseover and clicked conditions
+#             if self.rect.collidepoint(pos): #ON HOVER
+#                 if self.ability != "pass":
+#                     icon = pygame.image.load("images/heroes/focused_ability.png")
+#                     display.blit(icon, (self.x-15, self.y-15)) 
+#                 else:
+#                     icon = pygame.image.load("images/heroes/focused_pass.png")
+#                     display.blit(icon, (self.x-36, self.y-15)) 
+                    
+#                 if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False: #on click
+#                     self.clicked = True
+#             pygame.display.update()
+#             if self.clicked == True:
+#                 if self.ability != "pass":
+#                     self.ability.selected(self.x,self.y)
 
-        # if pygame.mouse.get_pressed()[0] == 0:
-        #     self.clicked = False
+#                 else:
+#                     icon = pygame.image.load("images/heroes/selected_pass.png")
+#                     display.blit(icon, (self.x-32, self.y-15)) 
+#                     pygame.display.update()
 
-        if self.clicked == True:
-            if self.ability != "pass":
-                self.ability.selected(self.x,self.y)
-                action -= 1
-            else:
-                icon = pygame.image.load("images/heroes/selected_pass.png")
-                display.blit(icon, (self.x-32, self.y-15)) 
-                action -= 1
 
-        return action 
+#         return action 
 
 #Colours
 red = (255,0,0)
@@ -131,11 +145,15 @@ class Person(pygame.sprite.Sprite):
             for i in range(self.stress):
                 display.blit(full_stress, (self.x-40+i*9.5,self.y+160))
                 
-    def take_action(self):
-        action = True
-        while action:
-            draw_hero(self)
-            pygame.display.update()
+        
+                
+    # def take_action(self):
+    #     action_taken = False
+    #     if not action_taken:
+    #         draw_hero(self)
+    #     if
+            
+
             
     
 
@@ -157,29 +175,31 @@ class ability():
         icon = pygame.image.load("images/heroes/selected_ability.png")
         display.blit(icon, (x-15, y-15))
         pos = pygame.mouse.get_pos()
-        for t in self.target:
-            if type(t)==tuple:
-                for a in t:
+        selected = True
+        while selected:
+            for t in self.target:
+                if type(t)==tuple:
+                    for a in t:
+                        target_icon = pygame.image.load("images/targets/target_1.png")
+                        display.blit(target_icon, (820 + 150*a, 460))
+                        if a != 3:
+                            plus = pygame.image.load("images/targets/plus.png")
+                            display.blit(plus, (957 + 150*a, 600))
+                            pygame.display.update()
+                else:
                     target_icon = pygame.image.load("images/targets/target_1.png")
-                    display.blit(target_icon, (820 + 150*a, 460))
-                    if a != 3:
-                        plus = pygame.image.load("images/targets/plus.png")
-                        display.blit(plus, (957 + 150*a, 600))
-            else:
-                target_icon = pygame.image.load("images/targets/target_1.png")
-                display.blit(target_icon, (820 + 150*t, 460))
-            for enemy in enemy_list:
-                if enemy.position == t:
-                    if enemy.collidepoint(pos): #ON HOVER
-                        if pygame.mouse.get_pressed()[0] == 1:
-                            if self.ability != "pass":
-                                self.proc(enemy)
-                            else:
-                                icon = pygame.image.load("images/heroes/focused_pass.png")
-                                display.blit(icon, (self.x-36, self.y-15)) 
-                                
-                            if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False: #on click
-                                self.clicked = True
+                    display.blit(target_icon, (820 + 150*t, 460))
+                for enemy in enemy_list:
+                    if enemy.position == t:
+                        if enemy.collidepoint(pos): #ON HOVER
+                            if pygame.mouse.get_pressed()[0] == 1:
+                                if self.ability != "pass":
+                                    self.proc(enemy)
+                                    selected = False
+                                else:
+                                    icon = pygame.image.load("images/heroes/focused_pass.png")
+                                    display.blit(icon, (self.x-36, self.y-15)) 
+                                    
                     
     def proc(self,target):
         if self.Type == 'Attack':
@@ -383,7 +403,9 @@ def draw_hero(hero):
     draw_text("DMG", font_med, grey, 260, 800)
     draw_text("DODGE", font_med, grey, 260, 820)
     draw_text("SPD", font_med, grey, 260, 840)
-    
+    button_list = [ability0,ability1,ability2,ability3,ability4,ability_pass]
+
+    return button_list
     
 
 #load background
@@ -465,7 +487,7 @@ while run:
         if event.type == COMBAT:
             fighting = True
             initiative = []
-        while fighting:
+        if fighting:
             for member in party:
                 initiative.append((random.choice(range(9)) + member.speed,0,member))
             for enemy in enemy_list:
@@ -478,13 +500,9 @@ while run:
                 for member in party:
                     member.draw(member.current_hp)
                 if team == 0:
-                    pygame.display.update()
-                    person.take_action()
+                    draw_hero(person)
             
             
-#Testing, move this code inside the combat
-    for enemy in enemy_list:
-        enemy.draw(enemy.current_hp,flip=True)
     
     for member in party:
         member.draw(member.current_hp)
