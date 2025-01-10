@@ -149,38 +149,10 @@ class Highwayman(Person):
                         "grapeshot_blast", "open_vein"]
         super().__init__(x, y, name, 23, 0.05, 0.1, 5,position)
         
-    def wicked_slice(self):
-        ability_type = 'Attack'
-        position = [0,1,2]
-        target = [0,1]
-        dmg = (random.choice(self.dmg_range) + self.dmgmod) * 1.15
-        crit = self.crit * 1.05
-        acc = 0.85
-        
-    def pistol_shot(self):
-        ability_type = 'Attack'
-        position = [1,2,3]
-        target = [1,2,3]
-        dmg = (random.choice(self.dmg_range) + self.dmgmod) * 0.85
-        crit = self.crit * 1.075
-        acc = 0.85
-        
-    def grapeshot_blast(self):
-        ability_type = 'Attack'
-        position = [1,2]
-        target = (0,1,2)
-        dmg = (random.choice(self.dmg_range) + self.dmgmod) * 0.5
-        crit = self.crit * 0.91
-        acc = 0.75
-        
-    def open_vein(self):
-        ability_type = 'Attack'
-        position = [0,1,2]
-        target = [0,1]
-        dmg = (random.choice(self.dmg_range) + self.dmgmod) * 0.85
-        crit = self.crit * 1
-        acc = 0.95
-        #apply_bleed(target,dmg,rounds)
+        wicked_slice = ability([0,1,2],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 1.15,'Attack',self.crit*1.05,0.85)
+        pistol_shot = ability([0,1,2],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.85,'Attack',self.crit*1.075,0.85)
+        grapeshot_blast = ability([1,2],[(0,1,2)],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.5,'Attack',self.crit*0.91,0.75)        
+        open_vein = ability([0,1,2],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.85,'Attack',self.crit,0.95,status = 'Bleed',rounds = 2, dot = 3)
         
 class Crusader(Person):
     def __init__(self, x, y, name, position):
@@ -195,8 +167,7 @@ class Crusader(Person):
         zealous_accusation = ability([0,1],[(0,1)],math.floor((random.choice(self.dmg_range)+self.dmgmod)* 0.6),'Attack',self.crit*0.96,0.85)
         stunning_blow = ability([0,1],[0,1],math.floor((random.choice(self.dmg_range) + self.dmgmod) * 0.5),'Attack',self.crit,0.9)
         inspiring_cry = ability([0,1,2,3],[0,1,2,3],1,'Util',self.crit,1)
-
-        
+      
 class Plague_Doctor(Person):
     def __init__(self, x, y, name, position):
         self.hero_class = "Plague_Doctor"
@@ -210,8 +181,7 @@ class Plague_Doctor(Person):
         plague_grenade = ability([1,2,3],[(2,3)],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.1,'Attack',self.crit,0.95,status = 'Blight',rounds = 3,dot= 4 )
         blinding_gas = ability([2,3],[(2,3)],0,'Attack',0,0.95,status = 'Stun')        
         battlefield_medicine = ability([2,3],[0,1,2,3],1,'Util',self.crit,1)
-        
-        
+             
 class Vestal(Person):
     def __init__(self, x, y, name, position):
         self.hero_class = "Vestal"
@@ -221,34 +191,10 @@ class Vestal(Person):
                         "divine_comfort", "judgement"]
         super().__init__(x, y, name, 24, 0.01, 0.01, 4,position)
         
-    def dazzling_light(self):
-        ability_type = 'Attack'
-        position = [1,2,3]
-        target = [0,1,2]
-        dmg = (random.choice(self.dmg_range) + self.dmgmod) * 0.25
-        crit = self.crit * 1.05
-        acc = 0.90
-        #apply_stun(target)
-        
-    def divine_grace(self):
-        ability_type = 'Util'
-        position = [2,3]
-        target = [0,1,2,3]
-        #heal(target,5)
-        
-    def divine_comfort(self):
-        ability_type = 'Util'
-        position = [2,3]
-        target = (0,1,2,3)
-        #heal(target,5)
-        
-    def judgement(self):
-        ability_type = 'Attack'
-        position = [0,1,2,3]
-        target = [0,1,2,3]
-        dmg = (random.choice(self.dmg_range) + self.dmgmod) * 2
-        crit = self.crit * 1.05
-        acc = 0.90
+        dazzling_light = ability([1,2,3],[0,1,2],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.25,'Attack',self.crit*1.05,0.9,status = 'Stun')
+        divine_grace = ability([2,3],[0,1,2,3],random.choice(range(4,6)),'Util',self.crit,1)
+        divine_comfort = ability([2,3],[(0,1,2,3)],random.choice(range(1,4)),'Util',self.crit,1)
+        judgement = ability([0,1,2,3],[0,1,2,3],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.75,'Attack',self.crit*1.05,0.85)
 
 #Enemy classes
 class Cutthroat(Person):
@@ -256,35 +202,16 @@ class Cutthroat(Person):
         #fixer pls
         super().__init__(x, y, name, 12, 0.12, 0.025, 3, position)
         
-    def Slice_and_dice(self):
-        self_tile = [0,1,2]
-        target = (0,1)
-        dmg = random.choice(range(3,6))
-        crit = 0.12
-        
-    def Uppercut_Slice(self):
-        self_tile = [0,1]
-        target = [0,1]
-        dmg = random.choice(range(2,5))
-        crit = 0.06
-
-    def Shank(self):
-        self_tile = [0,1,2]
-        target = [0,1,2,3]
-        dmg = random.choice(range(4,9))
-        crit = 0.06
-        #apply_bleed(target,ammount,duration)
+        Slice_and_dice = ability([0,1,2],[(0,1)],random.choice(range(3,6)),'Attack',self.crit,0.725)
+        Uppercut_Slice = ability([0,1],[0,1],random.choice(range(2,5)),'Attack',0.05,0.725)
+        Shank = ability([0,1,2],[0,1,2,3],random.choice(range(4,9)),'Attack',0.06,0.725,status = 'Bleed',rounds = 3,dot = 2)
 
 class Fusilier(Person):
     def __init__(self, x, y, name,position):
         super().__init__(x,y,name,12,0.01,0.075,6,position)
         
-    def Blanket(self):
-        self_tile = [1,2,3]
-        target = (0,1,2,3)
-        dmg = random.choice(range(1,5))
-        crit = 0.02
-        
+        Blanket = ability([1,2,3],[(0,1,2,3)],random.choice(range(1,6)),'Attack',0.02,0.725)
+
 
     
 #Variables
