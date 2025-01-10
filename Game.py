@@ -233,7 +233,7 @@ class Fusilier(Person):
     def __init__(self, x, y, name,position):
         super().__init__(x,y,name,12,0.01,0.075,6,position)
         abilit_list = []
-        Blanket = ability('Blanket'[1,2,3],[(0,1,2,3)],random.choice(range(1,6)),'Attack',0.02,0.725)
+        Blanket = ability('Blanket',[1,2,3],[(0,1,2,3)],random.choice(range(1,6)),'Attack',0.02,0.725)
         abilit_list.append(Blanket)
 
     
