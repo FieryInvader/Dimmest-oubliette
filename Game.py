@@ -127,7 +127,8 @@ class Person(pygame.sprite.Sprite):
                 display.blit(full_stress, (self.x-40+i*9.5,self.y+160))
             
 class ability():
-    def __init__(self,position,target,dmg,Type,crit,accuracy,status = '', rounds = 0,dot = 0, cure = False):
+    def __init__(self,name,position,target,dmg,Type,crit,accuracy,status = '', rounds = 0,dot = 0, cure = False):
+        self.name = name
         self.position = position
         self.target = target
         self.dmg = dmg
@@ -149,10 +150,16 @@ class Highwayman(Person):
                         "grapeshot_blast", "open_vein"]
         super().__init__(x, y, name, 23, 0.05, 0.1, 5,position)
         
-        wicked_slice = ability([0,1,2],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 1.15,'Attack',self.crit*1.05,0.85)
-        pistol_shot = ability([0,1,2],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.85,'Attack',self.crit*1.075,0.85)
-        grapeshot_blast = ability([1,2],[(0,1,2)],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.5,'Attack',self.crit*0.91,0.75)        
-        open_vein = ability([0,1,2],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.85,'Attack',self.crit,0.95,status = 'Bleed',rounds = 2, dot = 3)
+        ability_list = []
+        wicked_slice = ability('wicked_slice',[0,1,2],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 1.15,'Attack',self.crit*1.05,0.85)
+        pistol_shot = ability('pistol_shot',[0,1,2],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.85,'Attack',self.crit*1.075,0.85)
+        grapeshot_blast = ability('grapeshot_blast',[1,2],[(0,1,2)],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.5,'Attack',self.crit*0.91,0.75)        
+        open_vein = ability('open_vein',[0,1,2],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.85,'Attack',self.crit,0.95,status = 'Bleed',rounds = 2, dot = 3)
+        
+        ability_list.append(wicked_slice)
+        ability_list.append(pistol_shot)
+        ability_list.append(grapeshot_blast)
+        ability_list.append(open_vein)
         
 class Crusader(Person):
     def __init__(self, x, y, name, position):
@@ -163,10 +170,10 @@ class Crusader(Person):
                         "stunning_blow", "inspiring_cry"]
         super().__init__(x, y, name, 33, 0.03, 0.05, 1, position)
         
-        smite = ability([0,1], [0,1],random.choice(self.dmg_range) + self.dmgmod , 'Attack', self.crit,0.85)
-        zealous_accusation = ability([0,1],[(0,1)],math.floor((random.choice(self.dmg_range)+self.dmgmod)* 0.6),'Attack',self.crit*0.96,0.85)
-        stunning_blow = ability([0,1],[0,1],math.floor((random.choice(self.dmg_range) + self.dmgmod) * 0.5),'Attack',self.crit,0.9)
-        inspiring_cry = ability([0,1,2,3],[0,1,2,3],1,'Util',self.crit,1)
+        smite = ability('smite',[0,1], [0,1],random.choice(self.dmg_range) + self.dmgmod , 'Attack', self.crit,0.85)
+        zealous_accusation = ability('zealous_accusation',[0,1],[(0,1)],math.floor((random.choice(self.dmg_range)+self.dmgmod)* 0.6),'Attack',self.crit*0.96,0.85)
+        stunning_blow = ability('stunning_blow',[0,1],[0,1],math.floor((random.choice(self.dmg_range) + self.dmgmod) * 0.5),'Attack',self.crit,0.9)
+        inspiring_cry = ability('ispiring_cry',[0,1,2,3],[0,1,2,3],1,'Util',self.crit,1)
       
 class Plague_Doctor(Person):
     def __init__(self, x, y, name, position):
