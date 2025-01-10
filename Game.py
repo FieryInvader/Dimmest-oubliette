@@ -61,13 +61,12 @@ class Button():
                 action = True
                 self.clicked = True
 
-        if pygame.mouse.get_pressed()[0] == 0:
-            self.clicked = False
+        # if pygame.mouse.get_pressed()[0] == 0:
+        #     self.clicked = False
 
         if self.clicked == True:
             if self.ability_pass == False:
-                icon = pygame.image.load("images/heroes/selected_ability.png")
-                display.blit(icon, (self.x-15, self.y-15))  
+                self.ability.selected()
             else:
                 icon = pygame.image.load("images/heroes/selected_pass.png")
                 display.blit(icon, (self.x-32, self.y-15)) 
@@ -140,6 +139,15 @@ class ability():
         self.rounds = rounds
         self.dot = dot
         self.cure = cure
+        
+    def selected(self):
+        icon = pygame.image.load("images/heroes/selected_ability.png")
+        display.blit(icon, (self.x-15, self.y-15)) 
+        for t in self.target:
+            target_icon = pygame.image.load("images/targets/target_1.png")
+            display.blit(target_icon, (900 + 150*t, 450))
+        
+        
         
 
 class Highwayman(Person):
