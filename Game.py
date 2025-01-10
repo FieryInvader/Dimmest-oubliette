@@ -175,7 +175,7 @@ class Crusader(Person):
         self.dmg_range = [i for i in range(6,13)]
         super().__init__(x, y, name, 33, 0.03, 0.05, 1, position)
         
-        abilities = []
+        self.abilities = []
         smite = ability('smite',[0,1], [0,1],random.choice(self.dmg_range) + self.dmgmod , 'Attack', self.crit,0.85)
         zealous_accusation = ability('zealous_accusation',[0,1],[(0,1)],math.floor((random.choice(self.dmg_range)+self.dmgmod)* 0.6),'Attack',self.crit*0.96,0.85)
         stunning_blow = ability('stunning_blow',[0,1],[0,1],math.floor((random.choice(self.dmg_range) + self.dmgmod) * 0.5),'Attack',self.crit,0.9)
@@ -288,16 +288,16 @@ def draw_hero(hero):
     for ability in hero.abilities:
         img = pygame.image.load(f"images/{hero.hero_class}/{ability.name}.png")
         img_list.append(img)
-    ability0 = Button(display, 445 + next_icon, 607, img_list[0])
+    ability0 = Button(display, 445 + next_icon, 607, img_list[0], hero.abilities[0])
     ability0.draw()
     next_icon += 62
-    ability1 = Button(display, 445 + next_icon, 607, img_list[1])
+    ability1 = Button(display, 445 + next_icon, 607, img_list[1], hero.abilities[1])
     ability1.draw()
     next_icon += 62
-    ability2 = Button(display, 445 + next_icon, 607, img_list[2])
+    ability2 = Button(display, 445 + next_icon, 607, img_list[2], hero.abilities[2])
     ability2.draw()
     next_icon += 62
-    ability3 = Button(display, 445 + next_icon, 607, img_list[3])
+    ability3 = Button(display, 445 + next_icon, 607, img_list[3], hero.abilities[3])
     ability3.draw()
     next_icon += 62
     img = pygame.image.load("images/heroes/ability_move.png")
