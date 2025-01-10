@@ -205,7 +205,7 @@ class Plague_Doctor(Person):
         self.plague_grenade = ability("plague_grenade", [1,2,3],[(2,3)],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.1,'Attack',self.crit,0.95,status = 'Blight',rounds = 3,dot= 4 )
         self.blinding_gas = ability("blinding_gas",[2,3],[(2,3)],0,'Attack',0,0.95,status = 'Stun')        
         self.battlefield_medicine = ability("battlefield_medicine",[2,3],[0,1,2,3],1,'Util',self.crit,1)
-        self.incision = ability('incision',[0,1,2],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod),'Attack',self.crit*1.05,status = 'Bleed', rounds = 3, dot = 2)
+        self.incision = ability('incision',[0,1,2],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod),'Attack',self.crit*1.05,0.85,status = 'Bleed', rounds = 3, dot = 2)
              
         self.abilities.append(self.noxious_blast)
         self.abilities.append(self.plague_grenade)
