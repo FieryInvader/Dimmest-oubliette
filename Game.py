@@ -30,9 +30,10 @@ def apply_bleed(target,damage,rounds):
 
 #button class
 class Button():
-    def __init__(self, surface, x, y, image, ability_pass = False):
+    def __init__(self, surface, x, y, image, ability, ability_pass = False):
         self.x = x
         self.y = y
+        self.ability = ability
         self.ability_pass = ability_pass
         self.image = image
         self.rect = self.image.get_rect()
@@ -146,102 +147,89 @@ class Highwayman(Person):
         #initialize parent class
         self.hero_class = "Highwayman"
         self.dmg_range = [i for i in range(5,11)]
-        self.abilities=["wicked_slice", "pistol_shot", 
-                        "grapeshot_blast", "open_vein"]
         super().__init__(x, y, name, 23, 0.05, 0.1, 5,position)
         
-        ability_list = []
+        abilities = []
         wicked_slice = ability('wicked_slice',[0,1,2],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 1.15,'Attack',self.crit*1.05,0.85)
         pistol_shot = ability('pistol_shot',[0,1,2],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.85,'Attack',self.crit*1.075,0.85)
         grapeshot_blast = ability('grapeshot_blast',[1,2],[(0,1,2)],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.5,'Attack',self.crit*0.91,0.75)        
         open_vein = ability('open_vein',[0,1,2],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.85,'Attack',self.crit,0.95,status = 'Bleed',rounds = 2, dot = 3)
         
-        ability_list.append(wicked_slice)
-        ability_list.append(pistol_shot)
-        ability_list.append(grapeshot_blast)
-        ability_list.append(open_vein)
+        abilities.append(wicked_slice)
+        abilities.append(pistol_shot)
+        abilities.append(grapeshot_blast)
+        abilities.append(open_vein)
         
 class Crusader(Person):
     def __init__(self, x, y, name, position):
         self.hero_class = "Crusader"
         #initialize parent class
         self.dmg_range = [i for i in range(6,13)]
-        self.abilities=["smite", "zealous_accusation", 
-                        "stunning_blow", "inspiring_cry"]
         super().__init__(x, y, name, 33, 0.03, 0.05, 1, position)
         
-        ability_list = []
+        abilities = []
         smite = ability('smite',[0,1], [0,1],random.choice(self.dmg_range) + self.dmgmod , 'Attack', self.crit,0.85)
         zealous_accusation = ability('zealous_accusation',[0,1],[(0,1)],math.floor((random.choice(self.dmg_range)+self.dmgmod)* 0.6),'Attack',self.crit*0.96,0.85)
         stunning_blow = ability('stunning_blow',[0,1],[0,1],math.floor((random.choice(self.dmg_range) + self.dmgmod) * 0.5),'Attack',self.crit,0.9)
         inspiring_cry = ability('ispiring_cry',[0,1,2,3],[0,1,2,3],1,'Util',self.crit,1)
       
-        ability_list.append(smite)
-        ability_list.append(zealous_accusation)
-        ability_list.append(stunning_blow)
-        ability_list.append(inspiring_cry)
-      
+        abilities.append(smite)
+        abilities.append(zealous_accusation)
+        abilities.append(stunning_blow)
+        abilities.append(inspiring_cry)
+        
 class Plague_Doctor(Person):
     def __init__(self, x, y, name, position):
         self.hero_class = "Plague_Doctor"
         #initialize parent class
         self.dmg_range = [i for i in range(4,8)]
-        self.abilities=["noxious_blast", "plague_grenade", 
-                        "blinding_gas", "battlefield_medicine"]
         super().__init__(x, y, name, 22, 0.02, 0.01, 7, position)
         
-        ability_list = []
-        noxious_blast = ability('noxious_blast',[1,2,3],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.2,'Attack',self.crit,0.95,status = 'Blight',rounds = 3,dot= 5 )
-        plague_grenade = ability('plague_grenade',[1,2,3],[(2,3)],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.1,'Attack',self.crit,0.95,status = 'Blight',rounds = 3,dot= 4 )
-        blinding_gas = ability('blinding_gas',[2,3],[(2,3)],0,'Attack',0,0.95,status = 'Stun')        
-        battlefield_medicine = ability('battlefield_medicine',[2,3],[0,1,2,3],1,'Util',self.crit,1)
-        
-        ability_list.append(noxious_blast)
-        ability_list.append(plague_grenade)
-        ability_list.append(blinding_gas)
-        ability_list.append(battlefield_medicine)
+        abilities = []
+        noxious_blast = ability("noxious_blast",[1,2,3],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.2,'Attack',self.crit,0.95,status = 'Blight',rounds = 3,dot= 5 )
+        plague_grenade = ability("plague_grenade", [1,2,3],[(2,3)],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.1,'Attack',self.crit,0.95,status = 'Blight',rounds = 3,dot= 4 )
+        blinding_gas = ability("blinding_gas",[2,3],[(2,3)],0,'Attack',0,0.95,status = 'Stun')        
+        battlefield_medicine = ability("battlefield_medicine",[2,3],[0,1,2,3],1,'Util',self.crit,1)
              
+        abilities.append(noxious_blast)
+        abilities.append(plague_grenade)
+        abilities.append(blinding_gas)
+        abilities.append(battlefield_medicine)
+        
 class Vestal(Person):
     def __init__(self, x, y, name, position):
         self.hero_class = "Vestal"
         #initialize parent class
         self.dmg_range = [i for i in range(4,9)]
-        self.abilities=["dazzling_light", "divine_grace", 
-                        "divine_comfort", "judgement"]
         super().__init__(x, y, name, 24, 0.01, 0.01, 4,position)
         
-        ability_list = []
-        dazzling_light = ability('dazzling_light',[1,2,3],[0,1,2],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.25,'Attack',self.crit*1.05,0.9,status = 'Stun')
-        divine_grace = ability('divine_grace',[2,3],[0,1,2,3],random.choice(range(4,6)),'Util',self.crit,1)
-        divine_comfort = ability('divine_comfort',[2,3],[(0,1,2,3)],random.choice(range(1,4)),'Util',self.crit,1)
-        judgement = ability('judgement',[0,1,2,3],[0,1,2,3],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.75,'Attack',self.crit*1.05,0.85)
+        abilities = []
+        dazzling_light = ability("dazzling_light",[1,2,3],[0,1,2],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.25,'Attack',self.crit*1.05,0.9,status = 'Stun')
+        divine_grace = ability("divine_grace",[2,3],[0,1,2,3],random.choice(range(4,6)),'Util',self.crit,1)
+        divine_comfort = ability("divine_comfort", [2,3],[(0,1,2,3)],random.choice(range(1,4)),'Util',self.crit,1)
+        judgement = ability("judgement",[0,1,2,3],[0,1,2,3],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.75,'Attack',self.crit*1.05,0.85)
         
-        ability_list.append(dazzling_light)
-        ability_list.append(divine_comfort)
-        ability_list.append(divine_grace)
-        ability_list.append(judgement)
-
+        abilities.append(dazzling_light)
+        abilities.append(divine_grace)
+        abilities.append(divine_comfort)
+        abilities.append(judgement)
+        
 #Enemy classes
 class Cutthroat(Person):
     def __init__(self,x,y,name,position):
         #fixer pls
         super().__init__(x, y, name, 12, 0.12, 0.025, 3, position)
         
-        ability_list = []
-        Slice_and_dice = ability('Slice_and_dice',[0,1,2],[(0,1)],random.choice(range(3,6)),'Attack',self.crit,0.725)
-        Uppercut_Slice = ability('Uppercut_Slice',[0,1],[0,1],random.choice(range(2,5)),'Attack',0.05,0.725)
-        Shank = ability('Shank',[0,1,2],[0,1,2,3],random.choice(range(4,9)),'Attack',0.06,0.725,status = 'Bleed',rounds = 3,dot = 2)
-        
-        ability_list.append(Slice_and_dice)
-        ability_list.append(Uppercut_Slice)
-        ability_list.append(Shank)
+        Slice_and_dice = ability([0,1,2],[(0,1)],random.choice(range(3,6)),'Attack',self.crit,0.725)
+        Uppercut_Slice = ability([0,1],[0,1],random.choice(range(2,5)),'Attack',0.05,0.725)
+        Shank = ability([0,1,2],[0,1,2,3],random.choice(range(4,9)),'Attack',0.06,0.725,status = 'Bleed',rounds = 3,dot = 2)
 
 class Fusilier(Person):
     def __init__(self, x, y, name,position):
         super().__init__(x,y,name,12,0.01,0.075,6,position)
-        ability_list = []
-        Blanket = ability('Blanket',[1,2,3],[(0,1,2,3)],random.choice(range(1,6)),'Attack',0.02,0.725)
-        ability_list.append(Blanket)
+        
+        Blanket = ability([1,2,3],[(0,1,2,3)],random.choice(range(1,6)),'Attack',0.02,0.725)
+
 
     
 #Variables
@@ -285,7 +273,7 @@ def draw_hero(hero):
     img_list = []
     #make ability buttons
     for ability in hero.abilities:
-        img = pygame.image.load(f"images/{hero.hero_class}/{ability}.png")
+        img = pygame.image.load(f"images/{hero.hero_class}/{ability.name}.png")
         img_list.append(img)
     ability0 = Button(display, 445 + next_icon, 607, img_list[0])
     ability0.draw()
