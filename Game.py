@@ -4,8 +4,28 @@ import random
 
 pygame.init()
 
-#apply_blight(self,target,damage,rounds)
-#apply_bleed(self,target,damage,rounds)
+def apply_dmg(target,dmg):
+    if target.current_hp - dmg < 0:
+        target.current_hp = 0
+    else:
+        target.current_hp -= dmg
+        
+def apply_blight(target,damage,rounds):
+    target.blight.append((damage,rounds))
+    indicator = [0,0]
+    for b in target.blight:
+        indicator[0] += b[0]
+        indicator[1] += b[1]
+    return indicator
+    
+def apply_bleed(target,damage,rounds):
+    target.bleed.append((damage,rounds))
+    indicator = [0,0]
+    for b in target.bleed:
+        indicator[0] += b[0]
+        indicator[1] += b[1]
+    return indicator
+
 #apply_stun(self,target)
 
 #button class
@@ -62,8 +82,8 @@ black = (0,0,0)
 white = (200,200,200)
 dark_grey = (100,100,100)
 
-empty_stress = pygame.image.load(f"images/heroes/stress_empty.png")
-full_stress = pygame.image.load(f"images/heroes/stress_full.png")
+empty_stress = pygame.image.load("images/heroes/stress_empty.png")
+full_stress = pygame.image.load("images/heroes/stress_full.png")
 
 #Classes for our heroes
 class Person(pygame.sprite.Sprite):
@@ -85,6 +105,8 @@ class Person(pygame.sprite.Sprite):
         self.dodge = dodge
         self.speed = speed
         self.dmgmod = 0
+        self.blight = []
+        self.bleed = []
         self.deathblow_res = 0.67
 
         
