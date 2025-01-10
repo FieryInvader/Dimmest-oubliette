@@ -220,16 +220,21 @@ class Cutthroat(Person):
         #fixer pls
         super().__init__(x, y, name, 12, 0.12, 0.025, 3, position)
         
-        Slice_and_dice = ability([0,1,2],[(0,1)],random.choice(range(3,6)),'Attack',self.crit,0.725)
-        Uppercut_Slice = ability([0,1],[0,1],random.choice(range(2,5)),'Attack',0.05,0.725)
-        Shank = ability([0,1,2],[0,1,2,3],random.choice(range(4,9)),'Attack',0.06,0.725,status = 'Bleed',rounds = 3,dot = 2)
+        Slice_and_dice = ability('Slice_and_dice',[0,1,2],[(0,1)],random.choice(range(3,6)),'Attack',self.crit,0.725)
+        Uppercut_Slice = ability('Uppercut_Slice',[0,1],[0,1],random.choice(range(2,5)),'Attack',0.05,0.725)
+        Shank = ability('Shank',[0,1,2],[0,1,2,3],random.choice(range(4,9)),'Attack',0.06,0.725,status = 'Bleed',rounds = 3,dot = 2)
+        
+        ability_list =[]
+        ability_list.append(Slice_and_dice)
+        ability_list.append(Uppercut_Slice)
+        ability_list.append(Shank)
 
 class Fusilier(Person):
     def __init__(self, x, y, name,position):
         super().__init__(x,y,name,12,0.01,0.075,6,position)
-        
-        Blanket = ability([1,2,3],[(0,1,2,3)],random.choice(range(1,6)),'Attack',0.02,0.725)
-
+        abilit_list = []
+        Blanket = ability('Blanket'[1,2,3],[(0,1,2,3)],random.choice(range(1,6)),'Attack',0.02,0.725)
+        abilit_list.append(Blanket)
 
     
 #Variables
