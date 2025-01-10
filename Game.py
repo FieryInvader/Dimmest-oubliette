@@ -43,14 +43,16 @@ class Button():
         if pygame.mouse.get_pressed()[0] == 0:
             self.clicked = False
 
-		#draw button
-        self.surface.blit(self.image, (self.rect.x, self.rect.y))
-        
         if self.clicked == True:
-            icon = pygame.image.load("images/heroes/selected_ability.png")
-            display.blit(icon, (self.x-15, self.y-15)) 
+            if self.ability_pass == False:
+                icon = pygame.image.load("images/heroes/selected_ability.png")
+                display.blit(icon, (self.x-15, self.y-15))  
+            else:
+                icon = pygame.image.load("images/heroes/selected_pass.png")
+                display.blit(icon, (self.x-32, self.y-15)) 
 
         return action 
+
 #Colours
 red = (255,0,0)
 dark_red = (168,10,10)
