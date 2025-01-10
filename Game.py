@@ -21,6 +21,9 @@ class Button():
         self.surface = surface
         
     def draw(self):
+        #draw button
+        self.surface.blit(self.image, (self.rect.x, self.rect.y))
+        
         action = False
 		#get mouse position
         pos = pygame.mouse.get_pos()
@@ -40,10 +43,16 @@ class Button():
         if pygame.mouse.get_pressed()[0] == 0:
             self.clicked = False
 
-		#draw button
-        self.surface.blit(self.image, (self.rect.x, self.rect.y))
+        if self.clicked == True:
+            if self.ability_pass == False:
+                icon = pygame.image.load("images/heroes/selected_ability.png")
+                display.blit(icon, (self.x-15, self.y-15))  
+            else:
+                icon = pygame.image.load("images/heroes/selected_pass.png")
+                display.blit(icon, (self.x-32, self.y-15)) 
 
         return action 
+
 #Colours
 red = (255,0,0)
 dark_red = (168,10,10)
@@ -274,7 +283,8 @@ display = screen.set_mode((screen_width,screen_height))
 
 
 font = pygame.font.SysFont('Comic sans', 20) 
-font_small = pygame.font.SysFont('Comic sans', 16)     
+font_small = pygame.font.SysFont('Comic sans', 16)    
+font_med = pygame.font.SysFont('Comic sans', 18)
  
 #Text creation
 def draw_text(text, font, colour, x, y):
@@ -293,12 +303,14 @@ def draw_panel():
     display.blit(panel_banner, (194, 580))
 
 def draw_hero(hero):
+    #hero icon
     icon = pygame.image.load(f"images/heroes/{hero.name}_icon.png")
     display.blit(icon, (245, 605))
     draw_text(hero.name, font, yellow, 320, 620)
     draw_text(hero.hero_class, font, grey, 320, 640)
-    next_icon = 0 
+    next_icon = 0 # pixels to space out buttons
     img_list = []
+    #make ability buttons
     for ability in hero.abilities:
         img = pygame.image.load(f"images/{hero.hero_class}/{ability}.png")
         img_list.append(img)
@@ -322,11 +334,17 @@ def draw_hero(hero):
     ability_pass = Button(display, 445 + next_icon, 607, img, True)
     ability_pass.draw()
     next_icon += 62  
-
-    health = f"{hero.current_hp}/{hero.max_hp}"
-    draw_text(health, font_small, dark_red, 280, 707)
-    stress = f"{hero.stress}/10"
-    draw_text(stress, font_small, grey, 280, 730)
+    
+    #hero stats 
+    draw_text(f"{hero.current_hp}/{hero.max_hp}", font_small, dark_red, 310, 707)
+    draw_text(f"{hero.stress}/10", font_small, grey, 310, 730)
+    draw_text("ACC", font_med, grey, 260, 760)
+    draw_text("CRIT", font_med, grey, 260, 780)
+    draw_text("DMG", font_med, grey, 260, 800)
+    draw_text("DODGE", font_med, grey, 260, 820)
+    draw_text("SPD", font_med, grey, 260, 840)
+    
+    
 
 #load background
 bg = pygame.image.load('images/dungeon/hallway2.png')
