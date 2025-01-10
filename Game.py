@@ -167,7 +167,7 @@ class Crusader(Person):
         self.dmg_range = [i for i in range(6,13)]
         super().__init__(x, y, name, 33, 0.03, 0.05, 1, position)
         
-        abilities = []
+        self.abilities = []
         smite = ability('smite',[0,1], [0,1],random.choice(self.dmg_range) + self.dmgmod , 'Attack', self.crit,0.85)
         zealous_accusation = ability('zealous_accusation',[0,1],[(0,1)],math.floor((random.choice(self.dmg_range)+self.dmgmod)* 0.6),'Attack',self.crit*0.96,0.85)
         stunning_blow = ability('stunning_blow',[0,1],[0,1],math.floor((random.choice(self.dmg_range) + self.dmgmod) * 0.5),'Attack',self.crit,0.9)
