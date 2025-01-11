@@ -143,7 +143,7 @@ class Person(pygame.sprite.Sprite):
         self.dodge = dodge
         self.speed = speed
         self.dmg_range = dmg_range
-        self.dmg_mod = 0
+        self.dmg_amp = 1
         self.blight = []
         self.bleed = []
         self.deathblow_res = 0.67
@@ -166,7 +166,7 @@ class Person(pygame.sprite.Sprite):
                 display.blit(full_stress, (self.x-40+i*9.5,self.y+160))
                 
     def roll_dmg(self):
-        damage = random.choice(self.dmg_range) + self.dmg_mod
+        damage = random.choice(self.dmg_range) * self.dmg_amp
         return damage
     
     def roll_crit(self):
@@ -183,12 +183,12 @@ class Highwayman(Person):
         super().__init__(x, y, name, 23, 0.05, 0.1, 5, position, dmg_range)
         
         self.abilities = []
-        self.wicked_slice = ability('wicked_slice',[0,1,2], [0,1], 1.15, 'Attack', self.crit*1.05 ,0.85)
-        self.pistol_shot = ability('pistol_shot',[1,2,3], [1,2,3], 0.85, 'Attack', self.crit*1.075, 0.85)
-        self.grapeshot_blast = ability('grapeshot_blast',[1,2], [(0,1,2)], 0.5, 'Attack', self.crit*0.91, 0.75)
-        self.open_vein = ability('open_vein',[0,1,2], [0,1], 0.85,'Attack', self.crit, 0.95, status = 'Bleed', rounds = 2, dot = 3)
-        #fix dmg
-        self.take_aim = ability('take_aim',[0,1,2,3], [1], 2, 'Util', 0.1, 2)#last arguement will add speed to dismas
+        self.wicked_slice = ability('wicked_slice',[0,1,2], [0,1], 'Attack', self.crit*1.05 ,0.85, dmg_mod = 1.15)
+        self.pistol_shot = ability('pistol_shot',[1,2,3], [1,2,3], 'Attack', self.crit*1.075, 0.85,dmg_mod = 0.9)
+        self.grapeshot_blast = ability('grapeshot_blast',[1,2], [(0,1,2)], 'Attack', self.crit*0.91, 0.75, dmg_mod = 0.5)
+        self.open_vein = ability('open_vein',[0,1,2], [0,1],'Attack', self.crit, 0.95, status = 'Bleed', rounds = 2, dot = 3, dmg_mod = 0.85)
+        #fix dmg || dmg mod - crit mod - speed mod (numbers)
+        self.take_aim = ability('take_aim',[0,1,2,3], [1],'Buff', 0.1,1, speed = 1,dmg_mod = 0.12)#last arguement will add speed to dismas
         
         self.abilities.append(self.wicked_slice)
         self.abilities.append(self.pistol_shot)
@@ -204,13 +204,13 @@ class Crusader(Person):
         super().__init__(x, y, name, 33, 0.03, 0.05, 1, position, dmg_range)
         
         self.abilities = []
-        self.smite = ability('smite', [0,1], [0,1], 1, 'Attack', self.crit, 0.85)
-        self.zealous_accusation = ability('zealous_accusation', [0,1], [(0,1)], 0.6, 'Attack', self.crit*0.96, 0.85)
-        self.stunning_blow = ability('stunning_blow', [0,1], [0,1], 0.5, 'Attack', self.crit, 0.9)
+        self.smite = ability('smite', [0,1], [0,1],'Attack', self.crit, 0.85)
+        self.zealous_accusation = ability('zealous_accusation', [0,1], [(0,1)], 'Attack', self.crit*0.96, 0.85,dmg_mod = 0.5)
+        self.stunning_blow = ability('stunning_blow', [0,1], [0,1], 'Attack', self.crit, 0.9,dmg_mod = 0.5)
         #fix dmg
-        self.inspiring_cry = ability('inspiring_cry', [0,1,2,3], [0,1,2,3], 1, 'Util', self.crit, 1)
+        self.inspiring_cry = ability('inspiring_cry', [0,1,2,3], [0,1,2,3],'Stress_heal', self.crit, 1,heal = 1,stress = -2)
         #fix dmg
-        self.battle_heal = ability('battle_heal', [0,1,2,3], [0,1,2,3], 1,'Util', self.crit, 1)
+        self.battle_heal = ability('battle_heal', [0,1,2,3], [0,1,2,3],'Heal', self.crit, 1, heal = 4)
       
         self.abilities.append(self.smite)
         self.abilities.append(self.zealous_accusation)
@@ -226,12 +226,12 @@ class Plague_Doctor(Person):
         super().__init__(x, y, name, 22, 0.02, 0.01, 7, position, dmg_range)
         
         self.abilities = []
-        self.noxious_blast = ability("noxious_blast" ,[1,2,3], [0,1], 0.2,'Attack', self.crit, 0.95, status = 'Blight', rounds = 3, dot= 5)
-        self.plague_grenade = ability("plague_grenade", [1,2,3], [(2,3)], 0.1, 'Attack', self.crit, 0.95,status = 'Blight', rounds = 3, dot= 4)
-        self.blinding_gas = ability("blinding_gas", [2,3], [(2,3)], 0, 'Attack', 0, 0.95, status = 'Stun')   
+        self.noxious_blast = ability("noxious_blast" ,[1,2,3], [0,1],'Attack', self.crit, 0.95,dmg_mod = 0.2, status = 'Blight', rounds = 3, dot= 5)
+        self.plague_grenade = ability("plague_grenade", [1,2,3], [(2,3)],'Attack', self.crit, 0.95,dmg_mod = 0.1,status = 'Blight', rounds = 3, dot= 4)
+        self.blinding_gas = ability("blinding_gas", [2,3], [(2,3)], 0, 'Attack',0.95, dmg_mod = 0,status = 'Stun')   
         #fix dmg
-        self.battlefield_medicine = ability("battlefield_medicine", [2,3], [0,1,2,3], 1, 'Util', self.crit, 1)
-        self.incision = ability('incision', [0,1,2], [0,1], 1, 'Attack', self.crit*1.05, 0.85, status = 'Bleed', rounds = 3, dot = 2)
+        self.battlefield_medicine = ability("battlefield_medicine", [2,3], [0,1,2,3], 1, 'Heal', self.crit, 1,cure = True, heal = 1)
+        self.incision = ability('incision', [0,1,2], [0,1],'Attack', self.crit*1.05, 0.85, status = 'Bleed', rounds = 3, dot = 2)
              
         self.abilities.append(self.noxious_blast)
         self.abilities.append(self.plague_grenade)
@@ -247,13 +247,13 @@ class Vestal(Person):
         super().__init__(x, y, name, 24, 0.01, 0.01, 4, position, dmg_range)
         
         self.abilities = []
-        self.dazzling_light = ability("dazzling_light", [1,2,3], [0,1,2], 0.25, 'Attack', self.crit*1.05, 0.9, status = 'Stun')
+        self.dazzling_light = ability("dazzling_light", [1,2,3], [0,1,2],'Attack', self.crit*1.05, 0.9,dmg_mod = 0.2, status = 'Stun')
         #fix dmg
-        self.divine_grace = ability("divine_grace", [2,3], [0,1,2,3], 1, 'Util', self.crit, 1)
+        self.divine_grace = ability("divine_grace", [2,3], [0,1,2,3],'Heal', self.crit, 1,heal = 4)
         #fix dmg
-        self.divine_comfort = ability("divine_comfort", [2,3], [(0,1,2,3)], 1,'Util', self.crit, 1)
-        self.judgement = ability("judgement", [0,1,2,3], [(2,3)], 0.5, 'Attack', self.crit*1.05, 0.85)
-        self.illumination = ability('illumination', [0,1,2,3], [0,1,2,3], 1, 'Attack', self.crit, 0.9)
+        self.divine_comfort = ability("divine_comfort", [2,3], [(0,1,2,3)],'Heal', self.crit, 1,heal = 1)
+        self.judgement = ability("judgement", [0,1,2,3], [(2,3)],'Attack', self.crit*1.05, 0.85, dmg_mod = 0.5)
+        self.illumination = ability('illumination', [0,1,2,3], [0,1,2,3],'Attack', self.crit, 0.9)
         
         self.abilities.append(self.dazzling_light)
         self.abilities.append(self.divine_grace)
@@ -268,15 +268,15 @@ class Cutthroat(Person):
         dmg_range = [i for i in range(2,5)]
         super().__init__(x, y, name, 30, 0.12, 0.025, 3, position, dmg_range)
         
-        self.Slice_and_dice = ability('Slice_and_dice', [0,1,2], [(0,1)], 1.5, 'Attack', self.crit, 0.725)
-        self.Uppercut_Slice = ability('Uppercut_Slice', [0,1], [0,1], 1, 'Attack', 0.05, 0.725)
-        self.Shank = ability('Shank', [0,1,2], [0,1,2,3], 2, 'Attack', 0.06, 0.725, status = 'Bleed', rounds = 3, dot = 2)
+        self.Slice_and_dice = ability('Slice_and_dice', [0,1,2], [(0,1)],'Attack', self.crit, 0.725,dmg_mod = 1.5)
+        self.Uppercut_Slice = ability('Uppercut_Slice', [0,1], [0,1],'Attack', self.crit * 1.05, 0.725)
+        self.Shank = ability('Shank', [0,1,2], [0,1,2,3],'Attack',self.crit * 1.06, 0.725,dmg_mod = 2, status = 'Bleed', rounds = 3, dot = 2)
         
         self.abilities =[]
         self.abilities.append(self.Slice_and_dice)
         self.abilities.append(self.Uppercut_Slice)
         self.abilities.append(self.Shank)
-        
+
     def take_action(self):
         pass
 
@@ -285,16 +285,19 @@ class Fusilier(Person):
         dmg_range = [i for i in range(1,6)]
         super().__init__(x, y, name, 20, 0.01, 0.075, 6, position, dmg_range)
         self.abilities = []
-        self.Blanket = ability('Blanket', [1,2,3], [(0,1,2,3)], 1, 'Attack' ,0.02 ,0.725)
+        self.Blanket = ability('Blanket', [1,2,3], [(0,1,2,3)],'Attack' ,self.crit*1.02 ,0.725)
         self.abilities.append(self.Blanket)
         
     def take_action(self):
         pass
 
 
+#CHANGE ABILITIES TO FIT NEW CONSTRUCTOR STANDARDS
+
+
 class ability():
-    def __init__(self, name, position, target, dmg_mod, Type, crit, accuracy,
-                 status = '', rounds = 0, dot = 0, cure = False):
+    def __init__(self, name, position, target,  Type, crit, accuracy,
+                 dmg_mod = 1,status = '', rounds = 0, dot = 0, cure = False,heal = 0, stress = 0,speed = 0):
         self.name = name
         self.position = position
         self.target = target
@@ -307,10 +310,10 @@ class ability():
         self.dot = dot
         self.cure = cure   
                     
-    def proc(self, dmg, target, crit):
+    def proc(self, roll_number, target, crit):
         if self.Type == 'Attack':
             if not crit:
-                apply_dmg(target, round(dmg * self.dmg_mod))
+                apply_dmg(target, round(roll_number * self.dmg_mod))
                 if self.status == 'Blight':
                     apply_blight(target, self.dot, self.rounds)
                 elif self.status == 'Bleed':
@@ -318,15 +321,24 @@ class ability():
                 elif self.status == 'Stun':
                     apply_stun(target)
             else:
-                apply_dmg(target, round(2 * dmg * self.dmg_mod))
+                apply_dmg(target, round(2 * roll_number * self.dmg_mod))
                 if self.status == 'Blight':
                     apply_blight(target, self.dot, self.rounds+2)
                 elif self.status == 'Bleed':
                     apply_bleed(target, self.dot, self.rounds+2)
                 elif self.status == 'Stun':
                     apply_stun(target)
-        elif self.Type == 'Util':
-            apply_util(target,dmg * self.dmg_mod)
+        elif self.Type == 'Heal':
+            if not crit:
+                apply_heal(target, round(roll_number * self.dmg_mod),self.cure)
+            else:
+                apply_heal(target, round(2 * roll_number * self.dmg_mod),self.cure)
+        elif self.Type == 'Stress_heal':
+                apply_stress(target, round(roll_number * self.dmg_mod))
+        elif self.Type == 'Buff':
+            apply_buff(target,dps_buff = self.dmg_mod,crit_buff = self.crit,speed_buff = self.speed)
+
+
         #if self name is take aim do other stuff
         #if ability is medicine do other stuff (set bleed[], set blight[])
 
@@ -357,11 +369,27 @@ def apply_bleed(target,damage,rounds):
 def apply_stun(target):
     target.action_token -= 1
     
-def apply_util(target,heal):
+def apply_heal(target,heal,cure = False):
     if target.current_hp + heal > target.max_hp:
         target.current_hp = target.max_hp
     else:
         target.current_hp += heal
+    if cure:
+        target.blight = []
+        target.bleed = []
+
+def apply_stress(target,stress):
+    if target.stress == 10:
+        pass #meltdown
+    elif target.stress == 0:
+        pass
+    else:
+        target.stress += stress
+        
+def apply_buff(target,dps_buff = 0,speed_buff = 0,crit_buff = 0):
+    target.dmg_amp += dps_buff
+    target.speed += speed_buff
+    target.crit += crit_buff
 
 #the main function for the player taking turns
 def wait_action(buttons,hero):
@@ -434,7 +462,7 @@ def wait_action(buttons,hero):
                                         #if we roll dmg when we initialize ability,
                                         #it will deal the same dmg every time
                                         action = True
-                elif selected_button.ability.Type == 'Util':
+                elif selected_button.ability.Type in ['Heal','Buff','Stress_heal']:
                     #if ability is aoe
                     if type(target)==tuple:
                         #target is tuple, so we iterate
@@ -458,7 +486,13 @@ def wait_action(buttons,hero):
                                     if action:
                                         #proc the ability on every party in the aoe
                                         #because for enemy in enemy_list
-                                        selected_button.ability.proc(member)
+                                        crit = hero.roll_crit()
+                                        if selected_button.ability.Type == 'Stress':
+                                            selected_button.ability.proc(selected_button.ability.stress,member,crit)
+                                        elif selected_button.ability.Type == 'Heal':
+                                            selected_button.ability.proc(selected_button.ability.heal,member,crit)
+                                        else:
+                                            selected_button.ability.proc(selected_button.ability.dmg_mod,member,crit)
                     else:
                         #if ability is single target
                         target_icon = pygame.image.load("images/targets/target_h_1.png")
@@ -473,7 +507,8 @@ def wait_action(buttons,hero):
                             if member.rect.collidepoint(pos): #ON HOVER
                                 if pygame.mouse.get_pressed()[0] == 1:
                                     #proc the ability on that single ally
-                                    selected_button.ability.proc(member)
+                                    crit = hero.roll_crit()
+                                    selected_button.ability.proc(selected_button.ability.heal,member,crit)
                                     action = True
                 else:
                     #if not attack or util, then ability.Type == Pass
