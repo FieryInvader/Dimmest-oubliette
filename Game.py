@@ -23,7 +23,7 @@ class Button(pygame.sprite.Sprite):
         self.surface.blit(self.image, (self.rect.x, self.rect.y))
         pos = pygame.mouse.get_pos()
         if self.rect.collidepoint(pos): #ON HOVER
-            if self.ability != "pass":
+            if self.ability.name != "pass":
                 icon = pygame.image.load("images/heroes/focused_ability.png")
                 display.blit(icon, (self.x-15, self.y-15))
             else:
@@ -105,7 +105,8 @@ def draw_target(target, ability, hero):
     #draw overlay
     overlay = pygame.image.load("images/panels/panel_monster.png")
     display.blit(overlay, (800, 568))
-    
+    indicator = pygame.image.load("images/panels/indicator_valid.png")
+    display.blit(indicator, (target.x-50, target.y+175))
     if target in enemy_list:
         colour = dark_red
         to_hit = (ability.accuracy - target.dodge) * 100
@@ -117,8 +118,6 @@ def draw_target(target, ability, hero):
         to_hit = ability.accuracy
     #draw name
     draw_text(target.name.capitalize(), font, colour, 850, 612)
-    #draw class
-    #draw_text(target.name.capitalize(), font, colour, 850, 612)
     #draw stats
     draw_text(f"HP {target.current_hp}/{target.max_hp}", font, red, 1200, 612)
     
