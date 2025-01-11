@@ -99,6 +99,21 @@ def draw_hero(hero):
     
     return [ability0, ability1, ability2, ability3, ability4, ability_pass]
 
+def draw_target(target):
+    draw_target_overlay()
+    #hero icon
+    draw_text(target.name, font, yellow, 320, 620)
+    draw_text(target.hero_class, font, grey, 320, 640)
+    
+    #hero stats 
+    draw_text(f"{target.current_hp}/{target.max_hp}", font_small, dark_red, 310, 707)
+    draw_text(f"{target.stress}/10", font_small, grey, 310, 730)
+    draw_text("DODGE", font_med, grey, 260, 820)
+    draw_text("SPD", font_med, grey, 260, 840)
+    dodge = target.dodge * 100
+    draw_text(f"{dodge}%", font_med, grey, 350, 820)
+    draw_text(f"{target.speed}", font_med, grey, 350, 840)
+
 def draw_ability(hero, button):
     #draw selected ability
     icon = pygame.image.load("images/heroes/selected_ability.png") #BLINKER KURWA
@@ -113,9 +128,11 @@ def draw_ability(hero, button):
     if button.ability.Type == "Attack":
         #draw ability stats 
         acc = round(button.ability.accuracy, 2) *100
+
         crit = round(button.ability.crit, 2) *100
         dmg_low = round(hero.dmg_range[0] * button.ability.dmg_mod * hero.dmg_amp)
         dmg_high = round(hero.dmg_range[-1] * button.ability.dmg_mod * hero.dmg_amp)
+
         draw_text(f"{acc}%", font_med, grey, 350, 760)
         draw_text(f"{crit}%", font_med, grey, 350, 780)
         draw_text(f"{dmg_low}-{dmg_high}", font_med, grey, 350, 800)
@@ -144,6 +161,10 @@ def draw_ability(hero, button):
     elif button.ability.Type == "Stress_heal":
         s = abs(button.ability.stress)
         draw_text(f"Remove {s} Stress", font_small, white, 460, 735)
+    elif button.ability.Type == "Buff":
+        draw_text(f"+{button.ability.dmg_mod}% DMG", font_small, white, 460, 735)
+        draw_text(f"+{button.ability.speed}% SPD", font_small, white, 600, 735)
+        draw_text(f"+{button.ability.crit}% CRIT", font_small, white, 460, 750)
     
     
 
@@ -222,9 +243,9 @@ class Highwayman(Person):
         super().__init__(x, y, name, 23, 0.05, 0.1, 5, position, dmg_range)
         
         self.abilities = []
-        self.wicked_slice = ability('wicked_slice',[0,1,2], [0,1], 'Attack', self.crit*1.05 ,0.85, dmg_mod = 1.15)
-        self.pistol_shot = ability('pistol_shot',[1,2,3], [1,2,3], 'Attack', self.crit*1.075, 0.85,dmg_mod = 0.9)
-        self.grapeshot_blast = ability('grapeshot_blast',[1,2], [(0,1,2)], 'Attack', self.crit*0.91, 0.75, dmg_mod = 0.5)
+        self.wicked_slice = ability('wicked_slice',[0,1,2], [0,1], 'Attack', self.crit + 0.05 ,0.85, dmg_mod = 1.15)
+        self.pistol_shot = ability('pistol_shot',[1,2,3], [1,2,3], 'Attack', self.crit + 0.075, 0.85,dmg_mod = 0.9)
+        self.grapeshot_blast = ability('grapeshot_blast',[1,2], [(0,1,2)], 'Attack', self.crit - 0.09, 0.75, dmg_mod = 0.5)
         self.open_vein = ability('open_vein',[0,1,2], [0,1],'Attack', self.crit, 0.95, status = 'Bleed', rounds = 2, dot = 3, dmg_mod = 0.85)
         #fix dmg || dmg mod - crit mod - speed mod (numbers)
         self.take_aim = ability('take_aim',[0,1,2,3], [1],'Buff', 0.1,1, speed = 1,dmg_mod = 0.12)#last arguement will add speed to dismas
@@ -246,7 +267,7 @@ class Crusader(Person):
         
         self.abilities = []
         self.smite = ability('smite', [0,1], [0,1],'Attack', self.crit, 0.85)
-        self.zealous_accusation = ability('zealous_accusation', [0,1], [(0,1)], 'Attack', self.crit*0.96, 0.85,dmg_mod = 0.5)
+        self.zealous_accusation = ability('zealous_accusation', [0,1], [(0,1)], 'Attack', self.crit - 0.04, 0.85,dmg_mod = 0.5)
         self.stunning_blow = ability('stunning_blow', [0,1], [0,1], 'Attack', self.crit, 0.9,dmg_mod = 0.5)
         #fix dmg
         self.inspiring_cry = ability('inspiring_cry', [0,1,2,3], [0,1,2,3],'Stress_heal', self.crit, 1,heal = 1,stress = -2)
@@ -274,7 +295,7 @@ class Plague_Doctor(Person):
         self.blinding_gas = ability("blinding_gas", [2,3], [(2,3)],'Attack',0,0.95, dmg_mod = 0,status = 'Stun')   
         #fix dmg
         self.battlefield_medicine = ability("battlefield_medicine", [2,3], [0,1,2,3],'Heal', self.crit, 1, status = 'Cure', heal = 1)
-        self.incision = ability('incision', [0,1,2], [0,1],'Attack', self.crit*1.05, 0.85, status = 'Bleed', rounds = 3, dot = 2)
+        self.incision = ability('incision', [0,1,2], [0,1],'Attack', self.crit + 0.05, 0.85, status = 'Bleed', rounds = 3, dot = 2)
         self.PASS = ability('pass',[0,1,2,3],[0,1,2,3],'Pass',0,0)
              
         self.abilities.append(self.noxious_blast)
@@ -292,12 +313,12 @@ class Vestal(Person):
         super().__init__(x, y, name, 24, 0.01, 0.01, 4, position, dmg_range)
         
         self.abilities = []
-        self.dazzling_light = ability("dazzling_light", [1,2,3], [0,1,2],'Attack', self.crit*1.05, 0.9,dmg_mod = 0.2, status = 'Stun')
+        self.dazzling_light = ability("dazzling_light", [1,2,3], [0,1,2],'Attack', self.crit + 0.05, 0.9,dmg_mod = 0.2, status = 'Stun')
         #fix dmg
         self.divine_grace = ability("divine_grace", [2,3], [0,1,2,3],'Heal', self.crit, 1,heal = 4)
         #fix dmg
         self.divine_comfort = ability("divine_comfort", [2,3], [(0,1,2,3)],'Heal', self.crit, 1,heal = 1)
-        self.judgement = ability("judgement", [0,1,2,3], [(2,3)],'Attack', self.crit*1.05, 0.85, dmg_mod = 0.5)
+        self.judgement = ability("judgement", [0,1,2,3], [(2,3)],'Attack', self.crit + 0.05, 0.85, dmg_mod = 0.5)
         self.illumination = ability('illumination', [0,1,2,3], [0,1,2,3],'Attack', self.crit, 0.9)
         self.PASS = ability('pass',[0,1,2,3],[0,1,2,3],'Pass',0,0)
         
@@ -316,8 +337,8 @@ class Cutthroat(Person):
         super().__init__(x, y, name, 30, 0.12, 0.025, 3, position, dmg_range)
         
         self.Slice_and_dice = ability('Slice_and_dice', [0,1,2], [(0,1)],'Attack', self.crit, 0.725,dmg_mod = 1.5)
-        self.Uppercut_Slice = ability('Uppercut_Slice', [0,1], [0,1],'Attack', self.crit * 1.05, 0.725)
-        self.Shank = ability('Shank', [0,1,2], [0,1,2,3],'Attack',self.crit * 1.06, 0.725,dmg_mod = 2, status = 'Bleed', rounds = 3, dot = 2)
+        self.Uppercut_Slice = ability('Uppercut_Slice', [0,1], [0,1],'Attack', self.crit + 0.05, 0.725)
+        self.Shank = ability('Shank', [0,1,2], [0,1,2,3],'Attack',self.crit + 0.06, 0.725,dmg_mod = 2, status = 'Bleed', rounds = 3, dot = 2)
         
         self.abilities =[]
         self.abilities.append(self.Slice_and_dice)
@@ -332,7 +353,7 @@ class Fusilier(Person):
         dmg_range = [i for i in range(1,6)]
         super().__init__(x, y, name, 20, 0.01, 0.075, 6, position, dmg_range)
         self.abilities = []
-        self.Blanket = ability('Blanket', [1,2,3], [(0,1,2,3)],'Attack' ,self.crit*1.02 ,0.725)
+        self.Blanket = ability('Blanket', [1,2,3], [(0,1,2,3)],'Attack' ,self.crit + 0.02 ,0.725)
         self.abilities.append(self.Blanket)
         
     def take_action(self):
@@ -487,15 +508,17 @@ def wait_action(buttons,hero):
                 if selected_button.ability.Type == 'Attack':
                     #if ability is aoe
                     if type(target)==tuple:
+                        target_counter = 0 
                         #target is tuple, so we iterate
-                        for a in target: 
+                        for a in target:
+                            target_counter += 1
                             #draw targets
                             #this checks that all targets are drawn
                             #when they are, stop drawing them
                             if condition < len(target): 
                                 target_icon = pygame.image.load("images/targets/target_1.png")
                                 display.blit(target_icon, (823 + 150*a, 380))
-                                if a < len(target)-1: 
+                                if target_counter < len(target): 
                                     #draw plus signs
                                     #we need targets-1 plus signs
                                     plus = pygame.image.load("images/targets/plus.png")
@@ -505,6 +528,7 @@ def wait_action(buttons,hero):
                                 #if player clicks any enemy that is a valid target
                                 if enemy.position in target:
                                     if enemy.rect.collidepoint(pos): #ON HOVER
+                                        draw_enemy(enemy) #oh the misery
                                         if pygame.mouse.get_pressed()[0] == 1:
                                             action = True #action has been taken
                                     if action:
@@ -527,7 +551,8 @@ def wait_action(buttons,hero):
                             #target is now int
                             if enemy.position == target:
                                 #find which enemy was targeted
-                                if enemy.rect.collidepoint(pos): 
+                                if enemy.rect.collidepoint(pos):
+                                    draw_enemy(enemy) #every body wants to be my enemy!
                                     if pygame.mouse.get_pressed()[0] == 1:
                                         #proc the ability on that single enemy
                                         #we roll dmg here so its different every time
@@ -540,17 +565,19 @@ def wait_action(buttons,hero):
                 elif selected_button.ability.Type in ['Heal','Buff','Stress_heal']:
                     #if ability is aoe
                     if type(target)==tuple:
+                        target_counter = 0 
                         #target is tuple, so we iterate
                         for a in target: 
+                            target_counter += 1
                             #draw targets
                             #this checks that all targets are drawn
                             #when they are, stop drawing them
                             if condition < len(target):
                                 target_icon = pygame.image.load("images/targets/target_h_1.png")
-                                display.blit(target_icon, (470 - 150*a, 330))
-                                if a < len(target)-1:
+                                display.blit(target_icon, (475 - 150*a, 360))
+                                if target_counter < len(target):
                                     plus = pygame.image.load("images/targets/plus_h.png")
-                                    display.blit(plus, (438 - 150*a, 441))
+                                    display.blit(plus, (462 - 150*a, 505))
                                 condition += 1
                             for member in party:
                                 #if player clicks any ally that is a valid target
