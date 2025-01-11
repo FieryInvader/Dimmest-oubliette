@@ -84,10 +84,10 @@ def wait_action(buttons,hero):
                             
                             target_icon = pygame.image.load("images/targets/target_1.png")
                             if len(condition) != len(target):
-                                display.blit(target_icon, (820 + 150*a, 480))
+                                display.blit(target_icon, (820 + 150*a, 420))
                                 if a != len(target)-1:
                                     plus = pygame.image.load("images/targets/plus.png")
-                                    display.blit(plus, (957 + 150*a, 620))
+                                    display.blit(plus, (957 + 150*a, 560))
                                 condition.append(a)
                             for enemy in enemy_list:
                                 if enemy.position in target:
@@ -100,7 +100,7 @@ def wait_action(buttons,hero):
                     else:
                         target_icon = pygame.image.load("images/targets/target_1.png")
                         if len(condition) != len(selected_button.ability.target):
-                            display.blit(target_icon, (820 + 150*target, 480))
+                            display.blit(target_icon, (820 + 150*target, 420))
                             condition.append(target)
                     for enemy in enemy_list:
                         if enemy.position == target:
@@ -111,44 +111,44 @@ def wait_action(buttons,hero):
                                         action = True
                                     else:
                                         icon = pygame.image.load("images/heroes/focused_pass.png")
-                                        display.blit(icon, (selected_button.x-36, selected_button.y-15)) 
+                                        display.blit(icon, (selected_button.x-32, selected_button.y-15)) 
                                         
+                
+                
                 elif selected_button.ability.Type == 'Util':
-                    for target in selected_button.ability.target:
-                        if selected_button.ability.Type == 'Attack':
-                            if type(target)==tuple:
-                                for a in target:
-                                    
-                                    target_icon = pygame.image.load("images/targets/target_h_1.png")
-                                    if len(condition) != len(target):
-                                        display.blit(target_icon, (820 + 150*a, 480))
-                                        if a != len(target)-1:
-                                            plus = pygame.image.load("images/targets/plus_h.png")
-                                            display.blit(plus, (957 + 150*a, 620))
-                                        condition.append(a)
-                                    for enemy in enemy_list:
-                                        if enemy.position in target:
-                                            if enemy.rect.collidepoint(pos): #ON HOVER
-                                                if pygame.mouse.get_pressed()[0] == 1:
-                                                    action = True
-                                            if action:
-                                                selected_button.ability.proc(enemy)
-                                            
-                            else:
-                                target_icon = pygame.image.load("images/targets/target_h_1.png")
-                                if len(condition) != len(selected_button.ability.target):
-                                    display.blit(target_icon, (820 + 150*target, 480))
-                                    condition.append(target)
+                    if type(target)==tuple:
+                        for a in target:
+                            
+                            target_icon = pygame.image.load("images/targets/target_h_1.png")
+                            if len(condition) != len(target):
+                                display.blit(target_icon, (470 - 150*a, 430))
+                                if a != len(target)-1:
+                                    plus = pygame.image.load("images/targets/plus_h.png")
+                                    display.blit(plus, (438 - 150*a, 541))
+                                condition.append(a)
                             for enemy in enemy_list:
-                                if enemy.position == target:
+                                if enemy.position in target:
                                     if enemy.rect.collidepoint(pos): #ON HOVER
                                         if pygame.mouse.get_pressed()[0] == 1:
-                                            if selected_button.ability != "pass":
-                                                selected_button.ability.proc(enemy)
-                                                action = True
-                                            else:
-                                                icon = pygame.image.load("images/heroes/focused_pass.png")
-                                                display.blit(icon, (selected_button.x-36, selected_button.y-15))
+                                            action = True
+                                    if action:
+                                        selected_button.ability.proc(enemy)
+                                    
+                    else:
+                        target_icon = pygame.image.load("images/targets/target_h_1.png")
+                        if len(condition) != len(selected_button.ability.target):
+                            display.blit(target_icon, (470 - 150*target, 430))
+                            condition.append(target)
+                    for enemy in enemy_list:
+                        if enemy.position == target:
+                            if enemy.rect.collidepoint(pos): #ON HOVER
+                                if pygame.mouse.get_pressed()[0] == 1:
+                                    if selected_button.ability != "pass":
+                                        selected_button.ability.proc(enemy)
+                                        action = True
+                                    else:
+                                        icon = pygame.image.load("images/heroes/focused_pass.png")
+                                        display.blit(icon, (selected_button.x-36, selected_button.y-15))
                     
                     
         draw_panel()
@@ -506,10 +506,10 @@ tiles = math.ceil(screen_width / bg.get_width()) + 1
 scroll = 0
 
 #hero init (well theyre not bloody villains)
-dismas = Highwayman(400, 400,'Dismas',1)
-reynauld = Crusader(530,400,'Reynauld',0)
-paracelsus = Plague_Doctor(230,400,'Paracelsus',2)
-junia = Vestal(100,400,'Junia',3)
+dismas = Highwayman(400, 375,'Dismas',1)
+reynauld = Crusader(530,375,'Reynauld',0)
+paracelsus = Plague_Doctor(230,375,'Paracelsus',2)
+junia = Vestal(100,375,'Junia',3)
 
 #creating a group of sprites for heroes
 party = []
@@ -519,10 +519,10 @@ party.append(paracelsus)
 party.append(junia)
 
    
-enemy1 = Cutthroat(900, 410, 'cutthroat', 0)        
-enemy2 = Cutthroat(1050, 410, 'cutthroat', 1)
-enemy3 = Fusilier(1200, 410, 'fusilier', 2)
-enemy4 = Fusilier(1350, 410, 'fusilier', 3)
+enemy1 = Cutthroat(900, 370, 'cutthroat', 0)        
+enemy2 = Cutthroat(1050, 370, 'cutthroat', 1)
+enemy3 = Fusilier(1200, 370, 'fusilier', 2)
+enemy4 = Fusilier(1350, 370, 'fusilier', 3)
 
 enemy_list = []
 enemy_list.append(enemy1)
