@@ -5,6 +5,7 @@ import time
 
 pygame.init()
 
+random.seed(time.time())
 #button class
 class Button(pygame.sprite.Sprite):
     def __init__(self, surface, x, y, image, ability):
@@ -217,7 +218,7 @@ class Person(pygame.sprite.Sprite):
         #stats
         self.max_hp = health
         self.current_hp = health
-        self.stress = 0
+        self.stress = 1
         self.crit = critical
         self.dodge = dodge
         self.speed = speed
@@ -379,7 +380,7 @@ class Cutthroat(Person):
         
     def take_action(self):
         while self.action_cooldown <= self.action_wait_time:
-            if self.alive:
+            if self.alive and (self.action_token > 0):
                 self.action_cooldown += 1
                 if self.action_cooldown == self.action_wait_time:
                     random_action = random.choice(self.abilities)
@@ -413,12 +414,13 @@ class Cutthroat(Person):
                             if crit:
                                 dmg *= 2
                             apply_dmg(target, dmg)
-                            
+        print('Cuttman attacked with',random_action.name,'and did he hit?',hits,'\n His target was',target)
+        self.action_cooldown = 0
 
 
 class Fusilier(Person):
     def __init__(self, x, y, name,position):
-        dmg_range = [i for i in range(1,6)]
+        dmg_range = [i for i in range(4,12)]
         super().__init__(x, y, name, 20, 0.01, 0.075, 6, position, dmg_range)
         self.abilities = []
         self.Blanket = ability('Blanket', [1,2,3], [(0,1,2,3)],'Attack' ,self.crit + 0.02 ,0.725)
@@ -448,6 +450,7 @@ class Fusilier(Person):
                     else:
                         target = random.choice(party)
                         hits = roll_to_hit(random_action, target)
+                        dmg = 0
                         if hits:
                             crit = self.roll_crit()
                             dmg = self.roll_dmg()
@@ -460,7 +463,8 @@ class Fusilier(Person):
                             if crit:
                                 dmg *= 2
                             apply_dmg(target, dmg)
-
+        print('fusiman attacked with',random_action.name,'and did he hit?',hits,'\nFor how much?',dmg)
+        self.action_cooldown = 0
 
 #CHANGE ABILITIES TO FIT NEW CONSTRUCTOR STANDARDS
 
@@ -512,7 +516,7 @@ class ability():
             else:
                 apply_heal(target, round(2 * roll_number * self.dmg_mod),cure)
         elif self.Type == 'Stress_heal':
-                apply_stress(target, round(roll_number * self.dmg_mod))
+            apply_stress(target,roll_number)
         elif self.Type == 'Buff':
             apply_buff(target,dps_buff = self.dmg_mod,crit_buff = self.crit,speed_buff = self.speed)
 
@@ -553,13 +557,11 @@ def apply_heal(target,heal,cure = False):
         target.bleed = []
 
 def apply_stress(target,stress):
-    if target.stress + stress >= 10:
+    target.stress += stress
+    if target.stress > 10:
         target.stress = 10
-        pass #meltdown
-    elif target.stress + stress < 0:
-        pass
-    else:
-        target.stress += stress
+    if target.stress < 0:
+        target.stress = 0
         
 def apply_buff(target,dps_buff = 0,speed_buff = 0,crit_buff = 0):
     target.dmg_amp += dps_buff
@@ -699,7 +701,7 @@ def wait_action(buttons,hero):
                                         #proc the ability on every party in the aoe
                                         #because for enemy in enemy_list
                                         crit = hero.roll_crit()
-                                        if selected_button.ability.Type == 'Stress':
+                                        if selected_button.ability.Type == 'Stress_heal':
                                             selected_button.ability.proc(selected_button.ability.stress,member,crit)
                                         elif selected_button.ability.Type == 'Heal':
                                             selected_button.ability.proc(selected_button.ability.heal,member,crit)
@@ -721,7 +723,12 @@ def wait_action(buttons,hero):
                                 if pygame.mouse.get_pressed()[0] == 1:
                                     #proc the ability on that single ally
                                     crit = hero.roll_crit()
-                                    selected_button.ability.proc(selected_button.ability.heal,member,crit)
+                                    if selected_button.ability.Type == 'Stress_heal':
+                                        selected_button.ability.proc(selected_button.ability.stress,member,crit)
+                                    elif selected_button.ability.Type == 'Heal':
+                                        selected_button.ability.proc(selected_button.ability.heal,member,crit)
+                                    else:
+                                        selected_button.ability.proc(selected_button.ability.dmg_mod,member,crit)
                                     action = True
                 else:
                     action = True
@@ -833,8 +840,10 @@ while run:
     if fighting:
         loc = (i-1 * bg.get_width()) + scroll
         for member in party:
+            member.action_token += 1
             initiative.append((random.choice(range(9)) + member.speed,0,member))
         for enemy in enemy_list:
+            enemy.action_token += 1
             initiative.append((random.choice(range(9)) + enemy.speed,1,enemy))
         initiative.sort(key = lambda tup: tup[1])
         for roll, team, person in initiative:
@@ -848,11 +857,14 @@ while run:
             draw_panel()
             pygame.display.update()
             if team == 0:
-                selected_button = None
-                buttons = draw_hero(person)
-                wait_action(buttons, person)
+                if person.action_token:
+                    selected_button = None
+                    buttons = draw_hero(person)
+                    wait_action(buttons, person)
+                    person.action_token -= 1
             else:
                 person.take_action()
+                person.action_token -= 1
 
                 
     if not fighting:
