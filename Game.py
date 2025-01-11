@@ -98,21 +98,41 @@ def draw_hero(hero):
     draw_text(f"{hero.speed}", font_med, grey, 350, 840)
     
     return [ability0, ability1, ability2, ability3, ability4, ability_pass]
-
-def draw_target(target):
-    draw_target_overlay()
-    #hero icon
-    draw_text(target.name, font, yellow, 320, 620)
-    draw_text(target.hero_class, font, grey, 320, 640)
     
-    #hero stats 
-    draw_text(f"{target.current_hp}/{target.max_hp}", font_small, dark_red, 310, 707)
-    draw_text(f"{target.stress}/10", font_small, grey, 310, 730)
-    draw_text("DODGE", font_med, grey, 260, 820)
-    draw_text("SPD", font_med, grey, 260, 840)
+
+def draw_target(target, ability, hero):
+    #draw overlay
+    overlay = pygame.image.load("images/panels/panel_monster.png")
+    display.blit(overlay, (800, 568))
+    
+    if target in enemy_list:
+        colour = dark_red
+        indicator = pygame.image.load("images/panels/indicator_valid.png")
+        display.blit(indicator, (target.x-50, target.y+180))
+        to_hit = (ability.accuracy - target.dodge) * 100
+        dmg_low = round(hero.dmg_range[0] * ability.dmg_mod)
+        dmg_high = round(hero.dmg_range[-1] * ability.dmg_mod)
+        draw_text(f"Hero DMG: {dmg_low}-{dmg_high}", font_small, yellow, 1150, 695)
+    else:
+        colour = white
+        to_hit = ability.accuracy
+    #draw name
+    draw_text(target.name.capitalize(), font, colour, 850, 620)
+    #draw class
+    #draw_text(target.name.capitalize(), font, colour, 850, 620)
+    #draw stats
+    draw_text(f"HP {target.current_hp}/{target.max_hp}", font, red, 1200, 620)
+    
+    draw_text(f"Hero to Hit: {to_hit}%", font_small, yellow, 1150, 655)
+    crit = round(ability.crit*100,2)
+    if crit < 0: 
+        crit = 0
+    draw_text(f"Hero to Crit: {crit}%", font_small, yellow, 1150, 675)
+    #draw stats
+    draw_text("SPEED", font_small, grey, 1000, 655)
     dodge = target.dodge * 100
-    draw_text(f"{dodge}%", font_med, grey, 350, 820)
-    draw_text(f"{target.speed}", font_med, grey, 350, 840)
+    draw_text(f"{dodge}%", font_small, grey, 1000, 675)
+    draw_text(f"{target.speed}", font_small, grey, 1000, 695)
 
 def draw_ability(hero, button):
     #draw selected ability
@@ -476,6 +496,7 @@ def wait_action(buttons,hero):
     selected_button = None
     action = False
     selected_displayed = False
+    targeting_displayed = False
     while not action:
         if not selected_displayed:
             selected = pygame.image.load("images/targets/selected.png")
@@ -504,6 +525,7 @@ def wait_action(buttons,hero):
                     display.blit(selected, (470 - 150 * hero.position, 390))
                     pygame.display.update()
         if selected_button != None: #if a button was pressed
+            targeting_displayed = False
             for target in selected_button.ability.target: #valid targets
                 if selected_button.ability.Type == 'Attack':
                     #if ability is aoe
@@ -528,7 +550,9 @@ def wait_action(buttons,hero):
                                 #if player clicks any enemy that is a valid target
                                 if enemy.position in target:
                                     if enemy.rect.collidepoint(pos): #ON HOVER
-                                        draw_enemy(enemy) #oh the misery
+                                        if not targeting_displayed:
+                                            draw_target(enemy, selected_button.ability, hero) #oh the misery
+                                            targeting_displayed = True
                                         if pygame.mouse.get_pressed()[0] == 1:
                                             action = True #action has been taken
                                     if action:
@@ -552,7 +576,9 @@ def wait_action(buttons,hero):
                             if enemy.position == target:
                                 #find which enemy was targeted
                                 if enemy.rect.collidepoint(pos):
-                                    draw_enemy(enemy) #every body wants to be my enemy!
+                                    if not targeting_displayed:
+                                        draw_target(enemy, selected_button.ability, hero) #every body wants to be my enemy!
+                                        targeting_displayed = True
                                     if pygame.mouse.get_pressed()[0] == 1:
                                         #proc the ability on that single enemy
                                         #we roll dmg here so its different every time
@@ -583,6 +609,7 @@ def wait_action(buttons,hero):
                                 #if player clicks any ally that is a valid target
                                 if member.position in target:
                                     if member.rect.collidepoint(pos): #ON HOVER
+                                        draw_target(member, button.ability, hero)
                                         if pygame.mouse.get_pressed()[0] == 1:
                                             action = True
                                     if action:
@@ -607,6 +634,7 @@ def wait_action(buttons,hero):
                         if member.position == target:
                             #find which ally was targeted
                             if member.rect.collidepoint(pos): #ON HOVER
+                                draw_target(member, button.ability, hero)
                                 if pygame.mouse.get_pressed()[0] == 1:
                                     #proc the ability on that single ally
                                     crit = hero.roll_crit()
