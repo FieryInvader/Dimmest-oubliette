@@ -132,6 +132,8 @@ def draw_target(target, ability, hero):
     draw_text(f"{dodge}%", font_small, grey, 1000, 667)
     draw_text(f"{target.speed}", font_small, grey, 1000, 687)
 
+#incision does not round critical for some unknown reason
+
 def draw_ability(hero, button):
     #draw selected ability
     icon = pygame.image.load("images/heroes/selected_ability.png") #BLINKER KURWA
@@ -366,9 +368,9 @@ class Cutthroat(Person):
         dmg_range = [i for i in range(2,5)]
         super().__init__(x, y, name, 30, 0.12, 0.025, 3, position, dmg_range)
         
-        self.Slice_and_dice = ability('Slice_and_dice', [0,1,2], [(0,1)],'Attack', self.crit, 0.725,dmg_mod = 1.5,status = 'Bleed', rounds = 3, dot = 1)
-        self.Uppercut_Slice = ability('Uppercut_Slice', [0,1], [0,1],'Attack', self.crit + 0.05, 0.725,status = 'Bleed', rounds = 3, dot = 3)
-        self.Shank = ability('Shank', [0,1,2], [0,1,2,3],'Attack',self.crit + 0.06, 0.725,dmg_mod = 2, status = 'Bleed', rounds = 3, dot = 2)
+        self.Slice_and_dice = ability('Slice_and_dice', [0,1,2], [(0,1)],'Attack', self.crit, 0.85,dmg_mod = 1.5,status = 'Bleed', rounds = 3, dot = 1)
+        self.Uppercut_Slice = ability('Uppercut_Slice', [0,1], [0,1],'Attack', self.crit + 0.05, 0.85,status = 'Bleed', rounds = 3, dot = 3)
+        self.Shank = ability('Shank', [0,1,2], [0,1,2,3],'Attack',self.crit + 0.06, 0.85,dmg_mod = 2, status = 'Bleed', rounds = 3, dot = 2)
         
         self.abilities =[]
         self.abilities.append(self.Slice_and_dice)
@@ -376,10 +378,12 @@ class Cutthroat(Person):
         self.abilities.append(self.Shank)
         
     def take_action(self):
+        self.action_cooldown = 0
         while self.action_cooldown <= self.action_wait_time:
             if self.alive and (self.action_token > 0):
                 self.action_cooldown += 1
                 if self.action_cooldown == self.action_wait_time:
+                    resovle_dots(self)
                     random_action = random.choice(self.abilities)
                     if type(random_action) is tuple():
                         for target in random_action.target[0]:
@@ -411,44 +415,29 @@ class Cutthroat(Person):
                             if crit:
                                 dmg *= 2
                             apply_dmg(target, dmg)
-        print('Cuttman attacked with',random_action.name,'and did he hit?',hits,'\n His target was',target)
-        self.action_cooldown = 0
+
+
 
 
 class Fusilier(Person):
     def __init__(self, x, y, name,position):
-        dmg_range = [i for i in range(4,12)]
+        dmg_range = [i for i in range(4,10)]
         super().__init__(x, y, name, 20, 0.01, 0.075, 6, position, dmg_range)
         self.abilities = []
-        self.Blanket = ability('Blanket', [1,2,3], [(0,1,2,3)],'Attack' ,self.crit + 0.02 ,0.725)
+        self.Blanket = ability('Blanket', [1,2,3], [(0,1,2,3)],'Attack' ,self.crit + 0.02 ,0.8)
         self.abilities.append(self.Blanket)
         
     def take_action(self):
-        while self.action_cooldown <= self.action_wait_time:
-            if self.alive:
-                self.action_cooldown += 1
-                if self.action_cooldown == self.action_wait_time:
-                    random_action = random.choice(self.abilities)
-                    if type(random_action) is tuple():
-                        for target in random_action.target[0]:
-                            hits = roll_to_hit(random_action, target)
-                            if hits:
-                                crit = self.roll_crit()
-                                dmg = self.roll_dmg()
-                                if random_action.status == 'Bleed':
-                                    dot = random_action.dot
-                                    rounds = random_action.rounds
-                                    if crit:
-                                        rounds += 2
-                                    apply_bleed(target, dot, rounds)
-                                if crit:
-                                    dmg *= 2
-                                apply_dmg(target, dmg)
-                    else:
-                        target = random.choice(party)
+        self.action_cooldown = 0
+        while self.action_cooldown < self.action_wait_time:
+            self.action_cooldown += 1
+            if self.action_cooldown == self.action_wait_time:
+                random_action = random.choice(self.abilities)
+                if type(random_action) is tuple():
+                    for target in random_action.target[0]:
                         hits = roll_to_hit(random_action, target)
-                        dmg = 0
                         if hits:
+                            print(target,'HIT')
                             crit = self.roll_crit()
                             dmg = self.roll_dmg()
                             if random_action.status == 'Bleed':
@@ -460,8 +449,25 @@ class Fusilier(Person):
                             if crit:
                                 dmg *= 2
                             apply_dmg(target, dmg)
-        print('fusiman attacked with',random_action.name,'and did he hit?',hits,'\nFor how much?',dmg)
-        self.action_cooldown = 0
+                else:
+                    target = random.choice(party)
+                    hits = roll_to_hit(random_action, target)
+                    dmg = 0
+                    if hits:
+                        crit = self.roll_crit()
+                        dmg = self.roll_dmg()
+                        if random_action.status == 'Bleed':
+                            dot = random_action.dot
+                            rounds = random_action.rounds
+                            if crit:
+                                rounds += 2
+                            apply_bleed(target, dot, rounds)
+                        if crit:
+                            dmg *= 2
+                        apply_dmg(target, dmg)
+
+
+
 
 #CHANGE ABILITIES TO FIT NEW CONSTRUCTOR STANDARDS
 
@@ -542,6 +548,8 @@ def apply_bleed(target,damage,rounds):
     return indicator
 
 def apply_stun(target):
+    if target.action_token <= 0:
+        return
     target.action_token -= 1
     
 def apply_heal(target,heal,cure = False):
@@ -567,7 +575,25 @@ def apply_buff(target,dps_buff = 0,speed_buff = 0,crit_buff = 0):
         if ability.Type == 'Attack':
             ability.crit += crit_buff
 
-
+def resovle_dots(target):
+    if target.bleed:
+        for dot,Round in target.bleed:
+            
+            if target.current_hp - dot < 0 :
+                target.current_hp = 0
+            target.current_hp -= dot
+            
+        target.bleed[:] = [(x,y-1) for x,y in target.bleed]
+    if target.blight:
+        for dot,Round in target.blight:
+            
+            if target.current_hp - dot < 0 :
+                target.current_hp = 0
+            target.current_hp -= dot
+            
+        target.blight[:] = [(x,y-1) for x,y in target.blight]
+    if target.current_hp == 0 :
+        target.alive = False
 
 #REMINDER TO REVERT BUFFS AFTER ONE FIGHT!!!!!!!!!!
 #def revert_buffs(target)
@@ -797,7 +823,12 @@ map_tiles = [0,1,0,2,0,1]
 
 #main game loop
 run = True
+game_over = False
 fighting = False
+condition = lambda x: x.alive == True
+tmp = []
+m = 0
+e = 0
 while run:
     clock.tick(FPS)
     
@@ -834,7 +865,10 @@ while run:
         if event.type == COMBAT:
             fighting = True
             initiative = []
+
     if fighting:
+
+        enemy_list[:] = [x for x in enemy_list if x.alive == True]
         loc = (i-1 * bg.get_width()) + scroll
         for member in party:
             member.action_token += 1
@@ -842,8 +876,23 @@ while run:
         for enemy in enemy_list:
             enemy.action_token += 1
             initiative.append((random.choice(range(9)) + enemy.speed,1,enemy))
-        initiative.sort(key = lambda tup: tup[1])
+        initiative.sort(key = lambda tup: tup[0], reverse = True)
+        print('round chage')
         for roll, team, person in initiative:
+            for member in party:
+                if member.current_hp <= 0:
+                    m += 1
+                    member.alive = False
+            for enemy in enemy_list:
+                if enemy.current_hp <= 0:
+                    e += 1
+                    enemy.alive = False
+            if e == 4:
+                fighting = False
+                break
+            elif m == 4:
+                fighting = False
+                game_over = True
             #blit background
             for i in range(0,tiles):
                 display.blit(bg, (i * bg.get_width() + scroll,0))
@@ -853,20 +902,26 @@ while run:
                 member.draw(member.current_hp)
             draw_panel()
             pygame.display.update()
+            resovle_dots(person)
             if team == 0:
-                if person.action_token:
-                    selected_button = None
-                    buttons = draw_hero(person)
-                    wait_action(buttons, person)
-                    person.action_token -= 1
+                if person.alive:
+                    if person.action_token:
+                        selected_button = None
+                        buttons = draw_hero(person)
+                        wait_action(buttons, person)
+                        person.action_token -= 1
             else:
-                person.take_action()
-                person.action_token -= 1
-
-                
+                if person.alive:
+                    if person.action_token > 0:
+                        person.take_action()
+                        person.action_token -= 1
+    
     if not fighting:
         for member in party:
             member.draw(member.current_hp)
+    if game_over:
+        print('game over')
+        pygame.quit()
     pygame.display.update()
 
 pygame.quit()
