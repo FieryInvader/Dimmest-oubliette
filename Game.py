@@ -349,6 +349,9 @@ class ability():
         self.stress = stress
         self.speed = speed
                     
+        
+    #Function to fire the effect of the ability depending on its Type
+    #Using the calculation functions, while checking to apply buffs
     def proc(self, roll_number, target, crit):
         cure = False
         if self.Type == 'Attack':
@@ -379,10 +382,6 @@ class ability():
                 apply_stress(target, round(roll_number * self.dmg_mod))
         elif self.Type == 'Buff':
             apply_buff(target,dps_buff = self.dmg_mod,crit_buff = self.crit,speed_buff = self.speed)
-
-
-        #if self name is take aim do other stuff
-        #if ability is medicine do other stuff (set bleed[], set blight[])
 
 
 #functions to calculate things
@@ -432,6 +431,9 @@ def apply_buff(target,dps_buff = 0,speed_buff = 0,crit_buff = 0):
     target.dmg_amp += dps_buff
     target.speed += speed_buff
     target.crit += crit_buff
+
+#REMINDER TO REVERT BUFFS AFTER ONE FIGHT!!!!!!!!!!
+#def revert_buffs(target)
 
 #the main function for the player taking turns
 def wait_action(buttons,hero):
