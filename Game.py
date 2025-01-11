@@ -1,6 +1,7 @@
 import pygame
 import math
 import random
+import time
 
 pygame.init()
 
@@ -100,8 +101,25 @@ def draw_ability(hero, button):
     #draw selected ability
     icon = pygame.image.load("images/heroes/selected_ability.png") #BLINKER KURWA
     display.blit(icon, (button.x-15, button.y-15))
-    stats = pygame.image.load("images/targets/ability_stats.png")
-    display.blit(stats, (445, 720))
+    abil = pygame.image.load("images/targets/ability_stats.png") 
+    display.blit(abil, (445, 710))
+    #print ability name and any effects it causes
+    name = button.ability.name
+    name = name.capitalize()
+    name = name.replace("_", " ")
+    draw_text(f"{name}", font_med, white, 460, 715)
+    if button.ability.status == 'Bleed':
+        dot = button.ability.dot
+        r = button.ability.rounds
+        draw_text(f"Bleed {dot}/{r} rds", font_small, dark_red, 460, 740)
+    elif button.ability.status == 'Blight':
+        dot = button.ability.dot
+        r = button.ability.rounds
+        draw_text(f"Bleed {dot}/{r} rds", font_small, dark_grey, 460, 740)
+    elif button.ability.status == 'Stun':
+        draw_text("Stun", font_small, vomit, 460, 740)
+    elif button.ability.status == 'Cure':
+        draw_text("Remove bleed/blight from target and self", font_small, dark_grey, 460, 740)
     #draw ability stats 
     acc = round(button.ability.accuracy, 2)
     crit = round(button.ability.crit, 2)
@@ -114,6 +132,7 @@ def draw_ability(hero, button):
 #Colours
 red = (255,0,0)
 dark_red = (168,10,10)
+vomit = (130,175,5)
 yellow = (233,200,85)
 grey = (200,200,200) 
 black = (0,0,0)
@@ -154,16 +173,16 @@ class Person(pygame.sprite.Sprite):
         ratio = self.current_hp / self.max_hp
         if flip == True:
             display.blit(pygame.transform.flip(self.image, True, False), self.rect)
-            pygame.draw.rect(display, dark_grey, (self.x-40,self.y+150,100,10))
-            pygame.draw.rect(display, red, (self.x-40,self.y+150,100*ratio,10))
+            pygame.draw.rect(display, dark_grey, (self.x-40,self.y+180,100,10))
+            pygame.draw.rect(display, red, (self.x-40,self.y+180,100*ratio,10))
         else:
             display.blit(self.image, self.rect)
-            pygame.draw.rect(display, dark_grey, (self.x-40,self.y+150,100,10))
-            pygame.draw.rect(display, red, (self.x-40,self.y+150,100*ratio,10))
+            pygame.draw.rect(display, dark_grey, (self.x-40,self.y + 165, 100, 10))
+            pygame.draw.rect(display, red, (self.x-40,self.y + 165, 100*ratio, 10))
             for i in range(11):
-                display.blit(empty_stress, (self.x-40+i*9.5,self.y+160))
+                display.blit(empty_stress, (self.x-40+i*9.5,self.y+180))
             for i in range(self.stress):
-                display.blit(full_stress, (self.x-40+i*9.5,self.y+160))
+                display.blit(full_stress, (self.x-40+i*9.5,self.y+180))
                 
     def roll_dmg(self):
         damage = random.choice(self.dmg_range) * self.dmg_amp
@@ -401,7 +420,12 @@ def wait_action(buttons,hero):
     condition = 0 #counter for targets than need to be drawn
     selected_button = None
     action = False
+    selected_displayed = False
     while not action:
+        if not selected_displayed:
+            selected = pygame.image.load("images/targets/selected.png")
+            display.blit(selected, (470 - 150 * hero.position, 390))
+            selected_displayed = True
         pos = pygame.mouse.get_pos()
         #Wait for player to click an ability
         for event in pygame.event.get():
@@ -424,12 +448,12 @@ def wait_action(buttons,hero):
                             #when they are, stop drawing them
                             if condition < len(target): 
                                 target_icon = pygame.image.load("images/targets/target_1.png")
-                                display.blit(target_icon, (820 + 150*a, 420))
+                                display.blit(target_icon, (823 + 150*a, 380))
                                 if a < len(target)-1: 
                                     #draw plus signs
                                     #we need targets-1 plus signs
                                     plus = pygame.image.load("images/targets/plus.png")
-                                    display.blit(plus, (957 + 150*a, 560))
+                                    display.blit(plus, (960 + 150*a, 525))
                                 condition += 1
                             for enemy in enemy_list:
                                 #if player clicks any enemy that is a valid target
@@ -450,7 +474,7 @@ def wait_action(buttons,hero):
                         #if ability is single target
                         target_icon = pygame.image.load("images/targets/target_1.png")
                         if condition < len(selected_button.ability.target):
-                            display.blit(target_icon, (820 + 150*target, 420))
+                            display.blit(target_icon, (823 + 150*target, 380))
                             condition += 1
                         for enemy in enemy_list:
                             #check which enemies are valid targets
@@ -477,10 +501,10 @@ def wait_action(buttons,hero):
                             #when they are, stop drawing them
                             if condition < len(target):
                                 target_icon = pygame.image.load("images/targets/target_h_1.png")
-                                display.blit(target_icon, (470 - 150*a, 430))
+                                display.blit(target_icon, (470 - 150*a, 330))
                                 if a < len(target)-1:
                                     plus = pygame.image.load("images/targets/plus_h.png")
-                                    display.blit(plus, (438 - 150*a, 541))
+                                    display.blit(plus, (438 - 150*a, 441))
                                 condition += 1
                             for member in party:
                                 #if player clicks any ally that is a valid target
@@ -502,7 +526,7 @@ def wait_action(buttons,hero):
                         #if ability is single target
                         target_icon = pygame.image.load("images/targets/target_h_1.png")
                         if condition < len(selected_button.ability.target):
-                            display.blit(target_icon, (470 - 150*target, 430))
+                            display.blit(target_icon, (475 - 150*target, 360))
                             condition += 1
                     for member in party:
                         #check which allies are valid targets
@@ -530,7 +554,7 @@ def wait_action(buttons,hero):
 
 #Variables
 clock = pygame.time.Clock()
-FPS = 60
+FPS = 144
 screen_width = 1600
 screen_height = 900
 bottom_panel = 150
@@ -562,10 +586,10 @@ party.append(paracelsus)
 party.append(junia)
 
    
-enemy1 = Cutthroat(900, 370, 'cutthroat', 0)        
-enemy2 = Cutthroat(1050, 370, 'cutthroat', 1)
-enemy3 = Fusilier(1200, 370, 'fusilier', 2)
-enemy4 = Fusilier(1350, 370, 'fusilier', 3)
+enemy1 = Cutthroat(900, 375, 'cutthroat', 0)        
+enemy2 = Cutthroat(1050, 375, 'cutthroat', 1)
+enemy3 = Fusilier(1200, 375, 'fusilier', 2)
+enemy4 = Fusilier(1350, 375, 'fusilier', 3)
 
 enemy_list = []
 enemy_list.append(enemy1)
@@ -620,19 +644,22 @@ while run:
             fighting = True
             initiative = []
         if fighting:
-
+            loc = (i-1 * bg.get_width()) + scroll
             for member in party:
                 initiative.append((random.choice(range(9)) + member.speed,0,member))
             for enemy in enemy_list:
                 initiative.append((random.choice(range(9)) + enemy.speed,1,enemy))
             initiative.sort(key = lambda tup: tup[1])
             for roll, team, person in initiative:
+                #blit background
+                for i in range(0,tiles):
+                    display.blit(bg, (i * bg.get_width() + scroll,0))
                 for enemy in enemy_list:
                     enemy.draw(enemy.current_hp,flip=True)
                 for member in party:
                     member.draw(member.current_hp)
-                for member in party:
-                    initiative.append((random.choice(range(9)) + member.speed,0,member))
+                draw_panel()
+                pygame.display.update()
                 if team == 0:
                     selected_button = None
                     buttons = draw_hero(person)
@@ -641,9 +668,9 @@ while run:
                     pass
 
                 
-    
-    for member in party:
-        member.draw(member.current_hp)
+    if not fighting:
+        for member in party:
+            member.draw(member.current_hp)
     pygame.display.update()
 
 pygame.quit()
