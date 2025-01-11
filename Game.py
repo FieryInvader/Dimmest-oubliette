@@ -28,7 +28,318 @@ class Button(pygame.sprite.Sprite):
                 icon = pygame.image.load("images/heroes/focused_pass.png")
                 display.blit(icon, (self.x-36, self.y-15))
             
+<<<<<<< Updated upstream
     # CHECK PASS ACTION!!!!!!!!!!!!!!!!!!!!!!!
+=======
+    
+def wait_action(buttons,hero):
+    condition = 0 #counter for targets than need to be drawn
+    selected_button = None
+    action = False
+    while not action:
+        pos = pygame.mouse.get_pos()
+        #Wait for player to click an ability
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            for button in buttons:
+                #player clicks ability
+                if event.type == pygame.MOUSEBUTTONDOWN and button.rect.collidepoint(pos):
+                    condition = []
+                    selected_button = button #the ability that was pressed
+        if selected_button != None: #if a button was pressed
+            for target in selected_button.ability.target: #valid targets
+                if selected_button.ability.Type == 'Attack':
+                    #if ability is aoe
+                    if type(target)==tuple:
+                        #target is tuple, so we iterate
+                        for a in target: 
+                            #draw targets
+                            #this checks that all targets are drawn
+                            #when they are, stop drawing them
+                            if condition < len(target): 
+                                target_icon = pygame.image.load("images/targets/target_1.png")
+                                display.blit(target_icon, (820 + 150*a, 420))
+                                if a != len(target)-1: 
+                                    #draw plus signs
+                                    #we need targets-1 plus signs
+                                    plus = pygame.image.load("images/targets/plus.png")
+                                    display.blit(plus, (957 + 150*a, 560))
+                                condition += 1
+                            for enemy in enemy_list:
+                                #if player hovers any enemy that is a valid target
+                                if enemy.position in target:
+                                    if enemy.rect.collidepoint(pos): #ON HOVER
+                                        if pygame.mouse.get_pressed()[0] == 1:
+                                            action = True #action has been taken
+                                    if action:
+                                        #proc the ability on every enemy in the aoe
+                                        #because for enemy in enemy_list
+                                        selected_button.ability.proc(enemy)
+                    else:
+                        #if ability is single target
+                        target_icon = pygame.image.load("images/targets/target_1.png")
+                        if len(condition) != len(selected_button.ability.target):
+                            display.blit(target_icon, (820 + 150*target, 420))
+                            condition.append(target)
+                        for enemy in enemy_list:
+                            #check which enemies are valid targets
+                            #target is now int
+                            if enemy.position == target:
+                                if enemy.rect.collidepoint(pos): #ON HOVER
+                                    if pygame.mouse.get_pressed()[0] == 1:
+                                        if selected_button.ability != "pass":
+                                            selected_button.ability.proc(enemy)
+                                            action = True
+                                        else:
+                                            icon = pygame.image.load("images/heroes/focused_pass.png")
+                                            display.blit(icon, (selected_button.x-32, selected_button.y-15)) 
+                elif selected_button.ability.Type == 'Util':
+                    if type(target)==tuple:
+                        for a in target:
+                            
+                            target_icon = pygame.image.load("images/targets/target_h_1.png")
+                            if len(condition) != len(target):
+                                display.blit(target_icon, (470 - 150*a, 430))
+                                if a != len(target)-1:
+                                    plus = pygame.image.load("images/targets/plus_h.png")
+                                    display.blit(plus, (438 - 150*a, 541))
+                                condition.append(a)
+                            for enemy in enemy_list:
+                                if enemy.position in target:
+                                    if enemy.rect.collidepoint(pos): #ON HOVER
+                                        if pygame.mouse.get_pressed()[0] == 1:
+                                            action = True
+                                    if action:
+                                        selected_button.ability.proc(enemy)
+                                    
+                    else:
+                        target_icon = pygame.image.load("images/targets/target_h_1.png")
+                        if len(condition) != len(selected_button.ability.target):
+                            display.blit(target_icon, (470 - 150*target, 430))
+                            condition.append(target)
+                    for enemy in enemy_list:
+                        if enemy.position == target:
+                            if enemy.rect.collidepoint(pos): #ON HOVER
+                                if pygame.mouse.get_pressed()[0] == 1:
+                                    if selected_button.ability != "pass":
+                                        selected_button.ability.proc(enemy)
+                                        action = True
+                                    else:
+                                        icon = pygame.image.load("images/heroes/focused_pass.png")
+                                        display.blit(icon, (selected_button.x-36, selected_button.y-15))
+                    
+                    
+        draw_panel()
+        draw_hero(hero)
+        pygame.display.update()
+    return selected_button
+
+#Colours
+red = (255,0,0)
+dark_red = (168,10,10)
+yellow = (233,200,85)
+grey = (200,200,200) 
+black = (0,0,0)
+white = (200,200,200)
+dark_grey = (100,100,100)
+
+empty_stress = pygame.image.load("images/heroes/stress_empty.png")
+full_stress = pygame.image.load("images/heroes/stress_full.png")
+
+#Classes for our heroes
+class Person(pygame.sprite.Sprite):
+    def __init__(self, x, y, name, health, critical, dodge, speed, position):
+        #visuals
+        pygame.sprite.Sprite.__init__(self)
+        self.x = x
+        self.y = y
+        self.name = name
+        self.image = pygame.image.load(f"images/heroes/{name}.png")
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+        self.position = position
+        #stats
+        self.max_hp = health
+        self.current_hp = health
+        self.stress = 0
+        self.crit = critical
+        self.dodge = dodge
+        self.speed = speed
+        self.dmgmod = 0
+        self.blight = []
+        self.bleed = []
+        self.deathblow_res = 0.67
+        self.action_token = 0
+
+    def pass_ability(self):
+        self.action_token -= 1
+        
+        
+    def draw(self,hp, flip = False):
+        self.current_hp = hp
+        ratio = self.current_hp / self.max_hp
+        if flip == True:
+            display.blit(pygame.transform.flip(self.image, True, False), self.rect)
+            pygame.draw.rect(display, dark_grey, (self.x-40,self.y+150,100,10))
+            pygame.draw.rect(display, red, (self.x-40,self.y+150,100*ratio,10))
+        else:
+            display.blit(self.image, self.rect)
+            pygame.draw.rect(display, dark_grey, (self.x-40,self.y+150,100,10))
+            pygame.draw.rect(display, red, (self.x-40,self.y+150,100*ratio,10))
+            for i in range(11):
+                display.blit(empty_stress, (self.x-40+i*9.5,self.y+160))
+            for i in range(self.stress):
+                display.blit(full_stress, (self.x-40+i*9.5,self.y+160))
+                
+        
+
+class ability():
+    def __init__(self,name,position,target,dmg,Type,crit,accuracy,status = '', rounds = 0,dot = 0, cure = False):
+        self.name = name
+        self.position = position
+        self.target = target
+        self.dmg = dmg
+        self.Type = Type
+        self.crit = crit
+        self.accuracy = accuracy
+        self.status = status
+        self.rounds = rounds
+        self.dot = dot
+        self.cure = cure                                    
+                    
+    def proc(self,target):
+        if self.Type == 'Attack':
+            apply_dmg(target, self.dmg)
+            if self.status == 'Blight':
+                apply_blight(target, self.dot, self.rounds)
+            elif self.status == 'Bleed':
+                apply_bleed(target, self.dot, self.rounds)
+            elif self.status == 'Stun':
+                apply_stun(target)
+        elif self.Type == 'Util':
+            pass#problem for another day
+
+class Highwayman(Person):
+    def __init__(self, x, y, name,position):
+        #initialize parent class
+        self.hero_class = "Highwayman"
+        self.dmg_range = [i for i in range(5,11)]
+        super().__init__(x, y, name, 23, 0.05, 0.1, 5,position)
+        
+        self.abilities = []
+        self.wicked_slice = ability('wicked_slice',[0,1,2],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 1.15,'Attack',self.crit*1.05,0.85)
+        self.pistol_shot = ability('pistol_shot',[1,2,3],[1,2,3],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.85,'Attack',self.crit*1.075,0.85)
+        self.grapeshot_blast = ability('grapeshot_blast',[1,2],[(0,1,2)],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.5,'Attack',self.crit*0.91,0.75)        
+        self.open_vein = ability('open_vein',[0,1,2],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.85,'Attack',self.crit,0.95,status = 'Bleed',rounds = 2, dot = 3)
+        self.take_aim = ability('take_aim',[0,1,2,3],[1],2,'Util',0.1,2)        #last arguement will add speed to dismas
+        
+        self.abilities.append(self.wicked_slice)
+        self.abilities.append(self.pistol_shot)
+        self.abilities.append(self.grapeshot_blast)
+        self.abilities.append(self.open_vein)
+        self.abilities.append(self.take_aim)
+        
+class Crusader(Person):
+    def __init__(self, x, y, name, position):
+        self.hero_class = "Crusader"
+        #initialize parent class
+        self.dmg_range = [i for i in range(6,13)]
+        super().__init__(x, y, name, 33, 0.03, 0.05, 1, position)
+        
+        self.abilities = []
+        self.smite = ability('smite',[0,1], [0,1],random.choice(self.dmg_range) + self.dmgmod , 'Attack', self.crit,0.85)
+        self.zealous_accusation = ability('zealous_accusation',[0,1],[(0,1)],math.floor((random.choice(self.dmg_range)+self.dmgmod)* 0.6),'Attack',self.crit*0.96,0.85)
+        self.stunning_blow = ability('stunning_blow',[0,1],[0,1],math.floor((random.choice(self.dmg_range) + self.dmgmod) * 0.5),'Attack',self.crit,0.9)
+        self.inspiring_cry = ability('inspiring_cry',[0,1,2,3],[0,1,2,3],1,'Util',self.crit,1)
+        self.battle_heal = ability('battle_heal',[0,1,2,3],[0,1,2,3],random.choice([2,3]),'Util',self.crit,1)
+      
+        self.abilities.append(self.smite)
+        self.abilities.append(self.zealous_accusation)
+        self.abilities.append(self.stunning_blow)
+        self.abilities.append(self.inspiring_cry)
+        self.abilities.append(self.battle_heal)
+        
+class Plague_Doctor(Person):
+    def __init__(self, x, y, name, position):
+        self.hero_class = "Plague_Doctor"
+        #initialize parent class
+        self.dmg_range = [i for i in range(4,8)]
+        super().__init__(x, y, name, 22, 0.02, 0.01, 7, position)
+        
+        self.abilities = []
+        self.noxious_blast = ability("noxious_blast",[1,2,3],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.2,'Attack',self.crit,0.95,status = 'Blight',rounds = 3,dot= 5 )
+        self.plague_grenade = ability("plague_grenade", [1,2,3],[(2,3)],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.1,'Attack',self.crit,0.95,status = 'Blight',rounds = 3,dot= 4 )
+        self.blinding_gas = ability("blinding_gas",[2,3],[(2,3)],0,'Attack',0,0.95,status = 'Stun')        
+        self.battlefield_medicine = ability("battlefield_medicine",[2,3],[0,1,2,3],1,'Util',self.crit,1)
+        self.incision = ability('incision',[0,1,2],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod),'Attack',self.crit*1.05,0.85,status = 'Bleed', rounds = 3, dot = 2)
+             
+        self.abilities.append(self.noxious_blast)
+        self.abilities.append(self.plague_grenade)
+        self.abilities.append(self.blinding_gas)
+        self.abilities.append(self.battlefield_medicine)
+        self.abilities.append(self.incision)
+        
+class Vestal(Person):
+    def __init__(self, x, y, name, position):
+        self.hero_class = "Vestal"
+        #initialize parent class
+        self.dmg_range = [i for i in range(4,9)]
+        super().__init__(x, y, name, 24, 0.01, 0.01, 4,position)
+        
+        self.abilities = []
+        self.dazzling_light = ability("dazzling_light",[1,2,3],[0,1,2],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.25,'Attack',self.crit*1.05,0.9,status = 'Stun')
+        self.divine_grace = ability("divine_grace",[2,3],[0,1,2,3],random.choice(range(4,6)),'Util',self.crit,1)
+        self.divine_comfort = ability("divine_comfort", [2,3],[(0,1,2,3)],random.choice(range(1,4)),'Util',self.crit,1)
+        self.judgement = ability("judgement",[0,1,2,3],[(2,3)],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.5,'Attack',self.crit*1.05,0.85)
+        self.illumination = ability('illumination',[0,1,2,3],[0,1,2,3],math.floor(random.choice(self.dmg_range) + self.dmgmod),'Attack',self.crit,0.9)
+        
+        self.abilities.append(self.dazzling_light)
+        self.abilities.append(self.divine_grace)
+        self.abilities.append(self.divine_comfort)
+        self.abilities.append(self.judgement)
+        self.abilities.append(self.illumination)
+        
+#Enemy classes
+class Cutthroat(Person):
+    def __init__(self,x,y,name,position):
+        #fixer pls
+        super().__init__(x, y, name, 30, 0.12, 0.025, 3, position)
+        
+        self.Slice_and_dice = ability('Slice_and_dice',[0,1,2],[(0,1)],random.choice(range(3,6)),'Attack',self.crit,0.725)
+        self.Uppercut_Slice = ability('Uppercut_Slice',[0,1],[0,1],random.choice(range(2,5)),'Attack',0.05,0.725)
+        self.Shank = ability('Shank',[0,1,2],[0,1,2,3],random.choice(range(4,9)),'Attack',0.06,0.725,status = 'Bleed',rounds = 3,dot = 2)
+        
+        self.abilities =[]
+        self.abilities.append(self.Slice_and_dice)
+        self.abilities.append(self.Uppercut_Slice)
+        self.abilities.append(self.Shank)
+        
+    def take_action(self):
+        pass
+
+class Fusilier(Person):
+    def __init__(self, x, y, name,position):
+        super().__init__(x,y,name,20,0.01,0.075,6,position)
+        self.abilities = []
+        self.Blanket = ability('Blanket',[1,2,3],[(0,1,2,3)],random.choice(range(1,6)),'Attack',0.02,0.725)
+        self.abilities.append(self.Blanket)
+        
+    def take_action(self):
+        pass
+
+    
+#Variables
+clock = pygame.time.Clock()
+FPS = 60
+screen_width = 1600
+screen_height = 900
+bottom_panel = 150
+screen = pygame.display
+screen.set_caption('Dimmest oubliette')
+display = screen.set_mode((screen_width,screen_height))
+
+>>>>>>> Stashed changes
 
 #functions that draw stuff
 font = pygame.font.SysFont('Comic sans', 20) 
