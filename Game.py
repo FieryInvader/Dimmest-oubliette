@@ -108,32 +108,30 @@ def draw_target(target, ability, hero):
     
     if target in enemy_list:
         colour = dark_red
-        indicator = pygame.image.load("images/panels/indicator_valid.png")
-        display.blit(indicator, (target.x-50, target.y+180))
         to_hit = (ability.accuracy - target.dodge) * 100
         dmg_low = round(hero.dmg_range[0] * ability.dmg_mod)
         dmg_high = round(hero.dmg_range[-1] * ability.dmg_mod)
-        draw_text(f"Hero DMG: {dmg_low}-{dmg_high}", font_small, yellow, 1150, 695)
+        draw_text(f"Hero DMG: {dmg_low}-{dmg_high}", font_small, yellow, 1150, 687)
     else:
         colour = white
         to_hit = ability.accuracy
     #draw name
-    draw_text(target.name.capitalize(), font, colour, 850, 620)
+    draw_text(target.name.capitalize(), font, colour, 850, 612)
     #draw class
-    #draw_text(target.name.capitalize(), font, colour, 850, 620)
+    #draw_text(target.name.capitalize(), font, colour, 850, 612)
     #draw stats
-    draw_text(f"HP {target.current_hp}/{target.max_hp}", font, red, 1200, 620)
+    draw_text(f"HP {target.current_hp}/{target.max_hp}", font, red, 1200, 612)
     
-    draw_text(f"Hero to Hit: {to_hit}%", font_small, yellow, 1150, 655)
+    draw_text(f"Hero to Hit: {to_hit}%", font_small, yellow, 1150, 647)
     crit = round(ability.crit*100,2)
     if crit < 0: 
         crit = 0
-    draw_text(f"Hero to Crit: {crit}%", font_small, yellow, 1150, 675)
+    draw_text(f"Hero to Crit: {crit}%", font_small, yellow, 1150, 667)
     #draw stats
-    draw_text("SPEED", font_small, grey, 1000, 655)
+    draw_text("SPEED", font_small, grey, 1000, 647)
     dodge = target.dodge * 100
-    draw_text(f"{dodge}%", font_small, grey, 1000, 675)
-    draw_text(f"{target.speed}", font_small, grey, 1000, 695)
+    draw_text(f"{dodge}%", font_small, grey, 1000, 667)
+    draw_text(f"{target.speed}", font_small, grey, 1000, 687)
 
 def draw_ability(hero, button):
     #draw selected ability
