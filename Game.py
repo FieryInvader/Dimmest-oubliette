@@ -454,6 +454,18 @@ def wait_action(buttons,hero):
                 if event.type == pygame.MOUSEBUTTONDOWN and button.rect.collidepoint(pos):
                     condition = 0
                     selected_button = button #the ability that was pressed
+                    #blit background
+                    for i in range(0,tiles):
+                        display.blit(bg, (i * bg.get_width() + scroll,0))
+                    for enemy in enemy_list:
+                        enemy.draw(enemy.current_hp,flip=True)
+                    for member in party:
+                        member.draw(member.current_hp)
+                    draw_panel()
+                    draw_hero(hero)
+                    selected = pygame.image.load("images/targets/selected.png")
+                    display.blit(selected, (470 - 150 * hero.position, 390))
+                    pygame.display.update()
         if selected_button != None: #if a button was pressed
             for target in selected_button.ability.target: #valid targets
                 if selected_button.ability.Type == 'Attack':
