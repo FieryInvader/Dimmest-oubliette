@@ -92,7 +92,8 @@ def draw_hero(hero):
     draw_text("DMG", font_med, grey, 260, 800)
     draw_text("DODGE", font_med, grey, 260, 820)
     draw_text("SPD", font_med, grey, 260, 840)
-    draw_text(f"{hero.dodge}", font_med, grey, 350, 820)
+    dodge = hero.dodge * 100
+    draw_text(f"{dodge}%", font_med, grey, 350, 820)
     draw_text(f"{hero.speed}", font_med, grey, 350, 840)
     
     return [ability0, ability1, ability2, ability3, ability4, ability_pass]
@@ -108,31 +109,48 @@ def draw_ability(hero, button):
     name = name.capitalize()
     name = name.replace("_", " ")
     draw_text(f"{name}", font_med, white, 460, 715)
-    if button.ability.status == 'Bleed':
-        dot = button.ability.dot
-        r = button.ability.rounds
-        draw_text(f"Bleed {dot}/{r} rds", font_small, dark_red, 460, 740)
-    elif button.ability.status == 'Blight':
-        dot = button.ability.dot
-        r = button.ability.rounds
-        draw_text(f"Bleed {dot}/{r} rds", font_small, dark_grey, 460, 740)
-    elif button.ability.status == 'Stun':
-        draw_text("Stun", font_small, vomit, 460, 740)
-    elif button.ability.status == 'Cure':
-        draw_text("Remove bleed/blight from target and self", font_small, dark_grey, 460, 740)
-    #draw ability stats 
-    acc = round(button.ability.accuracy, 2)
-    crit = round(button.ability.crit, 2)
-    dmg_low = round(hero.dmg_range[0] * button.ability.dmg_mod)
-    dmg_high = round(hero.dmg_range[-1] * button.ability.dmg_mod)
-    draw_text(f"{acc}", font_med, grey, 350, 760)
-    draw_text(f"{crit}", font_med, grey, 350, 780)
-    draw_text(f"{dmg_low}-{dmg_high}", font_med, grey, 350, 800)
+    if button.ability.Type == "Attack":
+        #draw ability stats 
+        acc = round(button.ability.accuracy, 2) *100
+        crit = round(button.ability.crit, 2) *100
+        dmg_low = round(hero.dmg_range[0] * button.ability.dmg_mod)
+        dmg_high = round(hero.dmg_range[-1] * button.ability.dmg_mod)
+        draw_text(f"{acc}%", font_med, grey, 350, 760)
+        draw_text(f"{crit}%", font_med, grey, 350, 780)
+        draw_text(f"{dmg_low}-{dmg_high}", font_med, grey, 350, 800)
+        #draw ability statuses
+        if button.ability.status == 'Bleed':
+            dot = button.ability.dot
+            r = button.ability.rounds
+            draw_text(f"Bleed {dot}/{r} rds", font_small, dark_red, 460, 735)
+        elif button.ability.status == 'Blight':
+            dot = button.ability.dot
+            r = button.ability.rounds
+            draw_text(f"Blight {dot}/{r} rds", font_small, vomit, 460, 735)
+        elif button.ability.status == 'Stun':
+            draw_text("Stun", font_small, yellow, 460, 735)
+    elif button.ability.Type == "Heal":
+        #draw ability stats 
+        acc = round(button.ability.accuracy, 2)
+        crit = round(button.ability.crit, 2)
+        heal = button.ability.heal
+        draw_text(f"{acc}", font_med, grey, 350, 760)
+        draw_text(f"{crit}", font_med, grey, 350, 780)
+        draw_text(f"{heal}", font_med, grey, 350, 800)
+        draw_text(f"Heal {button.ability.heal}", font_small, green, 460, 735)
+        if button.ability.status == 'Cure':
+            draw_text("Remove bleed/blight from target and self", font_small, green, 460, 750)
+    elif button.ability.Type == "Stress_heal":
+        s = abs(button.ability.stress)
+        draw_text(f"Remove {s} Stress", font_small, white, 460, 735)
+    
+    
 
 #Colours
 red = (255,0,0)
 dark_red = (168,10,10)
 vomit = (130,175,5)
+green = (0,255,0)
 yellow = (233,200,85)
 grey = (200,200,200) 
 black = (0,0,0)
@@ -249,7 +267,7 @@ class Plague_Doctor(Person):
         self.plague_grenade = ability("plague_grenade", [1,2,3], [(2,3)],'Attack', self.crit, 0.95,dmg_mod = 0.1,status = 'Blight', rounds = 3, dot= 4)
         self.blinding_gas = ability("blinding_gas", [2,3], [(2,3)], 0, 'Attack',0.95, dmg_mod = 0,status = 'Stun')   
         #fix dmg
-        self.battlefield_medicine = ability("battlefield_medicine", [2,3], [0,1,2,3], 1, 'Heal', self.crit, 1,status = 'Cure', heal = 1)
+        self.battlefield_medicine = ability("battlefield_medicine", [2,3], [0,1,2,3],'Heal', self.crit, 1, status = 'Cure', heal = 1)
         self.incision = ability('incision', [0,1,2], [0,1],'Attack', self.crit*1.05, 0.85, status = 'Bleed', rounds = 3, dot = 2)
              
         self.abilities.append(self.noxious_blast)
