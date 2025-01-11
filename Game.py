@@ -105,9 +105,9 @@ def draw_target(target, ability, hero):
     #draw overlay
     overlay = pygame.image.load("images/panels/panel_monster.png")
     display.blit(overlay, (800, 568))
-    indicator = pygame.image.load("images/panels/indicator_valid.png")
-    display.blit(indicator, (target.x-50, target.y+175))
     if target in enemy_list:
+        indicator = pygame.image.load("images/panels/indicator_valid.png")
+        display.blit(indicator, (target.x-50, target.y+175))
         colour = dark_red
         to_hit = (ability.accuracy - target.dodge) * 100
         dmg_low = round(hero.dmg_range[0] * ability.dmg_mod)
