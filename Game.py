@@ -230,7 +230,7 @@ class Plague_Doctor(Person):
         self.plague_grenade = ability("plague_grenade", [1,2,3], [(2,3)],'Attack', self.crit, 0.95,dmg_mod = 0.1,status = 'Blight', rounds = 3, dot= 4)
         self.blinding_gas = ability("blinding_gas", [2,3], [(2,3)], 0, 'Attack',0.95, dmg_mod = 0,status = 'Stun')   
         #fix dmg
-        self.battlefield_medicine = ability("battlefield_medicine", [2,3], [0,1,2,3], 1, 'Heal', self.crit, 1,cure = True, heal = 1)
+        self.battlefield_medicine = ability("battlefield_medicine", [2,3], [0,1,2,3], 1, 'Heal', self.crit, 1,status = 'Cure', heal = 1)
         self.incision = ability('incision', [0,1,2], [0,1],'Attack', self.crit*1.05, 0.85, status = 'Bleed', rounds = 3, dot = 2)
              
         self.abilities.append(self.noxious_blast)
@@ -297,8 +297,9 @@ class Fusilier(Person):
 
 class ability():
     def __init__(self, name, position, target,  Type, crit, accuracy,
-                 dmg_mod = 1,status = '', rounds = 0, dot = 0, cure = False,heal = 0, stress = 0,speed = 0):
+                 dmg_mod = 1,status = '', rounds = 0, dot = 0, heal = 0, stress = 0,speed = 0):
         self.name = name
+        self.heal = heal
         self.position = position
         self.target = target
         self.dmg_mod = dmg_mod #this only modifies damage
@@ -308,9 +309,11 @@ class ability():
         self.status = status
         self.rounds = rounds
         self.dot = dot
-        self.cure = cure   
+        self.stress = stress
+        self.speed = speed
                     
     def proc(self, roll_number, target, crit):
+        cure = False
         if self.Type == 'Attack':
             if not crit:
                 apply_dmg(target, round(roll_number * self.dmg_mod))
@@ -329,10 +332,12 @@ class ability():
                 elif self.status == 'Stun':
                     apply_stun(target)
         elif self.Type == 'Heal':
+            if self.status == 'Cure':
+                cure = True
             if not crit:
-                apply_heal(target, round(roll_number * self.dmg_mod),self.cure)
+                apply_heal(target, round(roll_number * self.dmg_mod),cure)
             else:
-                apply_heal(target, round(2 * roll_number * self.dmg_mod),self.cure)
+                apply_heal(target, round(2 * roll_number * self.dmg_mod),cure)
         elif self.Type == 'Stress_heal':
                 apply_stress(target, round(roll_number * self.dmg_mod))
         elif self.Type == 'Buff':
