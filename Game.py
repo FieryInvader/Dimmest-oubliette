@@ -62,8 +62,9 @@ def draw_hero(hero):
     img_list = []
     #make ability buttons
     for ability in hero.abilities:
-        img = pygame.image.load(f"images/{hero.hero_class}/{ability.name}.png")
-        img_list.append(img)
+        if ability.Type != 'Pass':
+            img = pygame.image.load(f"images/{hero.hero_class}/{ability.name}.png")
+            img_list.append(img)
     ability0 = Button(display, 445 + next_icon, 607, img_list[0], ability = hero.abilities[0])
     ability0.draw()
     next_icon += 62
@@ -80,7 +81,7 @@ def draw_hero(hero):
     ability4.draw()
     next_icon += 62
     img = pygame.image.load("images/heroes/ability_pass.png")
-    ability_pass = Button(display, 445 + next_icon, 607, img, "pass")
+    ability_pass = Button(display, 445 + next_icon, 607, img, hero.abilities[5])
     ability_pass.draw()
     next_icon += 62  
     
@@ -113,8 +114,8 @@ def draw_ability(hero, button):
         #draw ability stats 
         acc = round(button.ability.accuracy, 2) *100
         crit = round(button.ability.crit, 2) *100
-        dmg_low = round(hero.dmg_range[0] * button.ability.dmg_mod)
-        dmg_high = round(hero.dmg_range[-1] * button.ability.dmg_mod)
+        dmg_low = round(hero.dmg_range[0] * button.ability.dmg_mod * hero.dmg_amp)
+        dmg_high = round(hero.dmg_range[-1] * button.ability.dmg_mod * hero.dmg_amp)
         draw_text(f"{acc}%", font_med, grey, 350, 760)
         draw_text(f"{crit}%", font_med, grey, 350, 780)
         draw_text(f"{dmg_low}-{dmg_high}", font_med, grey, 350, 800)
@@ -185,6 +186,7 @@ class Person(pygame.sprite.Sprite):
         self.bleed = []
         self.deathblow_res = 0.67
         self.action_token = 0 
+
         
     def draw(self,hp, flip = False):
         self.current_hp = hp
@@ -226,12 +228,14 @@ class Highwayman(Person):
         self.open_vein = ability('open_vein',[0,1,2], [0,1],'Attack', self.crit, 0.95, status = 'Bleed', rounds = 2, dot = 3, dmg_mod = 0.85)
         #fix dmg || dmg mod - crit mod - speed mod (numbers)
         self.take_aim = ability('take_aim',[0,1,2,3], [1],'Buff', 0.1,1, speed = 1,dmg_mod = 0.12)#last arguement will add speed to dismas
+        self.PASS = ability('pass',[0,1,2,3],[0,1,2,3],'Pass',0,0)
         
         self.abilities.append(self.wicked_slice)
         self.abilities.append(self.pistol_shot)
         self.abilities.append(self.grapeshot_blast)
         self.abilities.append(self.open_vein)
         self.abilities.append(self.take_aim)
+        self.abilities.append(self.PASS)
         
 class Crusader(Person):
     def __init__(self, x, y, name, position):
@@ -248,12 +252,14 @@ class Crusader(Person):
         self.inspiring_cry = ability('inspiring_cry', [0,1,2,3], [0,1,2,3],'Stress_heal', self.crit, 1,heal = 1,stress = -2)
         #fix dmg
         self.battle_heal = ability('battle_heal', [0,1,2,3], [0,1,2,3],'Heal', self.crit, 1, heal = 4)
+        self.PASS = ability('pass',[0,1,2,3],[0,1,2,3],'Pass',0,0)
       
         self.abilities.append(self.smite)
         self.abilities.append(self.zealous_accusation)
         self.abilities.append(self.stunning_blow)
         self.abilities.append(self.inspiring_cry)
         self.abilities.append(self.battle_heal)
+        self.abilities.append(self.PASS)
         
 class Plague_Doctor(Person):
     def __init__(self, x, y, name, position):
@@ -269,12 +275,14 @@ class Plague_Doctor(Person):
         #fix dmg
         self.battlefield_medicine = ability("battlefield_medicine", [2,3], [0,1,2,3],'Heal', self.crit, 1, status = 'Cure', heal = 1)
         self.incision = ability('incision', [0,1,2], [0,1],'Attack', self.crit*1.05, 0.85, status = 'Bleed', rounds = 3, dot = 2)
+        self.PASS = ability('pass',[0,1,2,3],[0,1,2,3],'Pass',0,0)
              
         self.abilities.append(self.noxious_blast)
         self.abilities.append(self.plague_grenade)
         self.abilities.append(self.blinding_gas)
         self.abilities.append(self.battlefield_medicine)
         self.abilities.append(self.incision)
+        self.abilities.append(self.PASS)
         
 class Vestal(Person):
     def __init__(self, x, y, name, position):
@@ -291,12 +299,14 @@ class Vestal(Person):
         self.divine_comfort = ability("divine_comfort", [2,3], [(0,1,2,3)],'Heal', self.crit, 1,heal = 1)
         self.judgement = ability("judgement", [0,1,2,3], [(2,3)],'Attack', self.crit*1.05, 0.85, dmg_mod = 0.5)
         self.illumination = ability('illumination', [0,1,2,3], [0,1,2,3],'Attack', self.crit, 0.9)
+        self.PASS = ability('pass',[0,1,2,3],[0,1,2,3],'Pass',0,0)
         
         self.abilities.append(self.dazzling_light)
         self.abilities.append(self.divine_grace)
         self.abilities.append(self.divine_comfort)
         self.abilities.append(self.judgement)
         self.abilities.append(self.illumination)
+        self.abilities.append(self.PASS)
         
 #Enemy classes
 class Cutthroat(Person):
@@ -422,7 +432,7 @@ def apply_heal(target,heal,cure = False):
 def apply_stress(target,stress):
     if target.stress == 10:
         pass #meltdown
-    elif target.stress == 0:
+    elif target.stress + stress < 0:
         pass
     else:
         target.stress += stress
@@ -430,7 +440,11 @@ def apply_stress(target,stress):
 def apply_buff(target,dps_buff = 0,speed_buff = 0,crit_buff = 0):
     target.dmg_amp += dps_buff
     target.speed += speed_buff
-    target.crit += crit_buff
+    for ability in target.abilities:
+        if ability.Type == 'Attack':
+            ability.crit += crit_buff
+
+
 
 #REMINDER TO REVERT BUFFS AFTER ONE FIGHT!!!!!!!!!!
 #def revert_buffs(target)
@@ -572,8 +586,11 @@ def wait_action(buttons,hero):
                                     selected_button.ability.proc(selected_button.ability.heal,member,crit)
                                     action = True
                 else:
+                    print('PASSING')
+                    action = True
+                    apply_stress(hero, 2)
+                    break
                     #if not attack or util, then ability.Type == Pass
-                    pass #ironic
                     
                     
         draw_panel()
