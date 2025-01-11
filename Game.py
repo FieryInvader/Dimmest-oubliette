@@ -112,7 +112,7 @@ def draw_ability(hero, button):
     if button.ability.Type == "Attack":
         #draw ability stats 
         acc = round(button.ability.accuracy, 2) *100
-        crit = round(button.ability.crit, 2) *100
+        crit = round(button.ability.crit, 2) * 100
         dmg_low = round(hero.dmg_range[0] * button.ability.dmg_mod)
         dmg_high = round(hero.dmg_range[-1] * button.ability.dmg_mod)
         draw_text(f"{acc}%", font_med, grey, 350, 760)
@@ -143,6 +143,10 @@ def draw_ability(hero, button):
     elif button.ability.Type == "Stress_heal":
         s = abs(button.ability.stress)
         draw_text(f"Remove {s} Stress", font_small, white, 460, 735)
+    elif button.ability.Type == "Buff":
+        draw_text(f"+{button.ability.dmg_mod}% DMG", font_small, white, 460, 735)
+        draw_text(f"+{button.ability.speed}% SPD", font_small, white, 600, 735)
+        draw_text(f"+{button.ability.crit}% CRIT", font_small, white, 460, 750)
     
     
 
@@ -473,15 +477,17 @@ def wait_action(buttons,hero):
                 if selected_button.ability.Type == 'Attack':
                     #if ability is aoe
                     if type(target)==tuple:
+                        target_counter = 0 
                         #target is tuple, so we iterate
-                        for a in target: 
+                        for a in target:
+                            target_counter += 1
                             #draw targets
                             #this checks that all targets are drawn
                             #when they are, stop drawing them
                             if condition < len(target): 
                                 target_icon = pygame.image.load("images/targets/target_1.png")
                                 display.blit(target_icon, (823 + 150*a, 380))
-                                if a < len(target)-1: 
+                                if target_counter < len(target): 
                                     #draw plus signs
                                     #we need targets-1 plus signs
                                     plus = pygame.image.load("images/targets/plus.png")
@@ -526,17 +532,19 @@ def wait_action(buttons,hero):
                 elif selected_button.ability.Type in ['Heal','Buff','Stress_heal']:
                     #if ability is aoe
                     if type(target)==tuple:
+                        target_counter = 0 
                         #target is tuple, so we iterate
                         for a in target: 
+                            target_counter += 1
                             #draw targets
                             #this checks that all targets are drawn
                             #when they are, stop drawing them
                             if condition < len(target):
                                 target_icon = pygame.image.load("images/targets/target_h_1.png")
-                                display.blit(target_icon, (470 - 150*a, 330))
-                                if a < len(target)-1:
+                                display.blit(target_icon, (475 - 150*a, 360))
+                                if target_counter < len(target):
                                     plus = pygame.image.load("images/targets/plus_h.png")
-                                    display.blit(plus, (438 - 150*a, 441))
+                                    display.blit(plus, (462 - 150*a, 505))
                                 condition += 1
                             for member in party:
                                 #if player clicks any ally that is a valid target
