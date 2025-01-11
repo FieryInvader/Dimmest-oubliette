@@ -868,7 +868,7 @@ while run:
 
     if fighting:
 
-        enemy_list[:] = [x for x in enemy_list if x.alive == True]
+
         loc = (i-1 * bg.get_width()) + scroll
         for member in party:
             member.action_token += 1
@@ -879,6 +879,8 @@ while run:
         initiative.sort(key = lambda tup: tup[0], reverse = True)
         print('round chage')
         for roll, team, person in initiative:
+            enemy_list[:] = [x for x in enemy_list if x.alive == True]
+            party[:] = [x for x in party if x.alive == True]
             for member in party:
                 if member.current_hp <= 0:
                     m += 1
@@ -893,6 +895,7 @@ while run:
             elif m == 4:
                 fighting = False
                 game_over = True
+                break
             #blit background
             for i in range(0,tiles):
                 display.blit(bg, (i * bg.get_width() + scroll,0))
