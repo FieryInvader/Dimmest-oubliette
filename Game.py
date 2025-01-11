@@ -58,17 +58,62 @@ class Button(pygame.sprite.Sprite):
                     display.blit(icon, (self.x-15, self.y-15)) 
                 else:
                     icon = pygame.image.load("images/heroes/selected_pass.png")
-                    display.blit(icon, (self.x-36, self.y-15))               
+                    display.blit(icon, (self.x-32, self.y-15))               
             
     
-    def wait_action(self):
-        action_taken = False
+def wait_action(buttons,hero):
+    condition = []
+    selected_button = None
+    action = False
+    while not action:
         pos = pygame.mouse.get_pos()
-        if not action_taken:
-            if self.rect.collidepoint(pos): #ON HOVER
-                if pygame.mouse.get_pressed()[0] == 1:
-                    action_taken = True
-        return action_taken,self
+        draw_panel()
+        draw_hero(hero)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            for button in buttons:
+                if event.type == pygame.MOUSEBUTTONDOWN and button.rect.collidepoint(pos):
+                    condition = []
+                    selected_button = button
+        if selected_button != None:
+
+            for target in selected_button.ability.target:
+                if type(target)==tuple:
+                    for a in target:
+                        
+                        target_icon = pygame.image.load("images/targets/target_1.png")
+                        display.blit(target_icon, (820 + 150*a, 480))
+                        if a != 3:
+                            plus = pygame.image.load("images/targets/plus.png")
+                            display.blit(plus, (957 + 150*a, 620))
+                        for enemy in enemy_list:
+                            if enemy.position in target:
+                                if enemy.rect.collidepoint(pos): #ON HOVER
+                                    if pygame.mouse.get_pressed()[0] == 1:
+                                        action = True
+                                if action:
+                                    selected_button.ability.proc(enemy)
+                                
+                else:
+                    target_icon = pygame.image.load("images/targets/target_1.png")
+                    if len(condition) != len(selected_button.ability.target):
+                        if not action:
+                            display.blit(target_icon, (820 + 150*target, 480))
+                        condition.append(target)
+                for enemy in enemy_list:
+                    if enemy.position == target:
+                        if enemy.rect.collidepoint(pos): #ON HOVER
+                            if pygame.mouse.get_pressed()[0] == 1:
+                                if selected_button.ability != "pass":
+                                    selected_button.ability.proc(enemy)
+                                    action = True
+                                else:
+                                    icon = pygame.image.load("images/heroes/focused_pass.png")
+                                    display.blit(icon, (selected_button.x-36, selected_button.y-15)) 
+
+        pygame.display.update()
+    return selected_button
 
                 
 #     def draw(self):
@@ -238,7 +283,7 @@ class Highwayman(Person):
         
         self.abilities = []
         self.wicked_slice = ability('wicked_slice',[0,1,2],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 1.15,'Attack',self.crit*1.05,0.85)
-        self.pistol_shot = ability('pistol_shot',[0,1,2],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.85,'Attack',self.crit*1.075,0.85)
+        self.pistol_shot = ability('pistol_shot',[1,2,3],[1,2,3],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.85,'Attack',self.crit*1.075,0.85)
         self.grapeshot_blast = ability('grapeshot_blast',[1,2],[(0,1,2)],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.5,'Attack',self.crit*0.91,0.75)        
         self.open_vein = ability('open_vein',[0,1,2],[0,1],math.floor(random.choice(self.dmg_range) + self.dmgmod) * 0.85,'Attack',self.crit,0.95,status = 'Bleed',rounds = 2, dot = 3)
         self.take_aim = ability('take_aim',[0,1,2,3],[1],2,'Util',0.1,2)        #last arguement will add speed to dismas
@@ -313,7 +358,7 @@ class Vestal(Person):
 class Cutthroat(Person):
     def __init__(self,x,y,name,position):
         #fixer pls
-        super().__init__(x, y, name, 12, 0.12, 0.025, 3, position)
+        super().__init__(x, y, name, 30, 0.12, 0.025, 3, position)
         
         self.Slice_and_dice = ability('Slice_and_dice',[0,1,2],[(0,1)],random.choice(range(3,6)),'Attack',self.crit,0.725)
         self.Uppercut_Slice = ability('Uppercut_Slice',[0,1],[0,1],random.choice(range(2,5)),'Attack',0.05,0.725)
@@ -329,7 +374,7 @@ class Cutthroat(Person):
 
 class Fusilier(Person):
     def __init__(self, x, y, name,position):
-        super().__init__(x,y,name,12,0.01,0.075,6,position)
+        super().__init__(x,y,name,20,0.01,0.075,6,position)
         self.abilities = []
         self.Blanket = ability('Blanket',[1,2,3],[(0,1,2,3)],random.choice(range(1,6)),'Attack',0.02,0.725)
         self.abilities.append(self.Blanket)
@@ -382,7 +427,7 @@ def draw_hero(hero):
     for ability in hero.abilities:
         img = pygame.image.load(f"images/{hero.hero_class}/{ability.name}.png")
         img_list.append(img)
-    ability0 = Button(display, 445 + next_icon, 607, img_list[0], hero.abilities[0])
+    ability0 = Button(display, 445 + next_icon, 607, img_list[0], ability = hero.abilities[0])
     ability0.draw()
     next_icon += 62
     ability1 = Button(display, 445 + next_icon, 607, img_list[1], hero.abilities[1])
@@ -462,18 +507,20 @@ map_tiles = [0,1,0,2,0,1]
 
 #main game loop
 run = True
+fighting = False
 while run:
     clock.tick(FPS)
     
     key = pygame.key.get_pressed()
     #update scroll only when d is pressed
-    if key[pygame.K_d]:
-        scroll -= 3
-        party_position += 3
-        
-    if key[pygame.K_a]:
-        scroll += 2
-        party_position -= 2
+    if fighting == False:
+        if key[pygame.K_d]:
+            scroll -= 3
+            party_position += 10
+            
+        if key[pygame.K_a]:
+            scroll += 2
+            party_position -= 2
 
     
     #insert the background image into the screen queue while scrolling
@@ -492,37 +539,33 @@ while run:
         scroll = 0
     
     for event in pygame.event.get():
-        fighting = False
         if event.type == pygame.QUIT:
             run = False
         if event.type == COMBAT:
             fighting = True
             initiative = []
         if fighting:
-            for enemy in enemy_list:
-                enemy.draw(enemy.current_hp,flip=True)
-            for member in party:
-                member.draw(member.current_hp)
+
             for member in party:
                 initiative.append((random.choice(range(9)) + member.speed,0,member))
             for enemy in enemy_list:
                 initiative.append((random.choice(range(9)) + enemy.speed,1,enemy))
             initiative.sort(key = lambda tup: tup[1])
             for roll, team, person in initiative:
+                for enemy in enemy_list:
+                    enemy.draw(enemy.current_hp,flip=True)
+                for member in party:
+                    member.draw(member.current_hp)
+                for member in party:
+                    initiative.append((random.choice(range(9)) + member.speed,0,member))
                 if team == 0:
+                    selected_button = None
                     buttons = draw_hero(person)
-                    stop = False
-                    while not stop:
-                        pygame.display.update()
-                        pos = pygame.mouse.get_pos()
-                        for event in pygame.event.get():
-                            fighting = False
-                            if event.type == pygame.QUIT:
-                                pygame.quit()
-                            for button in buttons:
-                                
-                                if event.type == pygame.MOUSEBUTTONDOWN and button.rect.collidepoint(pos):
-                                    stop = True
+                    selected_action = wait_action(buttons, person)
+                else:
+                    pass
+
+                
     
     for member in party:
         member.draw(member.current_hp)
