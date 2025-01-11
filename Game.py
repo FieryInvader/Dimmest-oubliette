@@ -67,8 +67,7 @@ def wait_action(buttons,hero):
     action = False
     while not action:
         pos = pygame.mouse.get_pos()
-        draw_panel()
-        draw_hero(hero)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -83,10 +82,12 @@ def wait_action(buttons,hero):
                     for a in target:
                         
                         target_icon = pygame.image.load("images/targets/target_1.png")
-                        display.blit(target_icon, (820 + 150*a, 480))
-                        if a != 3:
-                            plus = pygame.image.load("images/targets/plus.png")
-                            display.blit(plus, (957 + 150*a, 620))
+                        if len(condition) != len(target):
+                            display.blit(target_icon, (820 + 150*a, 480))
+                            if a != len(target)-1:
+                                plus = pygame.image.load("images/targets/plus.png")
+                                display.blit(plus, (957 + 150*a, 620))
+                            condition.append(a)
                         for enemy in enemy_list:
                             if enemy.position in target:
                                 if enemy.rect.collidepoint(pos): #ON HOVER
@@ -98,8 +99,7 @@ def wait_action(buttons,hero):
                 else:
                     target_icon = pygame.image.load("images/targets/target_1.png")
                     if len(condition) != len(selected_button.ability.target):
-                        if not action:
-                            display.blit(target_icon, (820 + 150*target, 480))
+                        display.blit(target_icon, (820 + 150*target, 480))
                         condition.append(target)
                 for enemy in enemy_list:
                     if enemy.position == target:
@@ -111,7 +111,8 @@ def wait_action(buttons,hero):
                                 else:
                                     icon = pygame.image.load("images/heroes/focused_pass.png")
                                     display.blit(icon, (selected_button.x-36, selected_button.y-15)) 
-
+        draw_panel()
+        draw_hero(hero)
         pygame.display.update()
     return selected_button
 
@@ -205,15 +206,6 @@ class Person(pygame.sprite.Sprite):
                 display.blit(full_stress, (self.x-40+i*9.5,self.y+160))
                 
         
-                
-    # def take_action(self):
-    #     action_taken = False
-    #     if not action_taken:
-    #         draw_hero(self)
-    #     if
-            
-
-    
 
 class ability():
     def __init__(self,name,position,target,dmg,Type,crit,accuracy,status = '', rounds = 0,dot = 0, cure = False):
@@ -561,7 +553,7 @@ while run:
                 if team == 0:
                     selected_button = None
                     buttons = draw_hero(person)
-                    selected_action = wait_action(buttons, person)
+                    wait_action(buttons, person)
                 else:
                     pass
 
