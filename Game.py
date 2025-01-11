@@ -265,7 +265,7 @@ class Plague_Doctor(Person):
         self.abilities = []
         self.noxious_blast = ability("noxious_blast" ,[1,2,3], [0,1],'Attack', self.crit, 0.95,dmg_mod = 0.2, status = 'Blight', rounds = 3, dot= 5)
         self.plague_grenade = ability("plague_grenade", [1,2,3], [(2,3)],'Attack', self.crit, 0.95,dmg_mod = 0.1,status = 'Blight', rounds = 3, dot= 4)
-        self.blinding_gas = ability("blinding_gas", [2,3], [(2,3)], 0, 'Attack',0.95, dmg_mod = 0,status = 'Stun')   
+        self.blinding_gas = ability("blinding_gas", [2,3], [(2,3)],'Attack',0,0.95, dmg_mod = 0,status = 'Stun')   
         #fix dmg
         self.battlefield_medicine = ability("battlefield_medicine", [2,3], [0,1,2,3],'Heal', self.crit, 1, status = 'Cure', heal = 1)
         self.incision = ability('incision', [0,1,2], [0,1],'Attack', self.crit*1.05, 0.85, status = 'Bleed', rounds = 3, dot = 2)
