@@ -28,6 +28,12 @@ def apply_bleed(target,damage,rounds):
 
 def apply_stun(target):
     target.action_token -= 1
+    
+def apply_util(target,heal):
+    if target.current_hp + heal > target.max_hp:
+        target.current_hp = target.max_hp
+    else:
+        target.current_hp += heal
 
 #button class
 class Button(pygame.sprite.Sprite):
@@ -60,7 +66,7 @@ class Button(pygame.sprite.Sprite):
                     icon = pygame.image.load("images/heroes/selected_pass.png")
                     display.blit(icon, (self.x-32, self.y-15))               
             
-    
+    # CHECK PASS ACTION!!!!!!!!!!!!!!!!!!!!!!!
 def wait_action(buttons,hero):
     condition = []
     selected_button = None
@@ -126,25 +132,25 @@ def wait_action(buttons,hero):
                                     plus = pygame.image.load("images/targets/plus_h.png")
                                     display.blit(plus, (438 - 150*a, 541))
                                 condition.append(a)
-                            for enemy in enemy_list:
-                                if enemy.position in target:
-                                    if enemy.rect.collidepoint(pos): #ON HOVER
+                            for member in party:
+                                if member.position in target:
+                                    if member.rect.collidepoint(pos): #ON HOVER
                                         if pygame.mouse.get_pressed()[0] == 1:
                                             action = True
                                     if action:
-                                        selected_button.ability.proc(enemy)
+                                        selected_button.ability.proc(member)
                                     
                     else:
                         target_icon = pygame.image.load("images/targets/target_h_1.png")
                         if len(condition) != len(selected_button.ability.target):
                             display.blit(target_icon, (470 - 150*target, 430))
                             condition.append(target)
-                    for enemy in enemy_list:
-                        if enemy.position == target:
-                            if enemy.rect.collidepoint(pos): #ON HOVER
+                    for member in party:
+                        if member.position == target:
+                            if member.rect.collidepoint(pos): #ON HOVER
                                 if pygame.mouse.get_pressed()[0] == 1:
                                     if selected_button.ability != "pass":
-                                        selected_button.ability.proc(enemy)
+                                        selected_button.ability.proc(member)
                                         action = True
                                     else:
                                         icon = pygame.image.load("images/heroes/focused_pass.png")
@@ -155,38 +161,6 @@ def wait_action(buttons,hero):
         draw_hero(hero)
         pygame.display.update()
     return selected_button
-
-                
-#     def draw(self):
-#         #draw button
-#         self.surface.blit(self.image, (self.rect.x, self.rect.y))
-#         action = 1
-# 		#get mouse position
-#         pos = pygame.mouse.get_pos()
-#         while not self.clicked:
-#     		#check mouseover and clicked conditions
-#             if self.rect.collidepoint(pos): #ON HOVER
-#                 if self.ability != "pass":
-#                     icon = pygame.image.load("images/heroes/focused_ability.png")
-#                     display.blit(icon, (self.x-15, self.y-15)) 
-#                 else:
-#                     icon = pygame.image.load("images/heroes/focused_pass.png")
-#                     display.blit(icon, (self.x-36, self.y-15)) 
-                    
-#                 if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False: #on click
-#                     self.clicked = True
-#             pygame.display.update()
-#             if self.clicked == True:
-#                 if self.ability != "pass":
-#                     self.ability.selected(self.x,self.y)
-
-#                 else:
-#                     icon = pygame.image.load("images/heroes/selected_pass.png")
-#                     display.blit(icon, (self.x-32, self.y-15)) 
-#                     pygame.display.update()
-
-
-#         return action 
 
 #Colours
 red = (255,0,0)
@@ -260,36 +234,6 @@ class ability():
         self.rounds = rounds
         self.dot = dot
         self.cure = cure
-        
-    def selected(self,x,y):
-        icon = pygame.image.load("images/heroes/selected_ability.png")
-        display.blit(icon, (x-15, y-15))
-        pos = pygame.mouse.get_pos()
-        selected = True
-        while selected:
-            for t in self.target:
-                if type(t)==tuple:
-                    for a in t:
-                        target_icon = pygame.image.load("images/targets/target_1.png")
-                        display.blit(target_icon, (820 + 150*a, 460))
-                        if a != 3:
-                            plus = pygame.image.load("images/targets/plus.png")
-                            display.blit(plus, (957 + 150*a, 600))
-                            pygame.display.update()
-                else:
-                    target_icon = pygame.image.load("images/targets/target_1.png")
-                    display.blit(target_icon, (820 + 150*t, 460))
-                for enemy in enemy_list:
-                    if enemy.position == t:
-                        if enemy.collidepoint(pos): #ON HOVER
-                            if pygame.mouse.get_pressed()[0] == 1:
-                                if self.ability != "pass":
-                                    self.proc(enemy)
-                                    selected = False
-                                else:
-                                    icon = pygame.image.load("images/heroes/focused_pass.png")
-                                    display.blit(icon, (self.x-36, self.y-15)) 
-                                    
                     
     def proc(self,target):
         if self.Type == 'Attack':
@@ -301,8 +245,9 @@ class ability():
             elif self.status == 'Stun':
                 apply_stun(target)
         elif self.Type == 'Util':
-            pass#problem for another day
-        
+            apply_util(target,self.dmg)
+        #if self name is take aim do other stuff
+        #if ability is medicine do other stuff (set bleed[], set blight[])
         
         
 
