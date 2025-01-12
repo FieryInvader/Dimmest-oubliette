@@ -477,9 +477,9 @@ class Vestal(Person):
         self.abilities = []
         self.dazzling_light = ability("dazzling_light",self,f'images/{self.hero_class}/stun_anim.png', [1,2,3], [0,1,2],'Attack', self.crit + 0.05, 0.9, "dazzlinglight.wav", dmg_mod = 0.2, status = 'Stun')
         #fix dmg
-        self.divine_grace = ability("divine_grace",self,f'images/{self.hero_class}/talktothehand_anim.png', [2,3], [0,1,2,3],'Heal', self.crit, 1, "divinegrace.wav", heal = 4)
+        self.divine_grace = ability("divine_grace",self,f'images/{self.hero_class}/talktothehand_anim.png', [2,3], [0,1,2,3],'Heal', self.crit, 1, "divinegrace.wav", heal = 6)
         #fix dmg
-        self.divine_comfort = ability("divine_comfort",self,f'images/{self.hero_class}/talktothehand_anim.png', [2,3], [(0,1,2,3)],'Heal', self.crit, 1, "divinecomfort.wav", heal = 1)
+        self.divine_comfort = ability("divine_comfort",self,f'images/{self.hero_class}/talktothehand_anim.png', [2,3], [(0,1,2,3)],'Heal', self.crit, 1, "divinecomfort.wav", heal = 2)
         self.judgement = ability("judgement",self,f'images/{self.hero_class}/attack_anim.png', [0,1,2,3], [(2,3)],'Attack', self.crit + 0.05, 0.85, "judgement.wav", dmg_mod = 0.5)
         self.illumination = ability('illumination',self,f'images/{self.hero_class}/attack_anim.png', [0,1,2,3], [0,1,2,3],'Attack', self.crit, 0.9, "illumination.wav")
         self.PASS = ability('pass',self,f'images/{self.hero_class}/defend_anim.png',[0,1,2,3],[0,1,2,3],'Pass',0,0, "stress.wav")
@@ -573,9 +573,87 @@ class Fusilier(Person):
             damage_text_group.draw(display)
             hit_text_group.draw(display)
 
+class Witch(Person):
+    def __init__(self, x, y, name,position):
+        dmg_range = [i for i in range(3,7)]
+        super().__init__(x, y, name, 28, 0.02, 0.15, 8, position, dmg_range, 0.25, 0.2, 0.2)
+        self.abilities = []
+        self.incantation = ability('incantation',self,'images/Witch/attack_anim.png', [0,1,2,3], [0,1,2,3],'Stress_damage' ,self.crit,0.825, "grapeshot.wav")
+        self.blast = ability('blast',self,'images/Witch/attack_anim.png', [0,1,2,3], [0,1,2,3],'Attack' ,self.crit + 0.06,0.825, "grapeshot.wav")
+        
+        self.abilities.append(self.incantation)
+        self.abilities.append(self.blast)
+        
+    def take_action(self):
+        self.action_cooldown = 0
+        while self.action_cooldown <= self.action_wait_time:
+            if self.alive and (self.action_token > 0):
+                self.action_cooldown += 1
+                if self.action_cooldown == self.action_wait_time:
+                    random_action = random.choice(self.abilities)
+                    if type(random_action.target[0]) is tuple:
+                        for position in random_action.target[0]:
+                            for member in party:
+                                if member.position == position:
+                                    crit = self.roll_crit()
+                                    if random_action.Type == 'Stress_damage':
+                                        random_action.proc(2,member,crit)
+                                    
+                                    else:
+                                        dmg = self.roll_dmg()
+                                        random_action.proc(dmg,member,crit)
+                    else:
+                        target = random.choice(party)
+                        hits = roll_to_hit(random_action, target)
+                        if hits:
+                            crit = self.roll_crit()
+                            dmg = self.roll_dmg()
+                            random_action.proc(dmg, target, crit)
+        else:
+            damage_text_group.update()
+            hit_text_group.update()
+            damage_text_group.draw(display)
+            hit_text_group.draw(display)
+            
+class Brawler(Person):
+    def __init__(self, x, y, name,position):
+        dmg_range = [i for i in range(2,5)]
+        super().__init__(x, y, name, 50, 0.2, 0.08, 5, position, dmg_range, 0.25, 0.2, 0.2)
+        self.abilities = []
+        self.rend = ability('rend',self,'images/Brawler/attack_anim.png', [0,1,2,3], [0,1,2,3],'Attack' ,self.crit,0.825, "grapeshot.wav",status = 'Bleed',rounds = 3,dot = 1)
+        
+        self.abilities.append(self.rend)
+        
+    def take_action(self):
+        self.action_cooldown = 0
+        while self.action_cooldown <= self.action_wait_time:
+            if self.alive and (self.action_token > 0):
+                self.action_cooldown += 1
+                if self.action_cooldown == self.action_wait_time:
+                    random_action = random.choice(self.abilities)
+                    if type(random_action.target[0]) is tuple:
+                        for position in random_action.target[0]:
+                            for member in party:
+                                if member.position == position:
+                                    crit = self.roll_crit()
+                                    if random_action.Type == 'Stress_damage':
+                                        random_action.proc(2,member,crit)
 
+                                    dmg = self.roll_dmg()
+                                    random_action.proc(dmg,member,crit)
+                    else:
+                        target = random.choice(party)
+                        hits = roll_to_hit(random_action, target)
+                        if hits:
+                            crit = self.roll_crit()
+                            dmg = self.roll_dmg()
+                            random_action.proc(dmg, target, crit)
+        else:
+            damage_text_group.update()
+            hit_text_group.update()
+            damage_text_group.draw(display)
+            hit_text_group.draw(display)
 
-#CHANGE ABILITIES TO FIT NEW CONSTRUCTOR STANDARDS
 
 
 class ability():
@@ -602,7 +680,7 @@ class ability():
         
     #Function to fire the effect of the ability depending on its Type
     #Using the calculation functions, while checking to apply buffs
-    def proc(self, roll_number, target, crit, ):
+    def proc(self, roll_number, target, crit):
         cure = False
         to_hit = random.random()
         dot_stick = random.random()
@@ -736,7 +814,16 @@ class ability():
                                          f"{roll_number} stress", white)
                 damage_text_group.add(damage_text)
         elif self.Type == 'Stress_damage':
-            apply_stress(target,roll_number)
+            if not crit:
+                apply_stress(target,roll_number)
+                damage_text = DamageText(target.x, target.y-200, 
+                                         f"+{roll_number}Stress", white)
+                damage_text_group.add(damage_text)
+            else:
+                apply_stress(target, roll_number + 1)
+                damage_text = DamageText(target.x, target.y-200, 
+                                         f"+{roll_number + 1}Stress", white)
+                damage_text_group.add(damage_text)
         elif self.Type == 'Buff':
             apply_buff(target,dps_buff = self.dmg_mod,crit_buff = self.crit,speed_buff = self.speed)
             damage_text = DamageText(target.x, target.y-200, 
@@ -1092,11 +1179,16 @@ enemy2 = Cutthroat(1050, 375, 'Cutthroat', 1)
 enemy3 = Fusilier(1200, 375, 'Fusilier', 2)
 enemy4 = Fusilier(1350, 375, 'Fusilier', 3)
 
+enemy5 = Brawler(900, 375, 'Brawler', 0)        
+enemy6 = Brawler(1050, 375, 'Brawler', 1)
+enemy7 = Witch(1200, 375, 'Witch', 2)
+enemy8 = Witch(1350, 375, 'Witch', 3)
+
 enemy_list = []
-enemy_list.append(enemy1)
-enemy_list.append(enemy2)
-enemy_list.append(enemy3)
-enemy_list.append(enemy4)
+enemy_list.append(enemy5)
+enemy_list.append(enemy6)
+enemy_list.append(enemy7)
+enemy_list.append(enemy8)
 
 damage_text_group = pygame.sprite.Group()
 hit_text_group = pygame.sprite.Group()
@@ -1113,7 +1205,7 @@ game_over = False
 fighting = False
 condition = lambda x: x.alive == True
 tmp = []
-wins = 0
+wins = 1
 
 #loop music forever (-1)
 pygame.mixer.music.load("sounds/music.mp3")
@@ -1217,11 +1309,14 @@ while run:
     if not fighting:
         for member in party:
             member.draw(member.current_hp)
-    # if wins == 1:
-    #     enemy_list.append(enemy5)
-    #     enemy_list.append(enemy6)
-    #     enemy_list.append(enemy7)
-    #     enemy_list.append(enemy8)
+
+    if wins == 1:
+        if not any(enemy_list):
+            enemy_list.append(enemy5)
+            enemy_list.append(enemy6)
+            enemy_list.append(enemy7)
+            enemy_list.append(enemy8)
+
     while game_over:
         if wins == 2:
             end = pygame.image.load("images/game_over/victory.png")
@@ -1237,7 +1332,8 @@ while run:
         display.blit(end, (0,0))
         draw_text(text, font_huge, colour, x, 100)
         pygame.display.update()
-        
+
+
     pygame.display.update()
 
 pygame.quit()
