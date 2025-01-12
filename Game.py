@@ -59,7 +59,7 @@ def draw_hero(hero):
     icon = pygame.image.load(f"images/heroes/{hero.name}_icon.png")
     display.blit(icon, (245, 605))
     draw_text(hero.name, font, yellow, 320, 620)
-    draw_text(hero.hero_class, font, grey, 320, 640)
+    draw_text(hero.hero_class.replace("_"," "), font, grey, 320, 640)
     next_icon = 0 # pixels to space out buttons
     img_list = []
     #make ability buttons
@@ -112,7 +112,7 @@ def draw_target(target, ability, hero):
         to_hit = (ability.accuracy - target.dodge) * 100
         dmg_low = round(hero.dmg_range[0] * ability.dmg_mod)
         dmg_high = round(hero.dmg_range[-1] * ability.dmg_mod)
-        draw_text(f"Hero DMG: {dmg_low}-{dmg_high}", font_small, yellow, 1150, 687)
+        draw_text(f"Hero DMG: {dmg_low}-{dmg_high}", font_small, yellow, 1150, 692)
     else:
         colour = white
         to_hit = ability.accuracy
@@ -121,16 +121,15 @@ def draw_target(target, ability, hero):
     #draw stats
     draw_text(f"HP {target.current_hp}/{target.max_hp}", font, red, 1200, 612)
     
-    draw_text(f"Hero to Hit: {to_hit}%", font_small, yellow, 1150, 647)
+    draw_text(f"Hero to Hit: {to_hit}%", font_small, yellow, 1150, 652)
     crit = round(ability.crit*100,2)
     if crit < 0: 
         crit = 0
-    draw_text(f"Hero to Crit: {crit}%", font_small, yellow, 1150, 667)
+    draw_text(f"Hero to Crit: {crit}%", font_small, yellow, 1150, 672)
     #draw stats
-    draw_text("SPEED", font_small, grey, 1000, 647)
+    draw_text(f"SPEED: {target.speed}", font_small, grey, 1000, 652)
     dodge = target.dodge * 100
-    draw_text(f"{dodge}%", font_small, grey, 1000, 667)
-    draw_text(f"{target.speed}", font_small, grey, 1000, 687)
+    draw_text(f"DODGE: {dodge}%", font_small, grey, 1000, 672)
 
 #incision does not round critical for some unknown reason
 
@@ -210,10 +209,10 @@ class Person(pygame.sprite.Sprite):
         self.x = x
         self.y = y
         self.name = name
+        self.position = position
         self.image = pygame.image.load(f"images/heroes/{name}.png")
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
-        self.position = position
         #stats
         self.max_hp = health
         self.current_hp = health
@@ -241,12 +240,12 @@ class Person(pygame.sprite.Sprite):
             pygame.draw.rect(display, red, (self.x-40,self.y+180,100*ratio,10))
         else:
             display.blit(self.image, self.rect)
-            pygame.draw.rect(display, dark_grey, (self.x-40,self.y + 165, 100, 10))
-            pygame.draw.rect(display, red, (self.x-40,self.y + 165, 100*ratio, 10))
+            pygame.draw.rect(display, dark_grey, (self.rect.center[0]-40,self.rect.center[1] + 165, 100, 10))
+            pygame.draw.rect(display, red, (self.rect.center[0]-40,self.rect.center[1] + 165, 100*ratio, 10))
             for i in range(11):
-                display.blit(empty_stress, (self.x-40+i*9.5,self.y+180))
+                display.blit(empty_stress, (self.rect.center[0]-40+i*9.5,self.rect.center[1]+180))
             for i in range(self.stress):
-                display.blit(full_stress, (self.x-40+i*9.5,self.y+180))
+                display.blit(full_stress, (self.rect.center[0]-40+i*9.5,self.rect.center[1]+180))
                 
     def roll_dmg(self):
         damage = random.choice(self.dmg_range) * self.dmg_amp
@@ -608,7 +607,7 @@ def wait_action(buttons,hero):
     while not action:
         if not selected_displayed:
             selected = pygame.image.load("images/targets/selected.png")
-            display.blit(selected, (470 - 150 * hero.position, 390))
+            display.blit(selected, (473 - 150 * hero.position, 363))
             selected_displayed = True
         pos = pygame.mouse.get_pos()
         #Wait for player to click an ability
@@ -630,7 +629,7 @@ def wait_action(buttons,hero):
                     draw_panel()
                     draw_hero(hero)
                     selected = pygame.image.load("images/targets/selected.png")
-                    display.blit(selected, (470 - 150 * hero.position, 390))
+                    display.blit(selected, (473 - 150 * hero.position, 363))
                     pygame.display.update()
         if selected_button != None: #if a button was pressed
             targeting_displayed = False
@@ -708,10 +707,10 @@ def wait_action(buttons,hero):
                             #when they are, stop drawing them
                             if condition < len(target):
                                 target_icon = pygame.image.load("images/targets/target_h_1.png")
-                                display.blit(target_icon, (475 - 150*a, 360))
+                                display.blit(target_icon, (473 - 150*a, 362))
                                 if target_counter < len(target):
                                     plus = pygame.image.load("images/targets/plus_h.png")
-                                    display.blit(plus, (462 - 150*a, 505))
+                                    display.blit(plus, (460 - 150*a, 508))
                                 condition += 1
                             for member in party:
                                 #if player clicks any ally that is a valid target
@@ -734,7 +733,7 @@ def wait_action(buttons,hero):
                         #if ability is single target
                         target_icon = pygame.image.load("images/targets/target_h_1.png")
                         if condition < len(selected_button.ability.target):
-                            display.blit(target_icon, (475 - 150*target, 360))
+                            display.blit(target_icon, (473 - 150*target, 362))
                             condition += 1
                     for member in party:
                         #check which allies are valid targets
@@ -791,8 +790,8 @@ scroll = 0
 
 #hero init (well theyre not bloody villains)
 dismas = Highwayman(400, 375,'Dismas',1)
-reynauld = Crusader(530,375,'Reynauld',0)
-paracelsus = Plague_Doctor(230,375,'Paracelsus',2)
+reynauld = Crusader(550,375,'Reynauld',0)
+paracelsus = Plague_Doctor(250,375,'Paracelsus',2)
 junia = Vestal(100,375,'Junia',3)
 
 #creating a group of sprites for heroes
@@ -867,7 +866,6 @@ while run:
             initiative = []
 
     if fighting:
-
 
         loc = (i-1 * bg.get_width()) + scroll
         for member in party:
