@@ -202,22 +202,19 @@ class DamageText(pygame.sprite.Sprite):
 
         
 
-    def update(self):
+    def update(self,animation = False):
 		#delete the text after a few seconds
         self.counter += 1
-        select = False
         if self.counter > 100:
             self.kill()
-            for i in range(0,tiles):
-                display.blit(bg, (i * bg.get_width() + scroll,0))
-            for enemy in enemy_list:
-                enemy.draw(enemy.current_hp,flip=True)
-            for member in party:
-                member.draw(member.current_hp)
-            if not select:
-                selected = pygame.image.load("images/targets/selected.png")
-                display.blit(selected, (473 - 150 * self.next_hero.position, 363))
-                select = True
+        # if not animation:
+        #     for i in range(0,tiles):
+        #         display.blit(bg, (i * bg.get_width() + scroll,0))
+        #     for enemy in enemy_list:
+        #         enemy.draw(enemy.current_hp,flip=True)
+        #     for member in party:
+        #         member.draw(member.current_hp)
+
 
 
 class hit_or_miss(pygame.sprite.Sprite): # i guess they never miss, huh?
@@ -235,22 +232,20 @@ class hit_or_miss(pygame.sprite.Sprite): # i guess they never miss, huh?
         self.counter = 0
         self.next_hero = next_hero
               
-    def update(self):
+    def update(self,animation = False):
 		#delete the text after a few seconds
         self.counter += 1
-        select = False
-        if self.counter > 180:
+
+        if self.counter > 100:
             self.kill()
-            for i in range(0,tiles):
-                display.blit(bg, (i * bg.get_width() + scroll,0))
-            for enemy in enemy_list:
-                enemy.draw(enemy.current_hp,flip=True)
-            for member in party:
-                member.draw(member.current_hp)
-            if not select:
-                selected = pygame.image.load("images/targets/selected.png")
-                display.blit(selected, (473 - 150 * self.next_hero.position, 363))
-                select = True
+        # if not animation:
+        #     for i in range(0,tiles):
+        #         display.blit(bg, (i * bg.get_width() + scroll,0))
+        #     for enemy in enemy_list:
+        #         enemy.draw(enemy.current_hp,flip=True)
+        #     for member in party:
+        #         member.draw(member.current_hp)
+
                 
 
 #Colours
@@ -278,7 +273,7 @@ class Person():
         self.name = name
         self.position = position
         self.image = pygame.image.load(f"images/heroes/{name}.png")
-        self.defend = pygame.image.load(f"imgaes/heroes/{name}_defend.png")
+        self.defend = pygame.image.load(f"images/heroes/{name}_defend.png")
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         #stats
@@ -307,7 +302,12 @@ class Person():
         self.current_hp = hp
         ratio = self.current_hp / self.max_hp
         if flip == True:
-            if animation:
+            
+            if animation == self.defend:
+                a = pygame.transform.flip(animation, True, False)
+                a = pygame.transform.scale(a, (a.get_width() * 0.5, a.get_height() * 0.5))
+                display.blit(a, (self.rect.x,self.rect.y))
+            elif animation:
                 a = pygame.transform.flip(animation, True, False)
                 a = pygame.transform.scale(a, (a.get_width() * 0.5, a.get_height() * 0.5))
                 display.blit(a, (600,250))
@@ -341,8 +341,11 @@ class Person():
                 else:
                     self.isStunned = False
         else:
-            
-            if animation:
+
+            if animation == self.defend:
+                a = pygame.transform.scale(animation, (animation.get_width() * 0.5, animation.get_height() * 0.5))
+                display.blit(a, (self.rect.x,self.rect.y))
+            elif animation:
                 a = pygame.transform.scale(animation, (animation.get_width() * 0.5, animation.get_height() * 0.5))
                 display.blit(a, (600,250))
             else:
@@ -606,25 +609,7 @@ class ability():
         to_hit = random.random()
         dot_stick = random.random()
         anim = pygame.image.load(self.anim)
-        if type(self.target[0]) is not tuple:
-            x = 100
-        else:
-            x = round(100/len(self.target[0]))
-        for j in range(x):
-            for i in range(0,tiles):
-                display.blit(bg, (i * bg.get_width() + scroll,0))
-            for enemy in enemy_list:
-                if enemy == self.hero:
-                    self.hero.draw(self.hero.current_hp,flip = True,animation = anim)
-                else:
-                    enemy.draw(enemy.current_hp,flip=True)
-            for member in party:
-                if member == self.hero:
-                    self.hero.draw(self.hero.current_hp,animation = anim)
-                else:
-                    member.draw(member.current_hp)
-            
-            pygame.display.update()
+        
 
         #target.draw(target.current_hp)
         if self.Type == 'Attack':
@@ -742,7 +727,7 @@ class ability():
             else:
                 apply_heal(target, round(2 * roll_number * self.dmg_mod),cure)
                 damage_text = DamageText(target.x, target.y-200, 
-                                         f"{roll_number} CRIT!", green, next_hero)
+                                         f"{2*roll_number*self.dmg_mod} CRIT!", green, next_hero)
                 damage_text_group.add(damage_text)
         elif self.Type == 'Stress_heal':
             apply_stress(target,roll_number)
@@ -765,6 +750,32 @@ class ability():
             damage_text = DamageText(target.x, target.y-200, 
                                      "Buffed!", sky_blue, next_hero)
             damage_text_group.add(damage_text)
+        if type(self.target[0]) is not tuple:
+            x = 100
+        else:
+            x = round(100/len(self.target[0])*1.5)
+        for j in range(x):
+            for i in range(0,tiles):
+                display.blit(bg, (i * bg.get_width() + scroll,0))
+            for enemy in enemy_list:
+                if enemy == self.hero:
+                    self.hero.draw(self.hero.current_hp,flip = True,animation = anim)
+                elif enemy == target:
+                    enemy.draw(enemy.current_hp,flip = True,animation = enemy.defend)
+                else:
+                    enemy.draw(enemy.current_hp,flip=True)
+            for member in party:
+                if member == self.hero:
+                    self.hero.draw(self.hero.current_hp,animation = anim)
+                elif member == target:
+                    member.draw(member.current_hp,animation = member.defend)
+                else:
+                    member.draw(member.current_hp)
+            damage_text_group.update(animation = True)
+            damage_text_group.draw(display)
+            hit_text_group.update(animation = True)
+            hit_text_group.draw(display)
+            pygame.display.update()
 
 
 #functions to calculate things
@@ -876,7 +887,14 @@ def wait_action(buttons,hero,next_ally):
     action = False
     selected_displayed = False
     targeting_displayed = False
+    damage_text_group.update()
+    damage_text_group.draw(display)
+    hit_text_group.update()
+    hit_text_group.draw(display)
+    draw_panel()
+    draw_hero(hero)
     while not action:
+        
         if not selected_displayed:
             selected = pygame.image.load("images/targets/selected.png")
             display.blit(selected, (473 - 150 * hero.position, 363))
@@ -994,16 +1012,18 @@ def wait_action(buttons,hero,next_ally):
                                         draw_target(member, button.ability, hero)
                                         if pygame.mouse.get_pressed()[0] == 1:
                                             action = True
-                                    if action:
-                                        #proc the ability on every party in the aoe
-                                        #because for enemy in enemy_list
-                                        crit = hero.roll_crit()
-                                        if selected_button.ability.Type == 'Stress_heal':
-                                            selected_button.ability.proc(selected_button.ability.stress,member,crit, next_ally)
-                                        elif selected_button.ability.Type == 'Heal':
-                                            selected_button.ability.proc(selected_button.ability.heal,member,crit, next_ally)
-                                        else:
-                                            selected_button.ability.proc(selected_button.ability.dmg_mod,member,crit, next_ally)
+                        if action:
+                            for member in party:
+                                #proc the ability on every party in the aoe
+                                #because for enemy in enemy_list
+                                crit = hero.roll_crit()
+                                if selected_button.ability.Type == 'Stress_heal':
+                                    selected_button.ability.proc(selected_button.ability.stress,member,crit, next_ally)
+                                elif selected_button.ability.Type == 'Heal':
+                                    selected_button.ability.proc(selected_button.ability.heal,member,crit, next_ally)
+                                else:
+                                    selected_button.ability.proc(selected_button.ability.dmg_mod,member,crit, next_ally)
+                                
                     else:
                         #if ability is single target
                         target_icon = pygame.image.load("images/targets/target_h_1.png")
@@ -1179,6 +1199,10 @@ while run:
             for member in party:
                 member.draw(member.current_hp)
             draw_panel()
+            damage_text_group.update()
+            damage_text_group.draw(display)
+            hit_text_group.update()
+            hit_text_group.draw(display)
             pygame.display.update()
             for r, t, p in initiative:
                 if r < roll:
