@@ -521,21 +521,26 @@ class Cutthroat(Person):
                             for member in party:
                                 if member.position == position:
                                     crit = self.roll_crit()
-                                    dmg = self.roll_dmg()
-                                    random_action.proc(dmg,member,crit)
+                                    if random_action.Type == 'Stress_damage':
+                                        random_action.proc(2,member,crit)
+                                    
+                                    else:
+                                        dmg = self.roll_dmg()
+                                        random_action.proc(dmg,member,crit)
                     else:
                         target = random.choice(party)
-                        hits = roll_to_hit(random_action, target)
-                        if hits:
-                            crit = self.roll_crit()
+                        crit = self.roll_crit()
+                        if random_action.Type == 'Stress_damage':
+                            random_action.proc(2,target,crit)
+                        
+                        else:
                             dmg = self.roll_dmg()
-                            random_action.proc(dmg, target, crit)
+                            random_action.proc(dmg,target,crit)
         else:
             damage_text_group.update()
             hit_text_group.update()
             damage_text_group.draw(display)
             hit_text_group.draw(display)
-
 
 
 class Fusilier(Person):
@@ -558,15 +563,21 @@ class Fusilier(Person):
                             for member in party:
                                 if member.position == position:
                                     crit = self.roll_crit()
-                                    dmg = self.roll_dmg()
-                                    random_action.proc(dmg,member,crit)
+                                    if random_action.Type == 'Stress_damage':
+                                        random_action.proc(2,member,crit)
+                                    
+                                    else:
+                                        dmg = self.roll_dmg()
+                                        random_action.proc(dmg,member,crit)
                     else:
                         target = random.choice(party)
-                        hits = roll_to_hit(random_action, target)
-                        if hits:
-                            crit = self.roll_crit()
+                        crit = self.roll_crit()
+                        if random_action.Type == 'Stress_damage':
+                            random_action.proc(2,target,crit)
+                        
+                        else:
                             dmg = self.roll_dmg()
-                            random_action.proc(dmg, target, crit)
+                            random_action.proc(dmg,target,crit)
         else:
             damage_text_group.update()
             hit_text_group.update()
@@ -604,11 +615,13 @@ class Witch(Person):
                                         random_action.proc(dmg,member,crit)
                     else:
                         target = random.choice(party)
-                        hits = roll_to_hit(random_action, target)
-                        if hits:
-                            crit = self.roll_crit()
+                        crit = self.roll_crit()
+                        if random_action.Type == 'Stress_damage':
+                            random_action.proc(2,target,crit)
+                        
+                        else:
                             dmg = self.roll_dmg()
-                            random_action.proc(dmg, target, crit)
+                            random_action.proc(dmg,target,crit)
         else:
             damage_text_group.update()
             hit_text_group.update()
@@ -638,16 +651,19 @@ class Brawler(Person):
                                     crit = self.roll_crit()
                                     if random_action.Type == 'Stress_damage':
                                         random_action.proc(2,member,crit)
-
-                                    dmg = self.roll_dmg()
-                                    random_action.proc(dmg,member,crit)
+                                    
+                                    else:
+                                        dmg = self.roll_dmg()
+                                        random_action.proc(dmg,member,crit)
                     else:
                         target = random.choice(party)
-                        hits = roll_to_hit(random_action, target)
-                        if hits:
-                            crit = self.roll_crit()
+                        crit = self.roll_crit()
+                        if random_action.Type == 'Stress_damage':
+                            random_action.proc(2,target,crit)
+                        
+                        else:
                             dmg = self.roll_dmg()
-                            random_action.proc(dmg, target, crit)
+                            random_action.proc(dmg,target,crit)
         else:
             damage_text_group.update()
             hit_text_group.update()
@@ -1185,10 +1201,10 @@ enemy7 = Witch(1200, 375, 'Witch', 2)
 enemy8 = Witch(1350, 375, 'Witch', 3)
 
 enemy_list = []
-enemy_list.append(enemy5)
-enemy_list.append(enemy6)
-enemy_list.append(enemy7)
-enemy_list.append(enemy8)
+enemy_list.append(enemy1)
+enemy_list.append(enemy2)
+enemy_list.append(enemy3)
+enemy_list.append(enemy4)
 
 damage_text_group = pygame.sprite.Group()
 hit_text_group = pygame.sprite.Group()
