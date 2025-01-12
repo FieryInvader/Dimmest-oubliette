@@ -7,7 +7,7 @@ pygame.init()
 
 random.seed(time.time())
 #button class
-class Button(pygame.sprite.Sprite):
+class Button():
     def __init__(self, surface, x, y, image, ability):
         self.x = x
         self.y = y
@@ -186,20 +186,25 @@ def draw_ability(hero, button):
         draw_text(f"+{button.ability.crit}% CRIT", font_small, white, 460, 750)
     
 class DamageText(pygame.sprite.Sprite):
-	def __init__(self, x, y, damage, colour):
-		pygame.sprite.Sprite.__init__(self)
-		self.image = font.render(damage, True, colour)
-		self.rect = self.image.get_rect()
-		self.rect.center = (x, y)
-		self.counter = 0
+    def __init__(self, x, y, damage, colour):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = font.render(damage, True, colour)
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+        self.counter = 0
 
-
-	def update(self):
-
+    def update(self):
 		#delete the text after a few seconds
-		self.counter += 1
-		if self.counter > 20:
-			self.kill()
+        self.counter += 1
+        if self.counter > 100:
+            self.kill()
+            for i in range(0,tiles):
+                display.blit(bg, (i * bg.get_width() + scroll,0))
+            for enemy in enemy_list:
+                enemy.draw(enemy.current_hp,flip=True)
+            for member in party:
+                member.draw(member.current_hp)
+
 
 #Colours
 red = (255,0,0)
@@ -216,11 +221,10 @@ empty_stress = pygame.image.load("images/heroes/stress_empty.png")
 full_stress = pygame.image.load("images/heroes/stress_full.png")
 
 #Classes for our heroes
-class Person(pygame.sprite.Sprite):
+class Person():
     def __init__(self, x, y, name, health, critical, dodge, speed, position, 
-                 stun_res, blight_res, bleed_res, dmg_range):
+                 dmg_range, stun_res, blight_res, bleed_res):
         #visuals
-        pygame.sprite.Sprite.__init__(self)
         self.x = x
         self.y = y
         self.name = name
@@ -357,7 +361,7 @@ class Vestal(Person):
         self.hero_class = "Vestal"
         #initialize parent class
         dmg_range = [i for i in range(4,9)]
-        super().__init__(x, y, name, 24, 0.01, 0.01, 4, position, dmg_range)
+        super().__init__(x, y, name, 24, 0.01, 0.01, 4, position, dmg_range, 0.25, 0.3, 0.3)
         
         self.abilities = []
         self.dazzling_light = ability("dazzling_light", [1,2,3], [0,1,2],'Attack', self.crit + 0.05, 0.9,dmg_mod = 0.2, status = 'Stun')
