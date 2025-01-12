@@ -278,6 +278,7 @@ class Person():
         self.name = name
         self.position = position
         self.image = pygame.image.load(f"images/heroes/{name}.png")
+        self.defend = pygame.image.load(f"imgaes/heroes/{name}_defend.png")
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         #stats
@@ -307,7 +308,10 @@ class Person():
         ratio = self.current_hp / self.max_hp
         if flip == True:
             if animation:
-                display.blit(pygame.transform.flip(animation, True, False), self.rect)
+                a = pygame.transform.flip(animation, True, False)
+                a = pygame.transform.scale(a, (a.get_width() * 0.5, a.get_height() * 0.5))
+                display.blit(a, (600,250))
+
             else:
                 display.blit(pygame.transform.flip(self.image, True, False), self.rect)
             pygame.draw.rect(display, dark_grey, (self.x-40,self.y+180,100,10))
@@ -339,7 +343,8 @@ class Person():
         else:
             
             if animation:
-                display.blit(animation, (500,500))
+                a = pygame.transform.scale(animation, (animation.get_width() * 0.5, animation.get_height() * 0.5))
+                display.blit(a, (600,250))
             else:
                 display.blit(self.image, self.rect)
             pygame.draw.rect(display, dark_grey, (self.rect.center[0]-40,self.rect.center[1] + 165, 100, 10))
@@ -549,7 +554,7 @@ class Fusilier(Person):
                 self.action_cooldown += 1
                 if self.action_cooldown == self.action_wait_time:
                     random_action = random.choice(self.abilities)
-                    if type(random_action) is tuple():
+                    if type(random_action) is tuple:
                         for target in random_action.target[0]:
                             hits = roll_to_hit(random_action, target)
                             if hits:
@@ -601,16 +606,24 @@ class ability():
         to_hit = random.random()
         dot_stick = random.random()
         anim = pygame.image.load(self.anim)
-        for j in range(100):
+        if type(self.target[0]) is not tuple:
+            x = 100
+        else:
+            x = round(100/len(self.target[0]))
+        for j in range(x):
             for i in range(0,tiles):
                 display.blit(bg, (i * bg.get_width() + scroll,0))
             for enemy in enemy_list:
-                enemy.draw(enemy.current_hp,flip=True)
+                if enemy == self.hero:
+                    self.hero.draw(self.hero.current_hp,flip = True,animation = anim)
+                else:
+                    enemy.draw(enemy.current_hp,flip=True)
             for member in party:
                 if member == self.hero:
                     self.hero.draw(self.hero.current_hp,animation = anim)
                 else:
                     member.draw(member.current_hp)
+            
             pygame.display.update()
 
         #target.draw(target.current_hp)
@@ -1067,10 +1080,10 @@ party.append(paracelsus)
 party.append(junia)
 
    
-enemy1 = Cutthroat(900, 375, 'cutthroat', 0)        
-enemy2 = Cutthroat(1050, 375, 'cutthroat', 1)
-enemy3 = Fusilier(1200, 375, 'fusilier', 2)
-enemy4 = Fusilier(1350, 375, 'fusilier', 3)
+enemy1 = Cutthroat(900, 375, 'Cutthroat', 0)        
+enemy2 = Cutthroat(1050, 375, 'Cutthroat', 1)
+enemy3 = Fusilier(1200, 375, 'Fusilier', 2)
+enemy4 = Fusilier(1350, 375, 'Fusilier', 3)
 
 enemy_list = []
 enemy_list.append(enemy1)
