@@ -592,6 +592,7 @@ class ability():
         to_hit = random.random()
         dot_stick = random.random()
         if self.Type == 'Attack':
+            
             #if the attack hits
             if to_hit < self.accuracy - target.dodge:
                 hit_text = hit_or_miss(target.x, True, next_hero)
