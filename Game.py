@@ -348,17 +348,17 @@ class Person():
                     indicator[1] += b[1]
                 text = f"{indicator[0]}/{indicator[1]}"
                 blight_icon = pygame.image.load("images/status/blight.png")
-                display.blit(blight_icon, (self.rect.center[0],self.rect.center[1] + 115 ))
-                draw_text(text, font_small, vomit, self.rect.center[0]+ 30, self.rect.center[1] + 120)
+                display.blit(blight_icon, (self.rect.center[0],self.rect.center[1] + 135 ))
+                draw_text(text, font_small, vomit, self.rect.center[0]+ 30, self.rect.center[1] + 140)
             if self.bleed:
                 indicator = [0,0]
                 for b in self.bleed:
                     indicator[0] += b[0]
                     indicator[1] += b[1]
                 bleed_icon = pygame.image.load("images/status/bleed.png")
-                display.blit(bleed_icon, (self.rect.center[0]-50,self.rect.center[1] + 115 ))
+                display.blit(bleed_icon, (self.rect.center[0]-50,self.rect.center[1] + 135 ))
                 text = f"{indicator[0]}/{indicator[1]}"
-                draw_text(text, font_small, dark_red, self.rect.center[0]-20, self.rect.center[1] + 120)
+                draw_text(text, font_small, dark_red, self.rect.center[0]-20, self.rect.center[1] + 140)
             if self.isStunned:
                 if self.action_token < 1:
                     stun_icon = pygame.image.load("images/status/stun.png")
