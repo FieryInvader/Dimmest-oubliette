@@ -185,7 +185,21 @@ def draw_ability(hero, button):
         draw_text(f"+{button.ability.speed}% SPD", font_small, white, 600, 735)
         draw_text(f"+{button.ability.crit}% CRIT", font_small, white, 460, 750)
     
-    
+class DamageText(pygame.sprite.Sprite):
+	def __init__(self, x, y, damage, colour):
+		pygame.sprite.Sprite.__init__(self)
+		self.image = font.render(damage, True, colour)
+		self.rect = self.image.get_rect()
+		self.rect.center = (x, y)
+		self.counter = 0
+
+
+	def update(self):
+
+		#delete the text after a few seconds
+		self.counter += 1
+		if self.counter > 20:
+			self.kill()
 
 #Colours
 red = (255,0,0)
@@ -386,7 +400,7 @@ class Cutthroat(Person):
             if self.alive and (self.action_token > 0):
                 self.action_cooldown += 1
                 if self.action_cooldown == self.action_wait_time:
-                    resovle_dots(self)
+                    resolve_dots(self)
                     random_action = random.choice(self.abilities)
                     if type(random_action) is tuple():
                         for target in random_action.target[0]:
@@ -497,23 +511,27 @@ class ability():
     #Using the calculation functions, while checking to apply buffs
     def proc(self, roll_number, target, crit):
         cure = False
+        to_hit = random.random()
         if self.Type == 'Attack':
-            if not crit:
-                apply_dmg(target, round(roll_number * self.dmg_mod))
-                if self.status == 'Blight':
-                    apply_blight(target, self.dot, self.rounds)
-                elif self.status == 'Bleed':
-                    apply_bleed(target, self.dot, self.rounds)
-                elif self.status == 'Stun':
-                    apply_stun(target)
-            else:
-                apply_dmg(target, round(2 * roll_number * self.dmg_mod))
-                if self.status == 'Blight':
-                    apply_blight(target, self.dot, self.rounds+2)
-                elif self.status == 'Bleed':
-                    apply_bleed(target, self.dot, self.rounds+2)
-                elif self.status == 'Stun':
-                    apply_stun(target)
+            if to_hit < self.accuracy - target.dodge:
+                if not crit:
+                    apply_dmg(target, round(roll_number * self.dmg_mod))
+                    damage_text = DamageText(target.x, target.y-200, str(round(roll_number * self.dmg_mod)), red)
+                    damage_text_group.add(damage_text)
+                    if self.status == 'Blight':
+                        apply_blight(target, self.dot, self.rounds)
+                    elif self.status == 'Bleed':
+                        apply_bleed(target, self.dot, self.rounds)
+                    elif self.status == 'Stun':
+                        apply_stun(target)
+                else:
+                    apply_dmg(target, round(2 * roll_number * self.dmg_mod))
+                    if self.status == 'Blight':
+                        apply_blight(target, self.dot, self.rounds+2)
+                    elif self.status == 'Bleed':
+                        apply_bleed(target, self.dot, self.rounds+2)
+                    elif self.status == 'Stun':
+                        apply_stun(target)
         elif self.Type == 'Heal':
             if self.status == 'Cure':
                 cure = True
@@ -533,6 +551,13 @@ def apply_dmg(target,dmg):
         target.current_hp = 0
     else:
         target.current_hp -= dmg
+    if target in enemy_list:    
+        target.draw(target.current_hp,flip = True)
+    else:
+        target.draw(target.current_hp)
+
+
+  
         
 def apply_blight(target,damage,rounds):
     target.blight.append((damage,rounds))
@@ -578,12 +603,13 @@ def apply_buff(target,dps_buff = 0,speed_buff = 0,crit_buff = 0):
         if ability.Type == 'Attack':
             ability.crit += crit_buff
 
-def resovle_dots(target):
+def resolve_dots(target):
     if target.bleed:
         for dot,Round in target.bleed:
             
-            if target.current_hp - dot < 0 :
+            if target.current_hp - dot <= 0 :
                 target.current_hp = 0
+                target.alive = False
             target.current_hp -= dot
             
         target.bleed[:] = [(x,y-1) for x,y in target.bleed]
@@ -592,6 +618,7 @@ def resovle_dots(target):
             
             if target.current_hp - dot < 0 :
                 target.current_hp = 0
+                target.alive = False
             target.current_hp -= dot
             
         target.blight[:] = [(x,y-1) for x,y in target.blight]
@@ -608,6 +635,7 @@ def wait_action(buttons,hero):
     action = False
     selected_displayed = False
     targeting_displayed = False
+    resolve_dots(hero)
     while not action:
         if not selected_displayed:
             selected = pygame.image.load("images/targets/selected.png")
@@ -673,6 +701,7 @@ def wait_action(buttons,hero):
                                         damage = hero.roll_dmg()
                                         crit = hero.roll_crit()
                                         selected_button.ability.proc(damage, enemy, crit)
+                                        break
                                         #if we roll dmg when we initialize ability,
                                         #it will deal the same dmg every time
                     else:
@@ -762,7 +791,8 @@ def wait_action(buttons,hero):
                     break
                     #if not attack or util, then ability.Type == Pass
                     
-                    
+        damage_text_group.update()
+        damage_text_group.draw(display)
         draw_panel()
         draw_hero(hero)
         if selected_button:
@@ -817,6 +847,7 @@ enemy_list.append(enemy2)
 enemy_list.append(enemy3)
 enemy_list.append(enemy4)
 
+damage_text_group = pygame.sprite.Group()
 
 COMBAT = pygame.USEREVENT + 1
 tile_size = 1000
@@ -907,7 +938,6 @@ while run:
                 member.draw(member.current_hp)
             draw_panel()
             pygame.display.update()
-            resovle_dots(person)
             if team == 0:
                 if person.alive:
                     if person.action_token:
@@ -927,6 +957,7 @@ while run:
     if game_over:
         print('game over')
         pygame.quit()
+        
     pygame.display.update()
 
 pygame.quit()
