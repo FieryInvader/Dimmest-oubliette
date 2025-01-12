@@ -188,7 +188,7 @@ def draw_ability(hero, button):
         draw_text(f"+{button.ability.crit}% CRIT", font_small, white, 460, 750)
     
 class DamageText(pygame.sprite.Sprite):
-    def __init__(self, x, y, damage, colour, next_hero,icon = None):
+    def __init__(self, x, y, damage, colour,icon = None):
         pygame.sprite.Sprite.__init__(self)
         if not icon:
             self.image = font.render(str(damage), True, colour)
@@ -198,10 +198,7 @@ class DamageText(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.counter = 0
-        self.next_hero = next_hero
-
         
-
     def update(self,animation = False):
 		#delete the text after a few seconds
         self.counter += 1
@@ -218,7 +215,7 @@ class DamageText(pygame.sprite.Sprite):
 
 
 class hit_or_miss(pygame.sprite.Sprite): # i guess they never miss, huh?
-    def __init__(self, x, hit, next_hero):
+    def __init__(self, x, hit):
         pygame.sprite.Sprite.__init__(self)
         if hit:
             colour = yellow
@@ -230,7 +227,6 @@ class hit_or_miss(pygame.sprite.Sprite): # i guess they never miss, huh?
         self.rect = self.image.get_rect()
         self.rect.center = (x, 200)
         self.counter = 0
-        self.next_hero = next_hero
               
     def update(self,animation = False):
 		#delete the text after a few seconds
@@ -512,7 +508,7 @@ class Cutthroat(Person):
         self.abilities.append(self.Uppercut_Slice)
         self.abilities.append(self.Shank)
         
-    def take_action(self,next_ally):
+    def take_action(self):
         self.action_cooldown = 0
         while self.action_cooldown <= self.action_wait_time:
             if self.alive and (self.action_token > 0):
@@ -525,14 +521,14 @@ class Cutthroat(Person):
                             if hits:
                                 crit = self.roll_crit()
                                 dmg = self.roll_dmg()
-                                random_action.proc(dmg, target, crit, next_ally)
+                                random_action.proc(dmg, target, crit)
                     else:
                         target = random.choice(party)
                         hits = roll_to_hit(random_action, target)
                         if hits:
                             crit = self.roll_crit()
                             dmg = self.roll_dmg()
-                            random_action.proc(dmg, target, crit, next_ally)
+                            random_action.proc(dmg, target, crit)
         else:
             damage_text_group.update()
             damage_text_group.draw(display)
@@ -550,7 +546,7 @@ class Fusilier(Person):
         self.Blanket = ability('Blanket',self,'images/Fusilier/attack_anim.png', [1,2,3], [(0,1,2,3)],'Attack' ,self.crit + 0.02 ,0.8, "grapeshot.wav")
         self.abilities.append(self.Blanket)
         
-    def take_action(self,next_ally):
+    def take_action(self):
         self.action_cooldown = 0
         while self.action_cooldown <= self.action_wait_time:
             if self.alive and (self.action_token > 0):
@@ -563,14 +559,14 @@ class Fusilier(Person):
                             if hits:
                                 crit = self.roll_crit()
                                 dmg = self.roll_dmg()
-                                random_action.proc(dmg, target, crit,next_ally)
+                                random_action.proc(dmg, target, crit)
                     else:
                         target = random.choice(party)
                         hits = roll_to_hit(random_action, target)
                         if hits:
                             crit = self.roll_crit()
                             dmg = self.roll_dmg()
-                            random_action.proc(dmg, target, crit,next_ally)
+                            random_action.proc(dmg, target, crit)
         else:
             damage_text_group.update()
             hit_text_group.update()
@@ -605,7 +601,7 @@ class ability():
         
     #Function to fire the effect of the ability depending on its Type
     #Using the calculation functions, while checking to apply buffs
-    def proc(self, roll_number, target, crit, next_hero, soundplayed = False):
+    def proc(self, roll_number, target, crit, soundplayed = False):
         cure = False
         to_hit = random.random()
         dot_stick = random.random()
@@ -616,7 +612,7 @@ class ability():
         if self.Type == 'Attack':
             #if the attack hits
             if to_hit < self.accuracy - target.dodge:
-                hit_text = hit_or_miss(target.x, True, next_hero)
+                hit_text = hit_or_miss(target.x, True)
                 hit_text_group.add(hit_text)
                 #if the attack doesnt crit
                 #apply dmg text if crit
@@ -626,38 +622,38 @@ class ability():
                 if not crit:
                     apply_dmg(target, dmg)
                     damage_text = DamageText(target.x, target.y-200, dmg,
-                                             red, next_hero)
+                                             red)
                     damage_text_group.add(damage_text)
                     if self.status == 'Blight':
                         if dot_stick > target.blight_res:
                             apply_blight(target, self.dot, self.rounds)
                             damage_text = DamageText(target.x, target.y-150, 
-                                                     "Blight", vomit, next_hero)
+                                                     "Blight", vomit)
                             icon = pygame.image.load("images/status/blight.png").convert()
-                            icon_txt = DamageText(target.x,target.y-150,'',vomit,next_hero,icon)
+                            icon_txt = DamageText(target.x,target.y-150,'',vomit ,icon)
                             damage_text_group.add(icon_txt)
                             damage_text_group.add(damage_text)
                         else:
                             damage_text = DamageText(target.x, target.y-150, 
-                                                     "Resist!", vomit, next_hero)
+                                                     "Resist!", vomit)
                             icon = pygame.image.load("images/status/blight.png").convert()
-                            icon_txt = DamageText(target.x,target.y-150,'',vomit,next_hero,icon)
+                            icon_txt = DamageText(target.x,target.y-150,'',vomit,icon)
                             damage_text_group.add(icon_txt)
                             damage_text_group.add(damage_text)
                     elif self.status == 'Bleed':
                         if dot_stick > target.bleed_res:
                             apply_bleed(target, self.dot, self.rounds)
                             damage_text = DamageText(target.x, target.y-150, 
-                                                     "Bleed", red, next_hero)
+                                                     "Bleed", red)
                             icon = pygame.image.load("images/status/bleed.png").convert()
-                            icon_txt = DamageText(target.x,target.y-150,'',red,next_hero,icon)
+                            icon_txt = DamageText(target.x,target.y-150,'',red,icon)
                             damage_text_group.add(icon_txt)
                             damage_text_group.add(damage_text)
                         else:
                             damage_text = DamageText(target.x, target.y-150, 
-                                                     "Resist!", red, next_hero)
+                                                     "Resist!", red)
                             icon = pygame.image.load("images/status/bleed.png").convert()
-                            icon_txt = DamageText(target.x,target.y-150,'',red,next_hero,icon)
+                            icon_txt = DamageText(target.x,target.y-150,'',red,icon)
                             damage_text_group.add(icon_txt)
                             damage_text_group.add(damage_text)
                     elif self.status == 'Stun':
@@ -665,84 +661,84 @@ class ability():
                             apply_stun(target)
 
                             damage_text = DamageText(target.x, target.y-150, 
-                                                     "Stun!", yellow, next_hero)
+                                                     "Stun!", yellow)
                             icon = pygame.image.load("images/status/stun.png")
-                            icon_txt = DamageText(target.x, target.y-150,'', yellow, next_hero,icon = icon)
+                            icon_txt = DamageText(target.x, target.y-150,'', yellow,icon = icon)
                             damage_text_group.add(icon_txt)
                             damage_text_group.add(damage_text)
                         else:
                             damage_text = DamageText(target.x, target.y-150, 
-                                                     "Stun resisted", yellow, next_hero)
+                                                     "Stun resisted", yellow)
                             damage_text_group.add(damage_text) 
                 else:
                     apply_dmg(target, round(2 * roll_number * self.dmg_mod))
                     damage_text = DamageText(target.x, target.y-200, 
-                                             f"{round(2 * roll_number * self.dmg_mod)} CRIT!", red, next_hero)
+                                             f"{round(2 * roll_number * self.dmg_mod)} CRIT!", red)
                     damage_text_group.add(damage_text)
                     if self.status == 'Blight':
                         apply_blight(target, self.dot, self.rounds+2)
                         damage_text = DamageText(target.x, target.y-150, 
-                                                 "Blight", vomit, next_hero)
+                                                 "Blight", vomit)
                         icon = pygame.image.load("images/status/blight.png").convert()
-                        icon_txt = DamageText(target.x,target.y-150,'',vomit,next_hero,icon)
+                        icon_txt = DamageText(target.x,target.y-150,'',vomit,icon)
                         damage_text_group.add(icon_txt)
                         damage_text_group.add(damage_text)
                     elif self.status == 'Bleed':
                         apply_bleed(target, self.dot, self.rounds + 2)
                         damage_text = DamageText(target.x, target.y-150, 
-                                                 "Bleed", red, next_hero)
+                                                 "Bleed", red)
                         icon = pygame.image.load("images/status/bleed.png").convert()
-                        icon_txt = DamageText(target.x,target.y-150,'',red,next_hero,icon)
+                        icon_txt = DamageText(target.x,target.y-150,'',red,icon)
                         damage_text_group.add(icon_txt)
                         damage_text_group.add(damage_text)
                     elif self.status == 'Stun':
                         apply_stun(target)
                         damage_text = DamageText(target.x, target.y-200, 
-                                                 "Stun", yellow, next_hero)
+                                                 "Stun", yellow)
                         icon = pygame.image.load("images/status/stun.png")
-                        icon_txt = DamageText(target.x, target.y-150,'', yellow, next_hero,icon = icon)
+                        icon_txt = DamageText(target.x, target.y-150,'', yellow,icon = icon)
                         damage_text_group.add(icon_txt)
                         damage_text_group.add(damage_text)
 
             else:
-                hit_text = hit_or_miss(target.x, False, next_hero)
+                hit_text = hit_or_miss(target.x, False)
                 hit_text_group.add(hit_text)
         elif self.Type == 'Heal':
             if self.status == 'Cure':
                 damage_text = DamageText(target.x, target.y-220, 
-                                         'Cured!', white, next_hero)
+                                         'Cured!', white)
                 damage_text_group.add(damage_text)
                 cure = True
             if not crit:
                 apply_heal(target, round(roll_number * self.dmg_mod),cure)
                 damage_text = DamageText(target.x, target.y-200, 
-                                         str(roll_number), green, next_hero)
+                                         str(roll_number), green)
                 damage_text_group.add(damage_text)
             else:
                 apply_heal(target, round(2 * roll_number * self.dmg_mod),cure)
                 damage_text = DamageText(target.x, target.y-200, 
-                                         f"{2*roll_number*self.dmg_mod} CRIT!", green, next_hero)
+                                         f"{2*roll_number*self.dmg_mod} CRIT!", green)
                 damage_text_group.add(damage_text)
         elif self.Type == 'Stress_heal':
             apply_stress(target,roll_number)
             if self.heal != 0:
                 apply_heal(target, self.heal ,cure)
                 damage_text = DamageText(target.x, target.y-220, 
-                                         f"{roll_number} stress", white, next_hero)
+                                         f"{roll_number} stress", white)
                 damage_text_group.add(damage_text)
                 damage_text = DamageText(target.x, target.y-200, 
-                                         str(self.heal), green, next_hero)
+                                         str(self.heal), green)
                 damage_text_group.add(damage_text)
             else:
                 damage_text = DamageText(target.x, target.y-200, 
-                                         f"{roll_number} stress", white, next_hero)
+                                         f"{roll_number} stress", white)
                 damage_text_group.add(damage_text)
         elif self.Type == 'Stress_damage':
             apply_stress(target,roll_number)
         elif self.Type == 'Buff':
             apply_buff(target,dps_buff = self.dmg_mod,crit_buff = self.crit,speed_buff = self.speed)
             damage_text = DamageText(target.x, target.y-200, 
-                                     "Buffed!", sky_blue, next_hero)
+                                     "Buffed!", sky_blue)
             damage_text_group.add(damage_text)
         if type(self.target[0]) is not tuple:
             x = 100
@@ -847,9 +843,9 @@ def resolve_dots(target):
         numbers = [x[0] for x in target.bleed]
         number = sum(numbers)
         damage_text = DamageText(target.x, target.y-240, 
-                                 str(number), red, target)
+                                 str(number), red)
         icon = pygame.image.load("images/status/tray_bleed.png").convert()
-        icon_txt = DamageText(target.x-30,target.y-240,'',red,target,icon)
+        icon_txt = DamageText(target.x-30,target.y-240,'',red,icon)
         damage_text_group.add(icon_txt)
         damage_text_group.add(damage_text)
         target.bleed[:] = [(x,y-1) for x,y in target.bleed]
@@ -863,9 +859,9 @@ def resolve_dots(target):
         numbers = [x[0] for x in target.blight]
         number = sum(numbers)
         damage_text = DamageText(target.x, target.y-240, 
-                                 str(number), vomit, target)
+                                 str(number), vomit)
         icon = pygame.image.load("images/status/tray_blight.png").convert()
-        icon_txt = DamageText(target.x-30,target.y-240,'',vomit,target,icon)
+        icon_txt = DamageText(target.x-30,target.y-240,'',vomit,icon)
         damage_text_group.add(icon_txt)
         damage_text_group.add(damage_text)
         target.blight[:] = [(x,y-1) for x,y in target.blight]
@@ -875,7 +871,7 @@ def resolve_dots(target):
 #def revert_buffs(target)
 
 #the main function for the player taking turns
-def wait_action(buttons,hero,next_ally):
+def wait_action(buttons,hero):
     condition = 0 #counter for targets than need to be drawn
     selected_button = None
     action = False
@@ -956,7 +952,7 @@ def wait_action(buttons,hero,next_ally):
                                     #we roll dmg here so its different every time
                                     damage = hero.roll_dmg()
                                     crit = hero.roll_crit()
-                                    selected_button.ability.proc(damage, enemy, crit, next_ally, soundplayed)
+                                    selected_button.ability.proc(damage, enemy, crit, soundplayed)
                                     #if we roll dmg when we initialize ability,
                                     #it will deal the same dmg every time
                                     soundplayed = True
@@ -980,7 +976,7 @@ def wait_action(buttons,hero,next_ally):
                                         #we roll dmg here so its different every time
                                         damage = hero.roll_dmg()
                                         crit = hero.roll_crit()
-                                        selected_button.ability.proc(damage, enemy, crit, next_ally)
+                                        selected_button.ability.proc(damage, enemy, crit)
                                         #if we roll dmg when we initialize ability,
                                         #it will deal the same dmg every time
                                         action = True
@@ -1014,11 +1010,11 @@ def wait_action(buttons,hero,next_ally):
                                 #because for enemy in enemy_list
                                 crit = hero.roll_crit()
                                 if selected_button.ability.Type == 'Stress_heal':
-                                    selected_button.ability.proc(selected_button.ability.stress,member,crit, next_ally, soundplayed)
+                                    selected_button.ability.proc(selected_button.ability.stress,member,crit, soundplayed)
                                 elif selected_button.ability.Type == 'Heal':
-                                    selected_button.ability.proc(selected_button.ability.heal,member,crit, next_ally, soundplayed)
+                                    selected_button.ability.proc(selected_button.ability.heal,member,crit, soundplayed)
                                 else:
-                                    selected_button.ability.proc(selected_button.ability.dmg_mod,member,crit, next_ally, soundplayed)
+                                    selected_button.ability.proc(selected_button.ability.dmg_mod,member,crit, soundplayed)
                                 soundplayed = True
                                 
                     else:
@@ -1038,16 +1034,17 @@ def wait_action(buttons,hero,next_ally):
                                     #proc the ability on that single ally
                                     crit = hero.roll_crit()
                                     if selected_button.ability.Type == 'Stress_heal':
-                                        selected_button.ability.proc(selected_button.ability.stress,member,crit, next_ally)
+                                        selected_button.ability.proc(selected_button.ability.stress,member,crit)
                                     elif selected_button.ability.Type == 'Heal':
-                                        selected_button.ability.proc(selected_button.ability.heal,member,crit, next_ally)
+                                        selected_button.ability.proc(selected_button.ability.heal,member,crit)
                                     else:
-                                        selected_button.ability.proc(selected_button.ability.dmg_mod,member,crit, next_ally)
+                                        selected_button.ability.proc(selected_button.ability.dmg_mod,member,crit)
                                     action = True
                 else:
+                    selected.button.ability.proc()
                     action = True
                     apply_stress(hero, 2)
-                    break
+                    pygame.mixer.Sound("sounds/stress.wav").play()
                     #if not attack or util, then ability.Type == Pass
                     
         damage_text_group.update()
@@ -1200,23 +1197,18 @@ while run:
             hit_text_group.update()
             hit_text_group.draw(display)
             pygame.display.update()
-            for r, t, p in initiative:
-                if r < roll:
-                    if t == 0:
-                        next_ally = p
-                        break
             resolve_dots(person)
             if team == 0:
                 if person.alive:
                     if person.action_token > 0:
                         selected_button = None
                         buttons = draw_hero(person)
-                        wait_action(buttons, person, next_ally)
+                        wait_action(buttons, person)
                         person.action_token -= 1
             else:
                 if person.alive:
                     if person.action_token > 0:
-                        person.take_action(next_ally = p)
+                        person.take_action()
                         person.action_token -= 1
     
     if not fighting:
