@@ -188,13 +188,18 @@ def draw_ability(hero, button):
         draw_text(f"+{button.ability.crit}% CRIT", font_small, white, 460, 750)
     
 class DamageText(pygame.sprite.Sprite):
-    def __init__(self, x, y, damage, colour, next_hero):
+    def __init__(self, x, y, damage, colour, next_hero,icon = None):
         pygame.sprite.Sprite.__init__(self)
-        self.image = font.render(str(damage), True, colour)
+        if not icon:
+            self.image = font.render(str(damage), True, colour)
+        else:
+            self.image = icon
+            x += 60
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.counter = 0
         self.next_hero = next_hero
+
         
 
     def update(self):
@@ -577,31 +582,48 @@ class ability():
                     if self.status == 'Blight':
                         if dot_stick > target.blight_res:
                             apply_blight(target, self.dot, self.rounds)
-                            damage_text = DamageText(target.x, target.y-240, 
-                                                     "Blight Applied!", vomit, next_hero)
+                            damage_text = DamageText(target.x, target.y-150, 
+                                                     "Blight", vomit, next_hero)
+                            icon = pygame.image.load("images/status/tray_blight.png").convert()
+                            icon_txt = DamageText(target.x,target.y-150,'',vomit,next_hero,icon)
+                            damage_text_group.add(icon_txt)
                             damage_text_group.add(damage_text)
+
                         else:
-                            damage_text = DamageText(target.x, target.y-240, 
+                            damage_text = DamageText(target.x, target.y-150, 
                                                      "Resist!", vomit, next_hero)
+                            icon = pygame.image.load("images/status/tray_blight.png").convert()
+                            icon_txt = DamageText(target.x,target.y-150,'',vomit,next_hero,icon)
+                            damage_text_group.add(icon_txt)
                             damage_text_group.add(damage_text)
                     elif self.status == 'Bleed':
                         if dot_stick > target.bleed_res:
                             apply_bleed(target, self.dot, self.rounds)
-                            damage_text = DamageText(target.x, target.y-240, 
-                                                     "Bleed Applied!", red, next_hero)
+                            damage_text = DamageText(target.x, target.y-150, 
+                                                     "Bleed", red, next_hero)
+                            icon = pygame.image.load("images/status/tray_bleed.png").convert()
+                            icon_txt = DamageText(target.x,target.y-150,'',red,next_hero,icon)
+                            damage_text_group.add(icon_txt)
                             damage_text_group.add(damage_text)
                         else:
-                            damage_text = DamageText(target.x, target.y-240, 
+                            damage_text = DamageText(target.x, target.y-150, 
                                                      "Resist!", red, next_hero)
+                            icon = pygame.image.load("images/status/tray_bleed.png").convert()
+                            icon_txt = DamageText(target.x,target.y-150,'',red,next_hero,icon)
+                            damage_text_group.add(icon_txt)
                             damage_text_group.add(damage_text)
                     elif self.status == 'Stun':
                         if dot_stick > target.stun_res:
                             apply_stun(target)
-                            damage_text = DamageText(target.x, target.y-240, 
+
+                            damage_text = DamageText(target.x, target.y-150, 
                                                      "Stun!", yellow, next_hero)
+                            icon = pygame.image.load("images/status/tray_stun.png")
+                            icon_txt = DamageText(target.x, target.y-150,'', yellow, next_hero,icon = icon)
+                            damage_text_group.add(icon_txt)
                             damage_text_group.add(damage_text)
                         else:
-                            damage_text = DamageText(target.x, target.y-240, 
+                            damage_text = DamageText(target.x, target.y-150, 
                                                      "Stun resisted", yellow, next_hero)
                             damage_text_group.add(damage_text) 
                 else:
@@ -612,18 +634,27 @@ class ability():
                     damage_text_group.add(damage_text)
                     if self.status == 'Blight':
                         apply_blight(target, self.dot, self.rounds+2)
-                        damage_text = DamageText(target.x, target.y-240, 
-                                                 "Blight Applied!", vomit, next_hero)
+                        damage_text = DamageText(target.x, target.y-150, 
+                                                 "Blight", vomit, next_hero)
+                        icon = pygame.image.load("images/status/tray_blight.png").convert()
+                        icon_txt = DamageText(target.x,target.y-150,'',vomit,next_hero,icon)
+                        damage_text_group.add(icon_txt)
                         damage_text_group.add(damage_text)
                     elif self.status == 'Bleed':
                         apply_bleed(target, self.dot, self.rounds + 2)
-                        damage_text = DamageText(target.x, target.y-240, 
+                        damage_text = DamageText(target.x, target.y-150, 
                                                  "Bleed Applied!", vomit, next_hero)
+                        icon = pygame.image.load("images/status/tray_bleed.png").convert()
+                        icon_txt = DamageText(target.x,target.y-150,'',red,next_hero,icon)
+                        damage_text_group.add(icon_txt)
                         damage_text_group.add(damage_text)
                     elif self.status == 'Stun':
                         apply_stun(target)
-                        damage_text = DamageText(target.x, target.y-240, 
+                        damage_text = DamageText(target.x, target.y-200, 
                                                  "Stun!", yellow, next_hero)
+                        icon = pygame.image.load("images/status/tray_stun.png")
+                        icon_txt = DamageText(target.x, target.y-150,'', yellow, next_hero,icon = icon)
+                        damage_text_group.add(icon_txt)
                         damage_text_group.add(damage_text)
 
             else:
@@ -730,6 +761,8 @@ def apply_buff(target,dps_buff = 0,speed_buff = 0,crit_buff = 0):
         if ability.Type == 'Attack':
             ability.crit += crit_buff
 
+
+#ADD DOT ICON HERE
 def resolve_dots(target):
     if target.bleed:
         for dot,Round in target.bleed:
@@ -743,6 +776,9 @@ def resolve_dots(target):
         number = sum(numbers)
         damage_text = DamageText(target.x, target.y-240, 
                                  str(number), red, target)
+        icon = pygame.image.load("images/status/tray_bleed.png").convert()
+        icon_txt = DamageText(target.x-30,target.y-240,'',red,target,icon)
+        damage_text_group.add(icon_txt)
         damage_text_group.add(damage_text)
         target.bleed[:] = [(x,y-1) for x,y in target.bleed]
     if target.blight:
@@ -756,6 +792,9 @@ def resolve_dots(target):
         number = sum(numbers)
         damage_text = DamageText(target.x, target.y-240, 
                                  str(number), vomit, target)
+        icon = pygame.image.load("images/status/tray_blight.png").convert()
+        icon_txt = DamageText(target.x-30,target.y-240,'',vomit,target,icon)
+        damage_text_group.add(icon_txt)
         damage_text_group.add(damage_text)
         target.blight[:] = [(x,y-1) for x,y in target.blight]
 
