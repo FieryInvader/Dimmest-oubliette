@@ -171,7 +171,7 @@ def draw_ability(hero, button):
         acc = round(button.ability.accuracy, 2)
         crit = round(button.ability.crit, 2)
         heal = button.ability.heal
-        draw_text(f"{acc}", font_med, grey, 350, 760)
+        draw_text("100%", font_med, grey, 350, 760)
         draw_text(f"{crit}", font_med, grey, 350, 780)
         draw_text(f"{heal}", font_med, grey, 350, 800)
         draw_text(f"Heal {button.ability.heal}", font_small, green, 460, 735)
@@ -186,16 +186,19 @@ def draw_ability(hero, button):
         draw_text(f"+{button.ability.crit}% CRIT", font_small, white, 460, 750)
     
 class DamageText(pygame.sprite.Sprite):
-    def __init__(self, x, y, damage, colour):
+    def __init__(self, x, y, damage, colour, next_hero):
         pygame.sprite.Sprite.__init__(self)
         self.image = font.render(damage, True, colour)
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.counter = 0
+        self.next_hero = next_hero
+        
 
     def update(self):
 		#delete the text after a few seconds
         self.counter += 1
+        select = False
         if self.counter > 100:
             self.kill()
             for i in range(0,tiles):
@@ -204,6 +207,10 @@ class DamageText(pygame.sprite.Sprite):
                 enemy.draw(enemy.current_hp,flip=True)
             for member in party:
                 member.draw(member.current_hp)
+            if not select:
+                selected = pygame.image.load("images/targets/selected.png")
+                display.blit(selected, (473 - 150 * self.next_hero.position, 363))
+                select = True
 
 
 #Colours
@@ -512,14 +519,15 @@ class ability():
         
     #Function to fire the effect of the ability depending on its Type
     #Using the calculation functions, while checking to apply buffs
-    def proc(self, roll_number, target, crit):
+    def proc(self, roll_number, target, crit, next_hero):
         cure = False
         to_hit = random.random()
         if self.Type == 'Attack':
             if to_hit < self.accuracy - target.dodge:
                 if not crit:
                     apply_dmg(target, round(roll_number * self.dmg_mod))
-                    damage_text = DamageText(target.x, target.y-200, str(round(roll_number * self.dmg_mod)), red)
+                    damage_text = DamageText(target.x, target.y-200, 
+                                             str(round(roll_number * self.dmg_mod)), red, next_hero)
                     damage_text_group.add(damage_text)
                     if self.status == 'Blight':
                         apply_blight(target, self.dot, self.rounds)
@@ -632,7 +640,7 @@ def resolve_dots(target):
 #def revert_buffs(target)
 
 #the main function for the player taking turns
-def wait_action(buttons,hero):
+def wait_action(buttons,hero,next_ally):
     condition = 0 #counter for targets than need to be drawn
     selected_button = None
     action = False
@@ -702,7 +710,7 @@ def wait_action(buttons,hero):
                                         #we roll dmg here so its different every time
                                         damage = hero.roll_dmg()
                                         crit = hero.roll_crit()
-                                        selected_button.ability.proc(damage, enemy, crit)
+                                        selected_button.ability.proc(damage, enemy, crit, next_ally)
                                         break
                                         #if we roll dmg when we initialize ability,
                                         #it will deal the same dmg every time
@@ -726,7 +734,7 @@ def wait_action(buttons,hero):
                                         #we roll dmg here so its different every time
                                         damage = hero.roll_dmg()
                                         crit = hero.roll_crit()
-                                        selected_button.ability.proc(damage, enemy, crit)
+                                        selected_button.ability.proc(damage, enemy, crit, next_ally)
                                         #if we roll dmg when we initialize ability,
                                         #it will deal the same dmg every time
                                         action = True
@@ -759,11 +767,11 @@ def wait_action(buttons,hero):
                                         #because for enemy in enemy_list
                                         crit = hero.roll_crit()
                                         if selected_button.ability.Type == 'Stress_heal':
-                                            selected_button.ability.proc(selected_button.ability.stress,member,crit)
+                                            selected_button.ability.proc(selected_button.ability.stress,member,crit, next_ally)
                                         elif selected_button.ability.Type == 'Heal':
-                                            selected_button.ability.proc(selected_button.ability.heal,member,crit)
+                                            selected_button.ability.proc(selected_button.ability.heal,member,crit, next_ally)
                                         else:
-                                            selected_button.ability.proc(selected_button.ability.dmg_mod,member,crit)
+                                            selected_button.ability.proc(selected_button.ability.dmg_mod,member,crit, next_ally)
                     else:
                         #if ability is single target
                         target_icon = pygame.image.load("images/targets/target_h_1.png")
@@ -781,11 +789,11 @@ def wait_action(buttons,hero):
                                     #proc the ability on that single ally
                                     crit = hero.roll_crit()
                                     if selected_button.ability.Type == 'Stress_heal':
-                                        selected_button.ability.proc(selected_button.ability.stress,member,crit)
+                                        selected_button.ability.proc(selected_button.ability.stress,member,crit, next_ally)
                                     elif selected_button.ability.Type == 'Heal':
-                                        selected_button.ability.proc(selected_button.ability.heal,member,crit)
+                                        selected_button.ability.proc(selected_button.ability.heal,member,crit, next_ally)
                                     else:
-                                        selected_button.ability.proc(selected_button.ability.dmg_mod,member,crit)
+                                        selected_button.ability.proc(selected_button.ability.dmg_mod,member,crit, next_ally)
                                     action = True
                 else:
                     action = True
@@ -939,11 +947,16 @@ while run:
             pygame.display.update()
             resolve_dots(person)
             if team == 0:
+                for r, t, p in initiative:
+                    if r < roll:
+                        if t == team:
+                            next_ally = p
+                            break
                 if person.alive:
                     if person.action_token:
                         selected_button = None
                         buttons = draw_hero(person)
-                        wait_action(buttons, person)
+                        wait_action(buttons, person, next_ally)
                         person.action_token -= 1
             else:
                 if person.alive:
