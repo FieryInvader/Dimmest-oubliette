@@ -262,12 +262,13 @@ full_stress = pygame.image.load("images/heroes/stress_full.png")
 
 #Classes for our heroes
 class Person():
-    def __init__(self, x, y, name, health, critical, dodge, speed, position, 
+    def __init__(self, x, y, name,hero_class, health, critical, dodge, speed, position, 
                  dmg_range, stun_res, blight_res, bleed_res):
         #visuals
         self.x = x
         self.y = y
         self.name = name
+        self.hero_class = hero_class
         self.position = position
         self.image = pygame.image.load(f"images/heroes/{name}.png")
         self.defend = pygame.image.load(f"images/heroes/{name}_defend.png")
@@ -276,7 +277,7 @@ class Person():
         #stats
         self.max_hp = health
         self.current_hp = health
-        self.stress = 1
+        self.stress = 2
         self.crit = critical
         self.dodge = dodge
         self.speed = speed
@@ -291,9 +292,11 @@ class Person():
         self.deathblow_res = 0.67
         self.action_token = 0 
         self.alive = True
+        self.virtue = 0.25
         #Enemy variables
         self.action_wait_time = 100
         self.action_cooldown = 0
+        
         
     def draw(self,hp, flip = False, animation = None):
         self.current_hp = hp
@@ -349,7 +352,7 @@ class Person():
                 display.blit(self.image, self.rect)
             pygame.draw.rect(display, dark_grey, (self.rect.center[0]-40,self.rect.center[1] + 165, 100, 10))
             pygame.draw.rect(display, red, (self.rect.center[0]-40,self.rect.center[1] + 165, 100*ratio, 10))
-            for i in range(11):
+            for i in range(10):
                 display.blit(empty_stress, (self.rect.center[0]-40+i*9.5,self.rect.center[1]+180))
             for i in range(self.stress):
                 display.blit(full_stress, (self.rect.center[0]-40+i*9.5,self.rect.center[1]+180))
@@ -379,7 +382,27 @@ class Person():
                     self.isStunned = False
         
         
-                
+    def check_meltdown(self):
+        if self.stress == 10:
+            roll = random.random()
+            if roll > self.virtue:
+                self.current_hp = round(0.3*self.current_hp)
+                self.stress = 0
+                afflicted = pygame.image.load(f'images/{self.hero_class}/afflicted.png')
+                damage_text = DamageText(730, 450, "MELTDOWN",red)
+                icon_txt = DamageText(650,250,'', white, icon = afflicted)
+                damage_text_group.add(icon_txt)
+                damage_text_group.add(damage_text)
+            else:
+                virtuous = pygame.image.load(f'images/{self.hero_class}/heroic.png')
+                self.current_hp = self.max_hp
+                self.stress = 0
+                damage_text = DamageText(730,450, "VIRTUOUS",white)
+                icon_txt = DamageText(650,250,'', white,icon = virtuous)
+                damage_text_group.add(icon_txt)
+                damage_text_group.add(damage_text)
+            
+         
     def roll_dmg(self):
         damage = random.choice(self.dmg_range) * self.dmg_amp
         return damage
@@ -400,9 +423,8 @@ def roll_to_hit(ability,target):
 class Highwayman(Person):
     def __init__(self, x, y, name, position):
         #initialize parent class
-        self.hero_class = "Highwayman"
         dmg_range = [i for i in range(5,11)]
-        super().__init__(x, y, name, 23, 0.05, 0.1, 5, position, dmg_range, 0.3, 0.3, 0.3)
+        super().__init__(x, y, name,"Highwayman", 23, 0.05, 0.1, 5, position, dmg_range, 0.3, 0.3, 0.3)
         
         self.abilities = []
         self.wicked_slice = ability('wicked_slice',self,f'images/{self.hero_class}/melee_anim.png',[0,1,2], [0,1], 'Attack', self.crit + 0.05 ,0.85, "wickedslice.wav", dmg_mod = 1.15)
@@ -422,10 +444,10 @@ class Highwayman(Person):
         
 class Crusader(Person):
     def __init__(self, x, y, name, position):
-        self.hero_class = "Crusader"
+
         #initialize parent class
         dmg_range = [i for i in range(6,13)]
-        super().__init__(x, y, name, 33, 0.03, 0.05, 1, position, dmg_range, 0.2, 0.6, 0.2)
+        super().__init__(x, y, name,"Crusader", 33, 0.03, 0.05, 1, position, dmg_range, 0.2, 0.6, 0.2)
         
         self.abilities = []
         self.smite = ability('smite',self,f'images/{self.hero_class}/melee_anim.png', [0,1], [0,1],'Attack', self.crit, 0.85, "smite.wav")
@@ -446,10 +468,10 @@ class Crusader(Person):
         
 class Plague_Doctor(Person):
     def __init__(self, x, y, name, position):
-        self.hero_class = "Plague_Doctor"
+
         #initialize parent class
         dmg_range = [i for i in range(4,8)]
-        super().__init__(x, y, name, 22, 0.02, 0.01, 7, position, dmg_range, 0.3, 0.3, 0.3)
+        super().__init__(x, y, name,"Plague_Doctor", 22, 0.02, 0.01, 7, position, dmg_range, 0.3, 0.3, 0.3)
         
         self.abilities = []
         self.noxious_blast = ability("noxious_blast",self,f'images/{self.hero_class}/blast_anim.png' ,[1,2,3], [0,1],'Attack', self.crit, 0.95, "noxiousblast.wav", dmg_mod = 0.2, status = 'Blight', rounds = 3, dot= 5)
@@ -469,10 +491,10 @@ class Plague_Doctor(Person):
         
 class Vestal(Person):
     def __init__(self, x, y, name, position):
-        self.hero_class = "Vestal"
+
         #initialize parent class
         dmg_range = [i for i in range(4,9)]
-        super().__init__(x, y, name, 24, 0.01, 0.01, 4, position, dmg_range, 0.25, 0.3, 0.3)
+        super().__init__(x, y, name,"Vestal", 24, 0.01, 0.01, 4, position, dmg_range, 0.25, 0.3, 0.3)
         
         self.abilities = []
         self.dazzling_light = ability("dazzling_light",self,f'images/{self.hero_class}/stun_anim.png', [1,2,3], [0,1,2],'Attack', self.crit + 0.05, 0.9, "dazzlinglight.wav", dmg_mod = 0.2, status = 'Stun')
@@ -498,7 +520,7 @@ class Cutthroat(Person):
     def __init__(self,x,y,name,position):
         #fixer pls
         dmg_range = [i for i in range(2,5)]
-        super().__init__(x, y, name, 30, 0.12, 0.025, 3, position, dmg_range, 0.45, 0.4, 0.4)
+        super().__init__(x, y, name,name, 30, 0.12, 0.025, 3, position, dmg_range, 0.45, 0.4, 0.4)
         
         self.Slice_and_dice = ability('Slice_and_dice',self,'images/Cutthroat/slice_anim.png', [0,1,2], [(0,1)],'Attack', self.crit, 0.85, "wickedslice.wav", dmg_mod = 1.5,status = 'Bleed', rounds = 3, dot = 1)
         self.Uppercut_Slice = ability('Uppercut_Slice',self,'images/Cutthroat/uppercut_anim.png', [0,1], [0,1],'Attack', self.crit + 0.05, 0.85,"smite.wav",status = 'Bleed', rounds = 3, dot = 3)
@@ -545,8 +567,8 @@ class Cutthroat(Person):
 
 class Fusilier(Person):
     def __init__(self, x, y, name,position):
-        dmg_range = [i for i in range(2,6)]
-        super().__init__(x, y, name, 20, 0.01, 0.075, 6, position, dmg_range, 0.25, 0.2, 0.2)
+        dmg_range = [i for i in range(1,3)]
+        super().__init__(x, y, name,name, 20, 0.01, 0.075, 6, position, dmg_range, 0.25, 0.2, 0.2)
         self.abilities = []
         self.Blanket = ability('Blanket',self,'images/Fusilier/attack_anim.png', [1,2,3], [(0,1,2,3)],'Attack' ,self.crit + 0.02 ,0.8, "grapeshot.wav")
         self.abilities.append(self.Blanket)
@@ -586,8 +608,8 @@ class Fusilier(Person):
 
 class Witch(Person):
     def __init__(self, x, y, name,position):
-        dmg_range = [i for i in range(3,7)]
-        super().__init__(x, y, name, 28, 0.02, 0.15, 8, position, dmg_range, 0.25, 0.2, 0.2)
+        dmg_range = [i for i in range(1,3)]
+        super().__init__(x, y, name,name, 28, 0.02, 0.2, 8, position, dmg_range, 0.25, 0.2, 0.2)
         self.abilities = []
         self.incantation = ability('incantation',self,'images/Witch/attack_anim.png', [0,1,2,3], [0,1,2,3],'Stress_damage' ,self.crit,0.825, "stress.wav")
         self.blast = ability('blast',self,'images/Witch/attack_anim.png', [0,1,2,3], [0,1,2,3],'Attack' ,self.crit + 0.06,0.825, "blast.wav")
@@ -608,10 +630,11 @@ class Witch(Person):
                                 if member.position == position:
                                     crit = self.roll_crit()
                                     if random_action.Type == 'Stress_damage':
-                                        random_action.proc(2,member,crit)
+                                        dmg = self.roll_dmg()
+                                        random_action.proc(1 + dmg,member,crit)
                                     
                                     else:
-                                        dmg = self.roll_dmg()
+                                        dmg = self.roll_dmg() * 2
                                         random_action.proc(dmg,member,crit)
                     else:
                         target = random.choice(party)
@@ -630,10 +653,11 @@ class Witch(Person):
             
 class Brawler(Person):
     def __init__(self, x, y, name,position):
-        dmg_range = [i for i in range(2,5)]
-        super().__init__(x, y, name, 50, 0.2, 0.08, 5, position, dmg_range, 0.25, 0.2, 0.2)
+        dmg_range = [i for i in range(3,6)]
+        super().__init__(x, y, name,name, 60, 0.2, 0.08, 5, position, dmg_range, 0.25, 0.2, 0.2)
         self.abilities = []
-        self.rend = ability('rend',self,'images/Brawler/attack_anim.png', [0,1,2,3], [0,1,2,3],'Attack' ,self.crit,0.825, "rend.wav",status = 'Bleed',rounds = 3,dot = 1)
+        self.rend = ability('rend',self,'images/Brawler/attack_anim.png', [0,1,2,3], [0,1],'Attack' ,self.crit,0.825, "rend.wav",status = 'Bleed',rounds = 3,dot = 2)
+
         
         self.abilities.append(self.rend)
         
@@ -984,6 +1008,7 @@ def wait_action(buttons,hero):
     hit_text_group.draw(display)
     draw_panel()
     draw_hero(hero)
+    pygame.display.update()
     while not action:
         if not selected_displayed:
             selected = pygame.image.load("images/targets/selected.png")
@@ -1221,7 +1246,7 @@ game_over = False
 fighting = False
 condition = lambda x: x.alive == True
 tmp = []
-wins = 1
+wins = 0
 
 #loop music forever (-1)
 pygame.mixer.music.load("sounds/music.mp3")
@@ -1310,6 +1335,7 @@ while run:
             if team == 0:
                 if person.alive:
                     if person.action_token > 0:
+                        person.check_meltdown()
                         selected_button = None
                         buttons = draw_hero(person)
                         wait_action(buttons, person)
