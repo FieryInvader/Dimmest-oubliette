@@ -515,13 +515,13 @@ class Cutthroat(Person):
                 self.action_cooldown += 1
                 if self.action_cooldown == self.action_wait_time:
                     random_action = random.choice(self.abilities)
-                    if type(random_action) is tuple():
-                        for target in random_action.target[0]:
-                            hits = roll_to_hit(random_action, target)
-                            if hits:
-                                crit = self.roll_crit()
-                                dmg = self.roll_dmg()
-                                random_action.proc(dmg, target, crit)
+                    if type(random_action.target[0]) is tuple:
+                        for position in random_action.target[0]:
+                            for member in party:
+                                if member.position == position:
+                                    crit = self.roll_crit()
+                                    dmg = self.roll_dmg()
+                                    random_action.proc(dmg,member,crit,soundplayed = position)
                     else:
                         target = random.choice(party)
                         hits = roll_to_hit(random_action, target)
@@ -531,10 +531,9 @@ class Cutthroat(Person):
                             random_action.proc(dmg, target, crit)
         else:
             damage_text_group.update()
-            damage_text_group.draw(display)
             hit_text_group.update()
+            damage_text_group.draw(display)
             hit_text_group.draw(display)
-
 
 
 
@@ -553,13 +552,13 @@ class Fusilier(Person):
                 self.action_cooldown += 1
                 if self.action_cooldown == self.action_wait_time:
                     random_action = random.choice(self.abilities)
-                    if type(random_action) is tuple:
-                        for target in random_action.target[0]:
-                            hits = roll_to_hit(random_action, target)
-                            if hits:
-                                crit = self.roll_crit()
-                                dmg = self.roll_dmg()
-                                random_action.proc(dmg, target, crit)
+                    if type(random_action.target[0]) is tuple:
+                        for position in random_action.target[0]:
+                            for member in party:
+                                if member.position == position:
+                                    crit = self.roll_crit()
+                                    dmg = self.roll_dmg()
+                                    random_action.proc(dmg,member,crit,soundplayed = position)
                     else:
                         target = random.choice(party)
                         hits = roll_to_hit(random_action, target)
@@ -1120,7 +1119,7 @@ game_over = False
 fighting = False
 condition = lambda x: x.alive == True
 tmp = []
-
+wins = 0
 while run:
     clock.tick(FPS)
     
@@ -1178,6 +1177,7 @@ while run:
                 if enemy.current_hp <= 0:
                     enemy.alive = False
             if not any(enemy_list):
+                wins += 1
                 fighting = False
                 break
             elif not any(party):
@@ -1214,6 +1214,11 @@ while run:
     if not fighting:
         for member in party:
             member.draw(member.current_hp)
+    # if wins == 1:
+    #     enemy_list.append(enemy5)
+    #     enemy_list.append(enemy6)
+    #     enemy_list.append(enemy7)
+    #     enemy_list.append(enemy8)
     if game_over:
         print('game over')
         pygame.quit()
