@@ -433,7 +433,7 @@ class Highwayman(Person):
         self.open_vein = ability('open_vein',self,f'images/{self.hero_class}/melee_anim.png',[0,1,2], [0,1],'Attack', self.crit, 0.95, "openvein.wav", status = 'Bleed', rounds = 2, dot = 3, dmg_mod = 0.85)
         #fix dmg || dmg mod - crit mod - speed mod (numbers)
         self.take_aim = ability('take_aim',self,f'images/{self.hero_class}/take_aim_anim.png',[0,1,2,3], [1],'Buff', 0.1, 1, "takeaim.wav", speed = 1,dmg_mod = 0.12)#last arguement will add speed to dismas
-        self.PASS = ability('pass',self,f'images/{self.hero_class}/defend_anim.png',[0,1,2,3],[0,1,2,3],'Pass',0,0, "stress.wav")
+        self.PASS = ability('pass',self,f'images/heroes/{self.name}_defend.png',[0,1,2,3],[0,1,2,3],'Pass',0,0, "stress.wav")
         
         self.abilities.append(self.wicked_slice)
         self.abilities.append(self.pistol_shot)
@@ -457,7 +457,7 @@ class Crusader(Person):
         self.inspiring_cry = ability('inspiring_cry',self,f'images/{self.hero_class}/stress_anim.png', [0,1,2,3], [0,1,2,3],'Stress_heal', self.crit, 1, "inspiringcry.wav", heal = 1,stress = -2)
         #fix dmg
         self.battle_heal = ability('battle_heal',self,f'images/{self.hero_class}/heal_anim.png', [0,1,2,3], [0,1,2,3],'Heal', self.crit, 1, "battleheal.wav", heal = 4)
-        self.PASS = ability('pass',self,f'images/{self.hero_class}/defend_anim.png',[0,1,2,3],[0,1,2,3],'Pass',0,0, "stress.wav")
+        self.PASS = ability('pass',self,f'images/heroes/{self.name}_defend.png',[0,1,2,3],[0,1,2,3],'Pass',0,0, "stress.wav")
       
         self.abilities.append(self.smite)
         self.abilities.append(self.zealous_accusation)
@@ -480,7 +480,7 @@ class Plague_Doctor(Person):
         #fix dmg
         self.battlefield_medicine = ability("battlefield_medicine",self,f'images/{self.hero_class}/heal_anim.png', [2,3], [0,1,2,3],'Heal', self.crit, 1, "battlemed.wav", status = 'Cure', heal = 1)
         self.incision = ability('incision',self,f'images/{self.hero_class}/melee_anim.png', [0,1,2], [0,1],'Attack', self.crit + 0.05, 0.85, "incision.wav", status = 'Bleed', rounds = 3, dot = 2)
-        self.PASS = ability('pass',self,f'images/{self.hero_class}/defend_anim.png',[0,1,2,3],[0,1,2,3],'Pass',0,0, "stress.wav")
+        self.PASS = ability('pass',self,f'images/heroes/{self.name}_defend.png',[0,1,2,3],[0,1,2,3],'Pass',0,0, "stress.wav")
              
         self.abilities.append(self.noxious_blast)
         self.abilities.append(self.plague_grenade)
@@ -504,7 +504,7 @@ class Vestal(Person):
         self.divine_comfort = ability("divine_comfort",self,f'images/{self.hero_class}/talktothehand_anim.png', [2,3], [(0,1,2,3)],'Heal', self.crit, 1, "divinecomfort.wav", heal = 2)
         self.judgement = ability("judgement",self,f'images/{self.hero_class}/attack_anim.png', [0,1,2,3], [(2,3)],'Attack', self.crit + 0.05, 0.85, "judgement.wav", dmg_mod = 0.5)
         self.illumination = ability('illumination',self,f'images/{self.hero_class}/attack_anim.png', [0,1,2,3], [0,1,2,3],'Attack', self.crit, 0.9, "illumination.wav")
-        self.PASS = ability('pass',self,f'images/{self.hero_class}/defend_anim.png',[0,1,2,3],[0,1,2,3],'Pass',0,0, "stress.wav")
+        self.PASS = ability('pass',self,f'images/heroes/{self.name}_defend.png',[0,1,2,3],[0,1,2,3],'Pass',0,0, "stress.wav")
         
         self.abilities.append(self.dazzling_light)
         self.abilities.append(self.divine_grace)
@@ -653,10 +653,10 @@ class Witch(Person):
             
 class Brawler(Person):
     def __init__(self, x, y, name,position):
-        dmg_range = [i for i in range(3,6)]
+        dmg_range = [i for i in range(2,6)]
         super().__init__(x, y, name,name, 60, 0.2, 0.08, 5, position, dmg_range, 0.25, 0.2, 0.2)
         self.abilities = []
-        self.rend = ability('rend',self,'images/Brawler/attack_anim.png', [0,1,2,3], [0,1],'Attack' ,self.crit,0.825, "rend.wav",status = 'Bleed',rounds = 3,dot = 2)
+        self.rend = ability('rend',self,'images/Brawler/attack_anim.png', [0,1,2,3], [0,1],'Attack' ,self.crit,0.825, "rend.wav",status = 'Bleed',rounds = 3,dot = 1)
 
         
         self.abilities.append(self.rend)
@@ -869,6 +869,12 @@ class ability():
             damage_text = DamageText(target.x, target.y-200, 
                                      "Buffed!", sky_blue)
             damage_text_group.add(damage_text)
+        elif self.Type == 'Pass':
+            apply_stress(self.hero,roll_number)
+            damage_text = DamageText(target.x, target.y-200, 
+                                     "Passed", black)
+            damage_text_group.add(damage_text)
+        
         if type(self.target[0]) is not tuple:
             x = 100
         else:
@@ -1162,11 +1168,12 @@ def wait_action(buttons,hero):
                                     else:
                                         selected_button.ability.proc(selected_button.ability.dmg_mod,member,crit)
                                     action = True
-                else:
+                elif selected_button.ability.Type == 'Pass':
                     action = True
-                    apply_stress(hero, 2)
-                    pygame.mixer.Sound("sounds/stress.wav").play()
-                    #if not attack or util, then ability.Type == Pass
+        if action:           
+            selected_button.ability.proc(2,member,False)
+            pygame.mixer.Sound("sounds/stress.wav").play()
+            #if not attack or util, then ability.Type == Pass
                     
         damage_text_group.update()
         damage_text_group.draw(display)
@@ -1311,6 +1318,7 @@ while run:
                 if enemy.current_hp <= 0:
                     enemy.alive = False
             if not any(enemy_list):
+                map_tiles[current_tile] = 0
                 wins += 1
                 fighting = False
                 break
@@ -1365,11 +1373,18 @@ while run:
             text = "VICTORIOUS"
             colour = yellow
             x = 600
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
         else:
             end = pygame.image.load("images/game_over/defeat.png")
             text = "DEFEATED"
             colour = red
             x = 650
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
+                    
             
         display.blit(end, (0,0))
         draw_text(text, font_huge, colour, x, 100)
