@@ -294,6 +294,7 @@ class Person():
         self.bleed_res = bleed_res
         self.blight = []
         self.bleed = []
+        self.isStunned = False
         self.deathblow_res = 0.67
         self.action_token = 0 
         self.alive = True
@@ -308,6 +309,30 @@ class Person():
             display.blit(pygame.transform.flip(self.image, True, False), self.rect)
             pygame.draw.rect(display, dark_grey, (self.x-40,self.y+180,100,10))
             pygame.draw.rect(display, red, (self.x-40,self.y+180,100*ratio,10))
+            if self.blight:
+                indicator = [0,0]
+                for b in self.blight:
+                    indicator[0] += b[0]
+                    indicator[1] += b[1]
+                text = f"{indicator[0]}/{indicator[1]}"
+                blight_icon = pygame.image.load("images/status/blight.png")
+                display.blit(blight_icon, (self.rect.center[0],self.rect.center[1] + 150 ))
+                draw_text(text, font_small, vomit, self.rect.center[0]+ 30, self.rect.center[1] + 155)
+            if self.bleed:
+                indicator = [0,0]
+                for b in self.bleed:
+                    indicator[0] += b[0]
+                    indicator[1] += b[1]
+                bleed_icon = pygame.image.load("images/status/bleed.png")
+                display.blit(bleed_icon, (self.rect.center[0]-50,self.rect.center[1] + 150 ))
+                text = f"{indicator[0]}/{indicator[1]}"
+                draw_text(text, font_small, dark_red, self.rect.center[0]-20, self.rect.center[1] + 155)
+            if self.isStunned:
+                if self.action_token < 1:
+                    stun_icon = pygame.image.load("images/status/stun.png")
+                    display.blit(stun_icon, (self.rect.center[0]-10,self.rect.center[1]-150))    
+                else:
+                    self.isStunned = False
         else:
             display.blit(self.image, self.rect)
             pygame.draw.rect(display, dark_grey, (self.rect.center[0]-40,self.rect.center[1] + 165, 100, 10))
@@ -316,6 +341,32 @@ class Person():
                 display.blit(empty_stress, (self.rect.center[0]-40+i*9.5,self.rect.center[1]+180))
             for i in range(self.stress):
                 display.blit(full_stress, (self.rect.center[0]-40+i*9.5,self.rect.center[1]+180))
+            if self.blight:
+                indicator = [0,0]
+                for b in self.blight:
+                    indicator[0] += b[0]
+                    indicator[1] += b[1]
+                text = f"{indicator[0]}/{indicator[1]}"
+                blight_icon = pygame.image.load("images/status/blight.png")
+                display.blit(blight_icon, (self.rect.center[0],self.rect.center[1] + 115 ))
+                draw_text(text, font_small, vomit, self.rect.center[0]+ 30, self.rect.center[1] + 120)
+            if self.bleed:
+                indicator = [0,0]
+                for b in self.bleed:
+                    indicator[0] += b[0]
+                    indicator[1] += b[1]
+                bleed_icon = pygame.image.load("images/status/bleed.png")
+                display.blit(bleed_icon, (self.rect.center[0]-50,self.rect.center[1] + 115 ))
+                text = f"{indicator[0]}/{indicator[1]}"
+                draw_text(text, font_small, dark_red, self.rect.center[0]-20, self.rect.center[1] + 120)
+            if self.isStunned:
+                if self.action_token < 1:
+                    stun_icon = pygame.image.load("images/status/stun.png")
+                    display.blit(stun_icon, (self.rect.center[0],self.rect.center[1]-150))    
+                else:
+                    self.isStunned = False
+        
+        
                 
     def roll_dmg(self):
         damage = random.choice(self.dmg_range) * self.dmg_amp
@@ -734,7 +785,10 @@ def apply_bleed(target,damage,rounds):
     return indicator
 
 def apply_stun(target):
-    if target.action_token <= 0:
+    #if target gets stunned, its harder to get stunnned again this fight
+    target.stun_res =+ 0.5
+    target.isStunned = True
+    if target.action_token == -1:
         return
     target.action_token -= 1
     
@@ -1120,9 +1174,8 @@ while run:
                         break
             resolve_dots(person)
             if team == 0:
-                
                 if person.alive:
-                    if person.action_token:
+                    if person.action_token > 0:
                         selected_button = None
                         buttons = draw_hero(person)
                         wait_action(buttons, person, next_ally)
