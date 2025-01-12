@@ -23,7 +23,7 @@ class Button():
         self.surface.blit(self.image, (self.rect.x, self.rect.y))
         pos = pygame.mouse.get_pos()
         if self.rect.collidepoint(pos): #ON HOVER
-            if self.ability.name != "pass":
+            if self.ability.Type != "Pass":
                 icon = pygame.image.load("images/heroes/focused_ability.png")
                 display.blit(icon, (self.x-15, self.y-15))
             else:
@@ -136,8 +136,12 @@ def draw_target(target, ability, hero):
 
 def draw_ability(hero, button):
     #draw selected ability
-    icon = pygame.image.load("images/heroes/selected_ability.png") #BLINKER KURWA
-    display.blit(icon, (button.x-15, button.y-15))
+    if button.ability.Type != "Pass":
+        icon = pygame.image.load("images/heroes/selected_ability.png") #BLINKER KURWA
+        display.blit(icon, (button.x-15, button.y-15))
+    else:
+        icon = pygame.image.load("images/heroes/selected_pass.png") #BLINKER KURWA
+        display.blit(icon, (button.x-32, button.y-15))
     abil = pygame.image.load("images/targets/ability_stats.png") 
     display.blit(abil, (445, 710))
     #print ability name and any effects it causes
@@ -1047,6 +1051,7 @@ def wait_action(buttons,hero):
             targeting_displayed = False
             for target in selected_button.ability.target: #valid targets
                 if selected_button.ability.Type == 'Attack':
+                    draw_ability(hero, selected_button)
                     #if ability is aoe
                     if type(target)==tuple:
                         target_counter = 0 
@@ -1111,6 +1116,7 @@ def wait_action(buttons,hero):
                                         #it will deal the same dmg every time
                                         action = True
                 elif selected_button.ability.Type in ['Heal','Buff','Stress_heal']:
+                    draw_ability(hero, selected_button)
                     #if ability is aoe
                     if type(target)==tuple:
                         target_counter = 0 
@@ -1169,6 +1175,7 @@ def wait_action(buttons,hero):
                                         selected_button.ability.proc(selected_button.ability.dmg_mod,member,crit)
                                     action = True
                 elif selected_button.ability.Type == 'Pass':
+                    draw_ability(hero, selected_button)
                     action = True
         if action:           
             selected_button.ability.proc(2,member,False)
