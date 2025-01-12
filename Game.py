@@ -215,6 +215,39 @@ class DamageText(pygame.sprite.Sprite):
                 select = True
 
 
+class hit_or_miss(pygame.sprite.Sprite): # i guess they never miss, huh?
+    def __init__(self, x, hit, next_hero):
+        pygame.sprite.Sprite.__init__(self)
+        if hit:
+            colour = yellow
+            text = "HIT"
+        else:
+            colour = grey
+            text = "MISS"
+        self.image = font.render(text, True, colour)
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, 200)
+        self.counter = 0
+        self.next_hero = next_hero
+              
+    def update(self):
+		#delete the text after a few seconds
+        self.counter += 1
+        select = False
+        if self.counter > 100:
+            self.kill()
+            for i in range(0,tiles):
+                display.blit(bg, (i * bg.get_width() + scroll,0))
+            for enemy in enemy_list:
+                enemy.draw(enemy.current_hp,flip=True)
+            for member in party:
+                member.draw(member.current_hp)
+            if not select:
+                selected = pygame.image.load("images/targets/selected.png")
+                display.blit(selected, (473 - 150 * self.next_hero.position, 363))
+                select = True
+                
+
 #Colours
 red = (255,0,0)
 dark_red = (168,10,10)
@@ -527,11 +560,19 @@ class ability():
         to_hit = random.random()
         dot_stick = random.random()
         if self.Type == 'Attack':
+            #if the attack hits
             if to_hit < self.accuracy - target.dodge:
+                hit_text = hit_or_miss(target.x, True, next_hero)
+                hit_text_group.add(hit_text)
+                #if the attack doesnt crit
+                #apply dmg text if crit
+                #make dmg a variable and pass it to apply dmg and dmg text
+                #do not roll seperately
+                dmg = round(roll_number * self.dmg_mod)
                 if not crit:
-                    apply_dmg(target, round(roll_number * self.dmg_mod))
-                    damage_text = DamageText(target.x, target.y-200, 
-                                             str(round(roll_number * self.dmg_mod)), red, next_hero)
+                    apply_dmg(target, dmg)
+                    damage_text = DamageText(target.x, target.y-200, dmg,
+                                             red, next_hero)
                     damage_text_group.add(damage_text)
                     if self.status == 'Blight':
                         if dot_stick > target.blight_res:
@@ -556,13 +597,19 @@ class ability():
                     elif self.status == 'Stun':
                         apply_stun(target)
                 else:
-                    apply_dmg(target, round(2 * roll_number * self.dmg_mod))
+                    apply_dmg(target, 2*dmg)
+                    damage_text = DamageText(target.x, target.y-200, 2*dmg,
+                                             red, next_hero)
+                    damage_text_group.add(damage_text)
                     if self.status == 'Blight':
                         apply_blight(target, self.dot, self.rounds+2)
                     elif self.status == 'Bleed':
                         apply_bleed(target, self.dot, self.rounds+2)
                     elif self.status == 'Stun':
                         apply_stun(target)
+            else:
+                hit_text = hit_or_miss(target.x, False, next_hero)
+                hit_text_group.add(hit_text)
         elif self.Type == 'Heal':
             
             if self.status == 'Cure':
@@ -750,25 +797,27 @@ def wait_action(buttons,hero,next_ally):
                                     plus = pygame.image.load("images/targets/plus.png")
                                     display.blit(plus, (960 + 150*a, 525))
                                 condition += 1
+                            #calculate hit
+                        for enemy in enemy_list:
+                            #if player clicks any enemy that is a valid target
+                            if enemy.position in target:
+                                if enemy.rect.collidepoint(pos): #ON HOVER
+                                    if not targeting_displayed:
+                                        draw_target(enemy, selected_button.ability, hero) #oh the misery
+                                        targeting_displayed = True
+                                    if pygame.mouse.get_pressed()[0] == 1:
+                                        action = True #action has been taken
+                        if action:
                             for enemy in enemy_list:
-                                #if player clicks any enemy that is a valid target
                                 if enemy.position in target:
-                                    if enemy.rect.collidepoint(pos): #ON HOVER
-                                        if not targeting_displayed:
-                                            draw_target(enemy, selected_button.ability, hero) #oh the misery
-                                            targeting_displayed = True
-                                        if pygame.mouse.get_pressed()[0] == 1:
-                                            action = True #action has been taken
-                                    if action:
-                                        #proc the ability on every enemy in the aoe
-                                        #because for enemy in enemy_list
-                                        #we roll dmg here so its different every time
-                                        damage = hero.roll_dmg()
-                                        crit = hero.roll_crit()
-                                        selected_button.ability.proc(damage, enemy, crit, next_ally)
-                                        break
-                                        #if we roll dmg when we initialize ability,
-                                        #it will deal the same dmg every time
+                                    #proc the ability on every enemy in the aoe
+                                    #because for enemy in enemy_list
+                                    #we roll dmg here so its different every time
+                                    damage = hero.roll_dmg()
+                                    crit = hero.roll_crit()
+                                    selected_button.ability.proc(damage, enemy, crit, next_ally)
+                                    #if we roll dmg when we initialize ability,
+                                    #it will deal the same dmg every time
                     else:
                         #if ability is single target
                         target_icon = pygame.image.load("images/targets/target_1.png")
@@ -858,6 +907,8 @@ def wait_action(buttons,hero,next_ally):
                     
         damage_text_group.update()
         damage_text_group.draw(display)
+        hit_text_group.update()
+        hit_text_group.draw(display)
         draw_panel()
         draw_hero(hero)
         if selected_button:
@@ -913,6 +964,7 @@ enemy_list.append(enemy3)
 enemy_list.append(enemy4)
 
 damage_text_group = pygame.sprite.Group()
+hit_text_group = pygame.sprite.Group()
 
 COMBAT = pygame.USEREVENT + 1
 tile_size = 1000
