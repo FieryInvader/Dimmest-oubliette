@@ -670,6 +670,11 @@ def resolve_dots(target):
                 target.alive = False
             target.current_hp -= dot
             
+        numbers = [x[0] for x in target.bleed]
+        number = sum(numbers)
+        damage_text = DamageText(target.x, target.y-240, 
+                                 str(number), red, target)
+        damage_text_group.add(damage_text)
         target.bleed[:] = [(x,y-1) for x,y in target.bleed]
     if target.blight:
         for dot,Round in target.blight:
@@ -678,10 +683,13 @@ def resolve_dots(target):
                 target.current_hp = 0
                 target.alive = False
             target.current_hp -= dot
-            
+        numbers = [x[0] for x in target.blight]
+        number = sum(numbers)
+        damage_text = DamageText(target.x, target.y-240, 
+                                 str(number), vomit, target)
+        damage_text_group.add(damage_text)
         target.blight[:] = [(x,y-1) for x,y in target.blight]
-    if target.current_hp == 0 :
-        target.alive = False
+
 
 #REMINDER TO REVERT BUFFS AFTER ONE FIGHT!!!!!!!!!!
 #def revert_buffs(target)
@@ -992,13 +1000,14 @@ while run:
                 member.draw(member.current_hp)
             draw_panel()
             pygame.display.update()
+            for r, t, p in initiative:
+                if r < roll:
+                    if t == 0:
+                        next_ally = p
+                        break
             resolve_dots(person)
             if team == 0:
-                for r, t, p in initiative:
-                    if r < roll:
-                        if t == team:
-                            next_ally = p
-                            break
+                
                 if person.alive:
                     if person.action_token:
                         selected_button = None
