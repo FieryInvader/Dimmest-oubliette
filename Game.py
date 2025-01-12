@@ -239,7 +239,7 @@ class hit_or_miss(pygame.sprite.Sprite): # i guess they never miss, huh?
 		#delete the text after a few seconds
         self.counter += 1
         select = False
-        if self.counter > 100:
+        if self.counter > 180:
             self.kill()
             for i in range(0,tiles):
                 display.blit(bg, (i * bg.get_width() + scroll,0))
@@ -497,7 +497,7 @@ class Cutthroat(Person):
         self.abilities.append(self.Uppercut_Slice)
         self.abilities.append(self.Shank)
         
-    def take_action(self):
+    def take_action(self,next_ally):
         self.action_cooldown = 0
         while self.action_cooldown <= self.action_wait_time:
             if self.alive and (self.action_token > 0):
@@ -510,30 +510,19 @@ class Cutthroat(Person):
                             if hits:
                                 crit = self.roll_crit()
                                 dmg = self.roll_dmg()
-                                if random_action.status == 'Bleed':
-                                    dot = random_action.dot
-                                    rounds = random_action.rounds
-                                    if crit:
-                                        rounds += 2
-                                    apply_bleed(target, dot, rounds)
-                                if crit:
-                                    dmg *= 2
-                                apply_dmg(target, dmg)
+                                random_action.proc(dmg, target, crit, next_ally)
                     else:
                         target = random.choice(party)
                         hits = roll_to_hit(random_action, target)
                         if hits:
                             crit = self.roll_crit()
                             dmg = self.roll_dmg()
-                            if random_action.status == 'Bleed':
-                                dot = random_action.dot
-                                rounds = random_action.rounds
-                                if crit:
-                                    rounds += 2
-                                apply_bleed(target, dot, rounds)
-                            if crit:
-                                dmg *= 2
-                            apply_dmg(target, dmg)
+                            random_action.proc(dmg, target, crit, next_ally)
+                else:
+                    damage_text_group.update()
+                    damage_text_group.draw(display)
+                    hit_text_group.update()
+                    hit_text_group.draw(display)
 
 
 
@@ -546,45 +535,32 @@ class Fusilier(Person):
         self.Blanket = ability('Blanket', [1,2,3], [(0,1,2,3)],'Attack' ,self.crit + 0.02 ,0.8)
         self.abilities.append(self.Blanket)
         
-    def take_action(self):
+    def take_action(self,next_ally):
         self.action_cooldown = 0
-        while self.action_cooldown < self.action_wait_time:
-            self.action_cooldown += 1
-            if self.action_cooldown == self.action_wait_time:
-                random_action = random.choice(self.abilities)
-                if type(random_action) is tuple():
-                    for target in random_action.target[0]:
+        while self.action_cooldown <= self.action_wait_time:
+            if self.alive and (self.action_token > 0):
+                self.action_cooldown += 1
+                if self.action_cooldown == self.action_wait_time:
+                    random_action = random.choice(self.abilities)
+                    if type(random_action) is tuple():
+                        for target in random_action.target[0]:
+                            hits = roll_to_hit(random_action, target)
+                            if hits:
+                                crit = self.roll_crit()
+                                dmg = self.roll_dmg()
+                                random_action.proc(dmg, target, crit,next_ally)
+                    else:
+                        target = random.choice(party)
                         hits = roll_to_hit(random_action, target)
                         if hits:
-                            print(target,'HIT')
                             crit = self.roll_crit()
                             dmg = self.roll_dmg()
-                            if random_action.status == 'Bleed':
-                                dot = random_action.dot
-                                rounds = random_action.rounds
-                                if crit:
-                                    rounds += 2
-                                apply_bleed(target, dot, rounds)
-                            if crit:
-                                dmg *= 2
-                            apply_dmg(target, dmg)
+                            random_action.proc(dmg, target, crit,next_ally)
                 else:
-                    target = random.choice(party)
-                    hits = roll_to_hit(random_action, target)
-                    dmg = 0
-                    if hits:
-                        crit = self.roll_crit()
-                        dmg = self.roll_dmg()
-                        if random_action.status == 'Bleed':
-                            dot = random_action.dot
-                            rounds = random_action.rounds
-                            if crit:
-                                rounds += 2
-                            apply_bleed(target, dot, rounds)
-                        if crit:
-                            dmg *= 2
-                        apply_dmg(target, dmg)
-
+                    damage_text_group.update()
+                    damage_text_group.draw(display)
+                    hit_text_group.update()
+                    hit_text_group.draw(display)
 
 
 
@@ -1183,7 +1159,7 @@ while run:
             else:
                 if person.alive:
                     if person.action_token > 0:
-                        person.take_action()
+                        person.take_action(next_ally = p)
                         person.action_token -= 1
     
     if not fighting:
