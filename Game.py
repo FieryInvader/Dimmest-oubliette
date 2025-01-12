@@ -589,8 +589,8 @@ class Witch(Person):
         dmg_range = [i for i in range(3,7)]
         super().__init__(x, y, name, 28, 0.02, 0.15, 8, position, dmg_range, 0.25, 0.2, 0.2)
         self.abilities = []
-        self.incantation = ability('incantation',self,'images/Witch/attack_anim.png', [0,1,2,3], [0,1,2,3],'Stress_damage' ,self.crit,0.825, "grapeshot.wav")
-        self.blast = ability('blast',self,'images/Witch/attack_anim.png', [0,1,2,3], [0,1,2,3],'Attack' ,self.crit + 0.06,0.825, "grapeshot.wav")
+        self.incantation = ability('incantation',self,'images/Witch/attack_anim.png', [0,1,2,3], [0,1,2,3],'Stress_damage' ,self.crit,0.825, "stress.wav")
+        self.blast = ability('blast',self,'images/Witch/attack_anim.png', [0,1,2,3], [0,1,2,3],'Attack' ,self.crit + 0.06,0.825, "blast.wav")
         
         self.abilities.append(self.incantation)
         self.abilities.append(self.blast)
@@ -633,7 +633,7 @@ class Brawler(Person):
         dmg_range = [i for i in range(2,5)]
         super().__init__(x, y, name, 50, 0.2, 0.08, 5, position, dmg_range, 0.25, 0.2, 0.2)
         self.abilities = []
-        self.rend = ability('rend',self,'images/Brawler/attack_anim.png', [0,1,2,3], [0,1,2,3],'Attack' ,self.crit,0.825, "grapeshot.wav",status = 'Bleed',rounds = 3,dot = 1)
+        self.rend = ability('rend',self,'images/Brawler/attack_anim.png', [0,1,2,3], [0,1,2,3],'Attack' ,self.crit,0.825, "rend.wav",status = 'Bleed',rounds = 3,dot = 1)
         
         self.abilities.append(self.rend)
         
