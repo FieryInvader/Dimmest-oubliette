@@ -203,7 +203,8 @@ full_stress = pygame.image.load("images/heroes/stress_full.png")
 
 #Classes for our heroes
 class Person(pygame.sprite.Sprite):
-    def __init__(self, x, y, name, health, critical, dodge, speed, position, dmg_range):
+    def __init__(self, x, y, name, health, critical, dodge, speed, position, 
+                 stun_res, blight_res, bleed_res, dmg_range):
         #visuals
         pygame.sprite.Sprite.__init__(self)
         self.x = x
@@ -222,6 +223,9 @@ class Person(pygame.sprite.Sprite):
         self.speed = speed
         self.dmg_range = dmg_range
         self.dmg_amp = 1
+        self.stun_res = stun_res
+        self.blightres = blight_res
+        self.bleed_res = bleed_res
         self.blight = []
         self.bleed = []
         self.deathblow_res = 0.67
@@ -265,11 +269,11 @@ def roll_to_hit(ability,target):
         return False
 
 class Highwayman(Person):
-    def __init__(self, x, y, name,position):
+    def __init__(self, x, y, name, position):
         #initialize parent class
         self.hero_class = "Highwayman"
         dmg_range = [i for i in range(5,11)]
-        super().__init__(x, y, name, 23, 0.05, 0.1, 5, position, dmg_range)
+        super().__init__(x, y, name, 23, 0.05, 0.1, 5, position, dmg_range, 0.3, 0.3, 0.3)
         
         self.abilities = []
         self.wicked_slice = ability('wicked_slice',[0,1,2], [0,1], 'Attack', self.crit + 0.05 ,0.85, dmg_mod = 1.15)
@@ -292,7 +296,7 @@ class Crusader(Person):
         self.hero_class = "Crusader"
         #initialize parent class
         dmg_range = [i for i in range(6,13)]
-        super().__init__(x, y, name, 33, 0.03, 0.05, 1, position, dmg_range)
+        super().__init__(x, y, name, 33, 0.03, 0.05, 1, position, dmg_range, 0.2, 0.6, 0.2)
         
         self.abilities = []
         self.smite = ability('smite', [0,1], [0,1],'Attack', self.crit, 0.85)
@@ -316,7 +320,7 @@ class Plague_Doctor(Person):
         self.hero_class = "Plague_Doctor"
         #initialize parent class
         dmg_range = [i for i in range(4,8)]
-        super().__init__(x, y, name, 22, 0.02, 0.01, 7, position, dmg_range)
+        super().__init__(x, y, name, 22, 0.02, 0.01, 7, position, dmg_range, 0.3, 0.3, 0.3)
         
         self.abilities = []
         self.noxious_blast = ability("noxious_blast" ,[1,2,3], [0,1],'Attack', self.crit, 0.95,dmg_mod = 0.2, status = 'Blight', rounds = 3, dot= 5)
@@ -365,7 +369,7 @@ class Cutthroat(Person):
     def __init__(self,x,y,name,position):
         #fixer pls
         dmg_range = [i for i in range(2,5)]
-        super().__init__(x, y, name, 30, 0.12, 0.025, 3, position, dmg_range)
+        super().__init__(x, y, name, 30, 0.12, 0.025, 3, position, dmg_range, 0.45, 0.4, 0.4)
         
         self.Slice_and_dice = ability('Slice_and_dice', [0,1,2], [(0,1)],'Attack', self.crit, 0.85,dmg_mod = 1.5,status = 'Bleed', rounds = 3, dot = 1)
         self.Uppercut_Slice = ability('Uppercut_Slice', [0,1], [0,1],'Attack', self.crit + 0.05, 0.85,status = 'Bleed', rounds = 3, dot = 3)
@@ -421,7 +425,7 @@ class Cutthroat(Person):
 class Fusilier(Person):
     def __init__(self, x, y, name,position):
         dmg_range = [i for i in range(4,10)]
-        super().__init__(x, y, name, 20, 0.01, 0.075, 6, position, dmg_range)
+        super().__init__(x, y, name, 20, 0.01, 0.075, 6, position, dmg_range, 0.25, 0.2, 0.2)
         self.abilities = []
         self.Blanket = ability('Blanket', [1,2,3], [(0,1,2,3)],'Attack' ,self.crit + 0.02 ,0.8)
         self.abilities.append(self.Blanket)
