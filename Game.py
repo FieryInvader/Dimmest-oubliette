@@ -590,6 +590,7 @@ class ability():
         self.crit = crit
         self.accuracy = accuracy
         self.sound = pygame.mixer.Sound(f"sounds/{sound}")
+        self.sound_played = 0 
         self.status = status
         self.rounds = rounds
         self.dot = dot
@@ -600,13 +601,14 @@ class ability():
         
     #Function to fire the effect of the ability depending on its Type
     #Using the calculation functions, while checking to apply buffs
-    def proc(self, roll_number, target, crit, soundplayed = False):
+    def proc(self, roll_number, target, crit, ):
         cure = False
         to_hit = random.random()
         dot_stick = random.random()
         anim = pygame.image.load(self.anim)
-        if not soundplayed:
+        if self.sound_played == 0:
             self.sound.play()
+            self.sound_played += 1
         #target.draw(target.current_hp)
         if self.Type == 'Attack':
             #if the attack hits
@@ -777,8 +779,6 @@ def apply_dmg(target,dmg):
         target.draw(target.current_hp,flip = True)
     else:
         target.draw(target.current_hp)
-
-
   
         
 def apply_blight(target,damage,rounds):
@@ -833,12 +833,10 @@ def apply_buff(target,dps_buff = 0,speed_buff = 0,crit_buff = 0):
 def resolve_dots(target):
     if target.bleed:
         for dot,Round in target.bleed:
-            
             if target.current_hp - dot <= 0 :
                 target.current_hp = 0
                 target.alive = False
             target.current_hp -= dot
-            
         numbers = [x[0] for x in target.bleed]
         number = sum(numbers)
         damage_text = DamageText(target.x, target.y-240, 
@@ -847,7 +845,7 @@ def resolve_dots(target):
         icon_txt = DamageText(target.x-30,target.y-240,'',red,icon)
         damage_text_group.add(icon_txt)
         damage_text_group.add(damage_text)
-        target.bleed[:] = [(x,y-1) for x,y in target.bleed]
+        target.bleed[:] = [(x,y-1) for x,y in target.bleed if y-1 > 0]
     if target.blight:
         for dot,Round in target.blight:
             
@@ -863,7 +861,7 @@ def resolve_dots(target):
         icon_txt = DamageText(target.x-30,target.y-240,'',vomit,icon)
         damage_text_group.add(icon_txt)
         damage_text_group.add(damage_text)
-        target.blight[:] = [(x,y-1) for x,y in target.blight]
+        target.blight[:] = [(x,y-1) for x,y in target.blight if y-1 > 0]
 
 
 #REMINDER TO REVERT BUFFS AFTER ONE FIGHT!!!!!!!!!!
@@ -876,7 +874,6 @@ def wait_action(buttons,hero):
     action = False
     selected_displayed = False
     targeting_displayed = False
-    soundplayed=False
     damage_text_group.update()
     damage_text_group.draw(display)
     hit_text_group.update()
@@ -884,7 +881,6 @@ def wait_action(buttons,hero):
     draw_panel()
     draw_hero(hero)
     while not action:
-        
         if not selected_displayed:
             selected = pygame.image.load("images/targets/selected.png")
             display.blit(selected, (473 - 150 * hero.position, 363))
@@ -912,6 +908,7 @@ def wait_action(buttons,hero):
                     display.blit(selected, (473 - 150 * hero.position, 363))
                     pygame.display.update()
         if selected_button != None: #if a button was pressed
+            selected_button.ability.sound_played=0
             targeting_displayed = False
             for target in selected_button.ability.target: #valid targets
                 if selected_button.ability.Type == 'Attack':
@@ -951,10 +948,9 @@ def wait_action(buttons,hero):
                                     #we roll dmg here so its different every time
                                     damage = hero.roll_dmg()
                                     crit = hero.roll_crit()
-                                    selected_button.ability.proc(damage, enemy, crit, soundplayed)
+                                    selected_button.ability.proc(damage, enemy, crit)
                                     #if we roll dmg when we initialize ability,
                                     #it will deal the same dmg every time
-                                    soundplayed = True
                     else:
                         #if ability is single target
                         target_icon = pygame.image.load("images/targets/target_1.png")
@@ -1009,13 +1005,11 @@ def wait_action(buttons,hero):
                                 #because for enemy in enemy_list
                                 crit = hero.roll_crit()
                                 if selected_button.ability.Type == 'Stress_heal':
-                                    selected_button.ability.proc(selected_button.ability.stress,member,crit, soundplayed)
+                                    selected_button.ability.proc(selected_button.ability.stress,member,crit)
                                 elif selected_button.ability.Type == 'Heal':
-                                    selected_button.ability.proc(selected_button.ability.heal,member,crit, soundplayed)
+                                    selected_button.ability.proc(selected_button.ability.heal,member,crit)
                                 else:
-                                    selected_button.ability.proc(selected_button.ability.dmg_mod,member,crit, soundplayed)
-                                soundplayed = True
-                                
+                                    selected_button.ability.proc(selected_button.ability.dmg_mod,member,crit)
                     else:
                         #if ability is single target
                         target_icon = pygame.image.load("images/targets/target_h_1.png")
@@ -1040,7 +1034,6 @@ def wait_action(buttons,hero):
                                         selected_button.ability.proc(selected_button.ability.dmg_mod,member,crit)
                                     action = True
                 else:
-                    selected.button.ability.proc()
                     action = True
                     apply_stress(hero, 2)
                     pygame.mixer.Sound("sounds/stress.wav").play()
@@ -1110,7 +1103,7 @@ hit_text_group = pygame.sprite.Group()
 COMBAT = pygame.USEREVENT + 1
 tile_size = 1000
 party_position = 0
-map_tiles = [0,1,0,2,0,1]
+map_tiles = [0,1,0,1,0,2]
 
 
 #main game loop
@@ -1166,7 +1159,6 @@ while run:
             enemy.action_token += 1
             initiative.append((random.choice(range(9)) + enemy.speed,1,enemy))
         initiative.sort(key = lambda tup: tup[0], reverse = True)
-        print('round chage')
         for roll, team, person in initiative:
             enemy_list[:] = [x for x in enemy_list if x.alive == True]
             party[:] = [x for x in party if x.alive == True]
@@ -1210,6 +1202,8 @@ while run:
                     if person.action_token > 0:
                         person.take_action()
                         person.action_token -= 1
+                        for abil in person.abilities:
+                            abil.sound_played = 0 
     
     if not fighting:
         for member in party:
