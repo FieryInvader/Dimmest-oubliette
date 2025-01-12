@@ -36,6 +36,7 @@ class Button():
 font = pygame.font.SysFont('Comic sans', 20) 
 font_small = pygame.font.SysFont('Comic sans', 16)    
 font_med = pygame.font.SysFont('Comic sans', 18)
+font_huge = pygame.font.SysFont('Comic sans', 48)
     
 
 #Text creation
@@ -1141,6 +1142,9 @@ while run:
     current_tile = party_position // tile_size  # Calculate which tile the player is on (round down)
     if map_tiles[current_tile] == 1:
         pygame.event.post(pygame.event.Event(COMBAT))
+    
+    if map_tiles[current_tile] == 2:
+        game_over = True
      
     draw_panel()
     
@@ -1218,9 +1222,21 @@ while run:
     #     enemy_list.append(enemy6)
     #     enemy_list.append(enemy7)
     #     enemy_list.append(enemy8)
-    if game_over:
-        print('game over')
-        pygame.quit()
+    while game_over:
+        if wins == 2:
+            end = pygame.image.load("images/game_over/victory.png")
+            text = "VICTORIOUS"
+            colour = yellow
+            x = 600
+        else:
+            end = pygame.image.load("images/game_over/defeat.png")
+            text = "DEFEATED"
+            colour = red
+            x = 650
+            
+        display.blit(end, (0,0))
+        draw_text(text, font_huge, colour, x, 100)
+        pygame.display.update()
         
     pygame.display.update()
 
