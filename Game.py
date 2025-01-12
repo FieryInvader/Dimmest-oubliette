@@ -180,6 +180,8 @@ def draw_ability(hero, button):
     elif button.ability.Type == "Stress_heal":
         s = abs(button.ability.stress)
         draw_text(f"Remove {s} Stress", font_small, white, 460, 735)
+        if button.ability.heal:
+            draw_text(f"Heal {button.ability.heal}", font_small, green, 460, 750)
     elif button.ability.Type == "Buff":
         draw_text(f"+{button.ability.dmg_mod}% DMG", font_small, white, 460, 735)
         draw_text(f"+{button.ability.speed}% SPD", font_small, white, 600, 735)
