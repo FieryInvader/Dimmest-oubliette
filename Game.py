@@ -302,11 +302,14 @@ class Person():
         self.action_wait_time = 100
         self.action_cooldown = 0
         
-    def draw(self,hp, flip = False):
+    def draw(self,hp, flip = False, animation = None):
         self.current_hp = hp
         ratio = self.current_hp / self.max_hp
         if flip == True:
-            display.blit(pygame.transform.flip(self.image, True, False), self.rect)
+            if animation:
+                display.blit(pygame.transform.flip(animation, True, False), self.rect)
+            else:
+                display.blit(pygame.transform.flip(self.image, True, False), self.rect)
             pygame.draw.rect(display, dark_grey, (self.x-40,self.y+180,100,10))
             pygame.draw.rect(display, red, (self.x-40,self.y+180,100*ratio,10))
             if self.blight:
@@ -334,7 +337,11 @@ class Person():
                 else:
                     self.isStunned = False
         else:
-            display.blit(self.image, self.rect)
+            
+            if animation:
+                display.blit(animation, (500,500))
+            else:
+                display.blit(self.image, self.rect)
             pygame.draw.rect(display, dark_grey, (self.rect.center[0]-40,self.rect.center[1] + 165, 100, 10))
             pygame.draw.rect(display, red, (self.rect.center[0]-40,self.rect.center[1] + 165, 100*ratio, 10))
             for i in range(11):
@@ -393,13 +400,13 @@ class Highwayman(Person):
         super().__init__(x, y, name, 23, 0.05, 0.1, 5, position, dmg_range, 0.3, 0.3, 0.3)
         
         self.abilities = []
-        self.wicked_slice = ability('wicked_slice','melee_anim.png',[0,1,2], [0,1], 'Attack', self.crit + 0.05 ,0.85, dmg_mod = 1.15)
-        self.pistol_shot = ability('pistol_shot','pistol_anim.png',[1,2,3], [1,2,3], 'Attack', self.crit + 0.075, 0.85,dmg_mod = 0.9)
-        self.grapeshot_blast = ability('grapeshot_blast','pistol_anim.png',[1,2], [(0,1,2)], 'Attack', self.crit - 0.09, 0.75, dmg_mod = 0.5)
-        self.open_vein = ability('open_vein','melee_anim.png',[0,1,2], [0,1],'Attack', self.crit, 0.95, status = 'Bleed', rounds = 2, dot = 3, dmg_mod = 0.85)
+        self.wicked_slice = ability('wicked_slice',self,f'images/{self.hero_class}/melee_anim.png',[0,1,2], [0,1], 'Attack', self.crit + 0.05 ,0.85, dmg_mod = 1.15)
+        self.pistol_shot = ability('pistol_shot',self,f'images/{self.hero_class}/pistol_anim.png',[1,2,3], [1,2,3], 'Attack', self.crit + 0.075, 0.85,dmg_mod = 0.9)
+        self.grapeshot_blast = ability('grapeshot_blast',self,f'images/{self.hero_class}/pistol_anim.png',[1,2], [(0,1,2)], 'Attack', self.crit - 0.09, 0.75, dmg_mod = 0.5)
+        self.open_vein = ability('open_vein',self,f'images/{self.hero_class}/melee_anim.png',[0,1,2], [0,1],'Attack', self.crit, 0.95, status = 'Bleed', rounds = 2, dot = 3, dmg_mod = 0.85)
         #fix dmg || dmg mod - crit mod - speed mod (numbers)
-        self.take_aim = ability('take_aim','take_aim_anim.png',[0,1,2,3], [1],'Buff', 0.1,1, speed = 1,dmg_mod = 0.12)#last arguement will add speed to dismas
-        self.PASS = ability('pass',[0,1,2,3],[0,1,2,3],'Pass',0,0)
+        self.take_aim = ability('take_aim',self,f'images/{self.hero_class}/take_aim_anim.png',[0,1,2,3], [1],'Buff', 0.1,1, speed = 1,dmg_mod = 0.12)#last arguement will add speed to dismas
+        self.PASS = ability('pass',self,f'images/{self.hero_class}/defend_anim.png',[0,1,2,3],[0,1,2,3],'Pass',0,0)
         
         self.abilities.append(self.wicked_slice)
         self.abilities.append(self.pistol_shot)
@@ -416,14 +423,14 @@ class Crusader(Person):
         super().__init__(x, y, name, 33, 0.03, 0.05, 1, position, dmg_range, 0.2, 0.6, 0.2)
         
         self.abilities = []
-        self.smite = ability('smite','melee_anim.png', [0,1], [0,1],'Attack', self.crit, 0.85)
-        self.zealous_accusation = ability('zealous_accusation','tileeiedo_anim.png', [0,1], [(0,1)], 'Attack', self.crit - 0.04, 0.85,dmg_mod = 0.5)
-        self.stunning_blow = ability('stunning_blow','stun_anim.png', [0,1], [0,1], 'Attack', self.crit, 0.9,status = 'Stun',dmg_mod = 0.5)
+        self.smite = ability('smite',self,f'images/{self.hero_class}/melee_anim.png', [0,1], [0,1],'Attack', self.crit, 0.85)
+        self.zealous_accusation = ability('zealous_accusation',self,f'images/{self.hero_class}/tileeiedo_anim.png', [0,1], [(0,1)], 'Attack', self.crit - 0.04, 0.85,dmg_mod = 0.5)
+        self.stunning_blow = ability('stunning_blow',self,f'images/{self.hero_class}/stun_anim.png', [0,1], [0,1], 'Attack', self.crit, 0.9,status = 'Stun',dmg_mod = 0.5)
         #fix dmg
-        self.inspiring_cry = ability('inspiring_cry','stress_anim.png', [0,1,2,3], [0,1,2,3],'Stress_heal', self.crit, 1,heal = 1,stress = -2)
+        self.inspiring_cry = ability('inspiring_cry',self,f'images/{self.hero_class}/stress_anim.png', [0,1,2,3], [0,1,2,3],'Stress_heal', self.crit, 1,heal = 1,stress = -2)
         #fix dmg
-        self.battle_heal = ability('battle_heal','heal_anim.png', [0,1,2,3], [0,1,2,3],'Heal', self.crit, 1, heal = 4)
-        self.PASS = ability('pass',[0,1,2,3],[0,1,2,3],'Pass',0,0)
+        self.battle_heal = ability('battle_heal',self,f'images/{self.hero_class}/heal_anim.png', [0,1,2,3], [0,1,2,3],'Heal', self.crit, 1, heal = 4)
+        self.PASS = ability('pass',self,f'images/{self.hero_class}/defend_anim.png',[0,1,2,3],[0,1,2,3],'Pass',0,0)
       
         self.abilities.append(self.smite)
         self.abilities.append(self.zealous_accusation)
@@ -440,13 +447,13 @@ class Plague_Doctor(Person):
         super().__init__(x, y, name, 22, 0.02, 0.01, 7, position, dmg_range, 0.3, 0.3, 0.3)
         
         self.abilities = []
-        self.noxious_blast = ability("noxious_blast",'blast_anim.png' ,[1,2,3], [0,1],'Attack', self.crit, 0.95,dmg_mod = 0.2, status = 'Blight', rounds = 3, dot= 5)
-        self.plague_grenade = ability("plague_grenade",'throw_anim.png', [1,2,3], [(2,3)],'Attack', self.crit, 0.95,dmg_mod = 0.1,status = 'Blight', rounds = 3, dot= 4)
-        self.blinding_gas = ability("blinding_gas",'throw_anim.png', [2,3], [(2,3)],'Attack',0,0.95, dmg_mod = 0,status = 'Stun')   
+        self.noxious_blast = ability("noxious_blast",self,f'images/{self.hero_class}/blast_anim.png' ,[1,2,3], [0,1],'Attack', self.crit, 0.95,dmg_mod = 0.2, status = 'Blight', rounds = 3, dot= 5)
+        self.plague_grenade = ability("plague_grenade",self,f'images/{self.hero_class}/throw_anim.png', [1,2,3], [(2,3)],'Attack', self.crit, 0.95,dmg_mod = 0.1,status = 'Blight', rounds = 3, dot= 4)
+        self.blinding_gas = ability("blinding_gas",self,f'images/{self.hero_class}/throw_anim.png', [2,3], [(2,3)],'Attack',0,0.95, dmg_mod = 0,status = 'Stun')   
         #fix dmg
-        self.battlefield_medicine = ability("battlefield_medicine",'heal_anim.png', [2,3], [0,1,2,3],'Heal', self.crit, 1, status = 'Cure', heal = 1)
-        self.incision = ability('incision','melee_anim.png', [0,1,2], [0,1],'Attack', self.crit + 0.05, 0.85, status = 'Bleed', rounds = 3, dot = 2)
-        self.PASS = ability('pass',[0,1,2,3],[0,1,2,3],'Pass',0,0)
+        self.battlefield_medicine = ability("battlefield_medicine",self,f'images/{self.hero_class}/heal_anim.png', [2,3], [0,1,2,3],'Heal', self.crit, 1, status = 'Cure', heal = 1)
+        self.incision = ability('incision',self,f'images/{self.hero_class}/melee_anim.png', [0,1,2], [0,1],'Attack', self.crit + 0.05, 0.85, status = 'Bleed', rounds = 3, dot = 2)
+        self.PASS = ability('pass',self,f'images/{self.hero_class}/defend_anim.png',[0,1,2,3],[0,1,2,3],'Pass',0,0)
              
         self.abilities.append(self.noxious_blast)
         self.abilities.append(self.plague_grenade)
@@ -463,14 +470,14 @@ class Vestal(Person):
         super().__init__(x, y, name, 24, 0.01, 0.01, 4, position, dmg_range, 0.25, 0.3, 0.3)
         
         self.abilities = []
-        self.dazzling_light = ability("dazzling_light",'stun_anim.png', [1,2,3], [0,1,2],'Attack', self.crit + 0.05, 0.9,dmg_mod = 0.2, status = 'Stun')
+        self.dazzling_light = ability("dazzling_light",self,f'images/{self.hero_class}/stun_anim.png', [1,2,3], [0,1,2],'Attack', self.crit + 0.05, 0.9,dmg_mod = 0.2, status = 'Stun')
         #fix dmg
-        self.divine_grace = ability("divine_grace",'talktothehand_anim.png', [2,3], [0,1,2,3],'Heal', self.crit, 1,heal = 4)
+        self.divine_grace = ability("divine_grace",self,f'images/{self.hero_class}/talktothehand_anim.png', [2,3], [0,1,2,3],'Heal', self.crit, 1,heal = 4)
         #fix dmg
-        self.divine_comfort = ability("divine_comfort",'talktothehand_anim.png', [2,3], [(0,1,2,3)],'Heal', self.crit, 1,heal = 1)
-        self.judgement = ability("judgement",'attack_anim.png', [0,1,2,3], [(2,3)],'Attack', self.crit + 0.05, 0.85, dmg_mod = 0.5)
-        self.illumination = ability('illumination','attack_anim.png', [0,1,2,3], [0,1,2,3],'Attack', self.crit, 0.9)
-        self.PASS = ability('pass',[0,1,2,3],[0,1,2,3],'Pass',0,0)
+        self.divine_comfort = ability("divine_comfort",self,f'images/{self.hero_class}/talktothehand_anim.png', [2,3], [(0,1,2,3)],'Heal', self.crit, 1,heal = 1)
+        self.judgement = ability("judgement",self,f'images/{self.hero_class}/attack_anim.png', [0,1,2,3], [(2,3)],'Attack', self.crit + 0.05, 0.85, dmg_mod = 0.5)
+        self.illumination = ability('illumination',self,f'images/{self.hero_class}/attack_anim.png', [0,1,2,3], [0,1,2,3],'Attack', self.crit, 0.9)
+        self.PASS = ability('pass',self,f'images/{self.hero_class}/defend_anim.png',[0,1,2,3],[0,1,2,3],'Pass',0,0)
         
         self.abilities.append(self.dazzling_light)
         self.abilities.append(self.divine_grace)
@@ -488,9 +495,9 @@ class Cutthroat(Person):
         dmg_range = [i for i in range(2,5)]
         super().__init__(x, y, name, 30, 0.12, 0.025, 3, position, dmg_range, 0.45, 0.4, 0.4)
         
-        self.Slice_and_dice = ability('Slice_and_dice','slice_anim.png', [0,1,2], [(0,1)],'Attack', self.crit, 0.85,dmg_mod = 1.5,status = 'Bleed', rounds = 3, dot = 1)
-        self.Uppercut_Slice = ability('Uppercut_Slice','uppercut_anim.png', [0,1], [0,1],'Attack', self.crit + 0.05, 0.85,status = 'Bleed', rounds = 3, dot = 3)
-        self.Shank = ability('Shank','uppercut_anim.png', [0,1,2], [0,1,2,3],'Attack',self.crit + 0.06, 0.85,dmg_mod = 2, status = 'Bleed', rounds = 3, dot = 2)
+        self.Slice_and_dice = ability('Slice_and_dice',self,'images/Cutthroat/slice_anim.png', [0,1,2], [(0,1)],'Attack', self.crit, 0.85,dmg_mod = 1.5,status = 'Bleed', rounds = 3, dot = 1)
+        self.Uppercut_Slice = ability('Uppercut_Slice',self,'images/Cutthroat/uppercut_anim.png', [0,1], [0,1],'Attack', self.crit + 0.05, 0.85,status = 'Bleed', rounds = 3, dot = 3)
+        self.Shank = ability('Shank',self,'images/Cutthroat/uppercut_anim.png', [0,1,2], [0,1,2,3],'Attack',self.crit + 0.06, 0.85,dmg_mod = 2, status = 'Bleed', rounds = 3, dot = 2)
         
         self.abilities =[]
         self.abilities.append(self.Slice_and_dice)
@@ -532,7 +539,7 @@ class Fusilier(Person):
         dmg_range = [i for i in range(2,6)]
         super().__init__(x, y, name, 20, 0.01, 0.075, 6, position, dmg_range, 0.25, 0.2, 0.2)
         self.abilities = []
-        self.Blanket = ability('Blanket','attack_anim.png', [1,2,3], [(0,1,2,3)],'Attack' ,self.crit + 0.02 ,0.8)
+        self.Blanket = ability('Blanket',self,'images/Fusilier/attack_anim.png', [1,2,3], [(0,1,2,3)],'Attack' ,self.crit + 0.02 ,0.8)
         self.abilities.append(self.Blanket)
         
     def take_action(self,next_ally):
@@ -568,9 +575,10 @@ class Fusilier(Person):
 
 
 class ability():
-    def __init__(self, name,anim, position, target,  Type, crit, accuracy,
+    def __init__(self, name,hero,anim, position, target,  Type, crit, accuracy,
                  dmg_mod = 1,status = '', rounds = 0, dot = 0, heal = 0, stress = 0,speed = 0):
         self.name = name
+        self.hero = hero
         self.heal = heal
         self.position = position
         self.target = target
@@ -592,6 +600,20 @@ class ability():
         cure = False
         to_hit = random.random()
         dot_stick = random.random()
+        anim = pygame.image.load(self.anim)
+        for j in range(100):
+            for i in range(0,tiles):
+                display.blit(bg, (i * bg.get_width() + scroll,0))
+            for enemy in enemy_list:
+                enemy.draw(enemy.current_hp,flip=True)
+            for member in party:
+                if member == self.hero:
+                    self.hero.draw(self.hero.current_hp,animation = anim)
+                else:
+                    member.draw(member.current_hp)
+            pygame.display.update()
+
+        #target.draw(target.current_hp)
         if self.Type == 'Attack':
             
             #if the attack hits
