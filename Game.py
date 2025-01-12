@@ -863,8 +863,7 @@ game_over = False
 fighting = False
 condition = lambda x: x.alive == True
 tmp = []
-m = 0
-e = 0
+
 while run:
     clock.tick(FPS)
     
@@ -918,16 +917,14 @@ while run:
             party[:] = [x for x in party if x.alive == True]
             for member in party:
                 if member.current_hp <= 0:
-                    m += 1
                     member.alive = False
             for enemy in enemy_list:
                 if enemy.current_hp <= 0:
-                    e += 1
                     enemy.alive = False
-            if e == 4:
+            if not any(enemy_list):
                 fighting = False
                 break
-            elif m == 4:
+            elif not any(party):
                 fighting = False
                 game_over = True
                 break
