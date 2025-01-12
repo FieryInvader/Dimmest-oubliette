@@ -440,12 +440,12 @@ class Plague_Doctor(Person):
         super().__init__(x, y, name, 22, 0.02, 0.01, 7, position, dmg_range, 0.3, 0.3, 0.3)
         
         self.abilities = []
-        self.noxious_blast = ability("noxious_blast" ,[1,2,3], [0,1],'Attack', self.crit, 0.95,dmg_mod = 0.2, status = 'Blight', rounds = 3, dot= 5)
-        self.plague_grenade = ability("plague_grenade", [1,2,3], [(2,3)],'Attack', self.crit, 0.95,dmg_mod = 0.1,status = 'Blight', rounds = 3, dot= 4)
-        self.blinding_gas = ability("blinding_gas", [2,3], [(2,3)],'Attack',0,0.95, dmg_mod = 0,status = 'Stun')   
+        self.noxious_blast = ability("noxious_blast",'blast_anim.png' ,[1,2,3], [0,1],'Attack', self.crit, 0.95,dmg_mod = 0.2, status = 'Blight', rounds = 3, dot= 5)
+        self.plague_grenade = ability("plague_grenade",'throw_anim.png', [1,2,3], [(2,3)],'Attack', self.crit, 0.95,dmg_mod = 0.1,status = 'Blight', rounds = 3, dot= 4)
+        self.blinding_gas = ability("blinding_gas",'throw_anim.png', [2,3], [(2,3)],'Attack',0,0.95, dmg_mod = 0,status = 'Stun')   
         #fix dmg
-        self.battlefield_medicine = ability("battlefield_medicine", [2,3], [0,1,2,3],'Heal', self.crit, 1, status = 'Cure', heal = 1)
-        self.incision = ability('incision', [0,1,2], [0,1],'Attack', self.crit + 0.05, 0.85, status = 'Bleed', rounds = 3, dot = 2)
+        self.battlefield_medicine = ability("battlefield_medicine",'heal_anim.png', [2,3], [0,1,2,3],'Heal', self.crit, 1, status = 'Cure', heal = 1)
+        self.incision = ability('incision','melee_anim.png', [0,1,2], [0,1],'Attack', self.crit + 0.05, 0.85, status = 'Bleed', rounds = 3, dot = 2)
         self.PASS = ability('pass',[0,1,2,3],[0,1,2,3],'Pass',0,0)
              
         self.abilities.append(self.noxious_blast)
@@ -463,13 +463,13 @@ class Vestal(Person):
         super().__init__(x, y, name, 24, 0.01, 0.01, 4, position, dmg_range, 0.25, 0.3, 0.3)
         
         self.abilities = []
-        self.dazzling_light = ability("dazzling_light", [1,2,3], [0,1,2],'Attack', self.crit + 0.05, 0.9,dmg_mod = 0.2, status = 'Stun')
+        self.dazzling_light = ability("dazzling_light",'stun_anim.png', [1,2,3], [0,1,2],'Attack', self.crit + 0.05, 0.9,dmg_mod = 0.2, status = 'Stun')
         #fix dmg
-        self.divine_grace = ability("divine_grace", [2,3], [0,1,2,3],'Heal', self.crit, 1,heal = 4)
+        self.divine_grace = ability("divine_grace",'talktothehand_anim.png', [2,3], [0,1,2,3],'Heal', self.crit, 1,heal = 4)
         #fix dmg
-        self.divine_comfort = ability("divine_comfort", [2,3], [(0,1,2,3)],'Heal', self.crit, 1,heal = 1)
-        self.judgement = ability("judgement", [0,1,2,3], [(2,3)],'Attack', self.crit + 0.05, 0.85, dmg_mod = 0.5)
-        self.illumination = ability('illumination', [0,1,2,3], [0,1,2,3],'Attack', self.crit, 0.9)
+        self.divine_comfort = ability("divine_comfort",'talktothehand_anim.png', [2,3], [(0,1,2,3)],'Heal', self.crit, 1,heal = 1)
+        self.judgement = ability("judgement",'attack_anim.png', [0,1,2,3], [(2,3)],'Attack', self.crit + 0.05, 0.85, dmg_mod = 0.5)
+        self.illumination = ability('illumination','attack_anim.png', [0,1,2,3], [0,1,2,3],'Attack', self.crit, 0.9)
         self.PASS = ability('pass',[0,1,2,3],[0,1,2,3],'Pass',0,0)
         
         self.abilities.append(self.dazzling_light)
@@ -488,9 +488,9 @@ class Cutthroat(Person):
         dmg_range = [i for i in range(2,5)]
         super().__init__(x, y, name, 30, 0.12, 0.025, 3, position, dmg_range, 0.45, 0.4, 0.4)
         
-        self.Slice_and_dice = ability('Slice_and_dice', [0,1,2], [(0,1)],'Attack', self.crit, 0.85,dmg_mod = 1.5,status = 'Bleed', rounds = 3, dot = 1)
-        self.Uppercut_Slice = ability('Uppercut_Slice', [0,1], [0,1],'Attack', self.crit + 0.05, 0.85,status = 'Bleed', rounds = 3, dot = 3)
-        self.Shank = ability('Shank', [0,1,2], [0,1,2,3],'Attack',self.crit + 0.06, 0.85,dmg_mod = 2, status = 'Bleed', rounds = 3, dot = 2)
+        self.Slice_and_dice = ability('Slice_and_dice','slice_anim.png', [0,1,2], [(0,1)],'Attack', self.crit, 0.85,dmg_mod = 1.5,status = 'Bleed', rounds = 3, dot = 1)
+        self.Uppercut_Slice = ability('Uppercut_Slice','uppercut_anim.png', [0,1], [0,1],'Attack', self.crit + 0.05, 0.85,status = 'Bleed', rounds = 3, dot = 3)
+        self.Shank = ability('Shank','uppercut_anim.png', [0,1,2], [0,1,2,3],'Attack',self.crit + 0.06, 0.85,dmg_mod = 2, status = 'Bleed', rounds = 3, dot = 2)
         
         self.abilities =[]
         self.abilities.append(self.Slice_and_dice)
@@ -532,7 +532,7 @@ class Fusilier(Person):
         dmg_range = [i for i in range(2,6)]
         super().__init__(x, y, name, 20, 0.01, 0.075, 6, position, dmg_range, 0.25, 0.2, 0.2)
         self.abilities = []
-        self.Blanket = ability('Blanket', [1,2,3], [(0,1,2,3)],'Attack' ,self.crit + 0.02 ,0.8)
+        self.Blanket = ability('Blanket','attack_anim.png', [1,2,3], [(0,1,2,3)],'Attack' ,self.crit + 0.02 ,0.8)
         self.abilities.append(self.Blanket)
         
     def take_action(self,next_ally):
