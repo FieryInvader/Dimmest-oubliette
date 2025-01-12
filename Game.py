@@ -591,6 +591,7 @@ class ability():
         self.crit = crit
         self.accuracy = accuracy
         self.sound = pygame.mixer.Sound(f"sounds/{sound}")
+        self.soundplayed = 0 
         self.status = status
         self.rounds = rounds
         self.dot = dot
@@ -601,13 +602,14 @@ class ability():
         
     #Function to fire the effect of the ability depending on its Type
     #Using the calculation functions, while checking to apply buffs
-    def proc(self, roll_number, target, crit, soundplayed = False):
+    def proc(self, roll_number, target, crit, ):
         cure = False
         to_hit = random.random()
         dot_stick = random.random()
         anim = pygame.image.load(self.anim)
-        if not soundplayed:
+        if self.soundplayed == 0:
             self.sound.play()
+            self.soundplayed += 1
         #target.draw(target.current_hp)
         if self.Type == 'Attack':
             #if the attack hits
@@ -778,8 +780,6 @@ def apply_dmg(target,dmg):
         target.draw(target.current_hp,flip = True)
     else:
         target.draw(target.current_hp)
-
-
   
         
 def apply_blight(target,damage,rounds):
@@ -877,7 +877,6 @@ def wait_action(buttons,hero):
     action = False
     selected_displayed = False
     targeting_displayed = False
-    soundplayed=False
     damage_text_group.update()
     damage_text_group.draw(display)
     hit_text_group.update()
@@ -885,7 +884,6 @@ def wait_action(buttons,hero):
     draw_panel()
     draw_hero(hero)
     while not action:
-        
         if not selected_displayed:
             selected = pygame.image.load("images/targets/selected.png")
             display.blit(selected, (473 - 150 * hero.position, 363))
@@ -952,10 +950,9 @@ def wait_action(buttons,hero):
                                     #we roll dmg here so its different every time
                                     damage = hero.roll_dmg()
                                     crit = hero.roll_crit()
-                                    selected_button.ability.proc(damage, enemy, crit, soundplayed)
+                                    selected_button.ability.proc(damage, enemy, crit)
                                     #if we roll dmg when we initialize ability,
                                     #it will deal the same dmg every time
-                                    soundplayed = True
                     else:
                         #if ability is single target
                         target_icon = pygame.image.load("images/targets/target_1.png")
@@ -1010,13 +1007,11 @@ def wait_action(buttons,hero):
                                 #because for enemy in enemy_list
                                 crit = hero.roll_crit()
                                 if selected_button.ability.Type == 'Stress_heal':
-                                    selected_button.ability.proc(selected_button.ability.stress,member,crit, soundplayed)
+                                    selected_button.ability.proc(selected_button.ability.stress,member,crit)
                                 elif selected_button.ability.Type == 'Heal':
-                                    selected_button.ability.proc(selected_button.ability.heal,member,crit, soundplayed)
+                                    selected_button.ability.proc(selected_button.ability.heal,member,crit)
                                 else:
-                                    selected_button.ability.proc(selected_button.ability.dmg_mod,member,crit, soundplayed)
-                                soundplayed = True
-                                
+                                    selected_button.ability.proc(selected_button.ability.dmg_mod,member,crit)
                     else:
                         #if ability is single target
                         target_icon = pygame.image.load("images/targets/target_h_1.png")
@@ -1041,7 +1036,6 @@ def wait_action(buttons,hero):
                                         selected_button.ability.proc(selected_button.ability.dmg_mod,member,crit)
                                     action = True
                 else:
-                    selected.button.ability.proc()
                     action = True
                     apply_stress(hero, 2)
                     pygame.mixer.Sound("sounds/stress.wav").play()
@@ -1056,6 +1050,7 @@ def wait_action(buttons,hero):
         if selected_button:
             draw_ability(hero, selected_button)
         pygame.display.update()
+    selected_button.ability.sound_played=0
     return selected_button
 
 
