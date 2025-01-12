@@ -29,15 +29,13 @@ class Button():
             else:
                 icon = pygame.image.load("images/heroes/focused_pass.png")
                 display.blit(icon, (self.x-36, self.y-15))
-            
-    # CHECK PASS ACTION!!!!!!!!!!!!!!!!!!!!!!!
 
+                
 #functions that draw stuff
 font = pygame.font.SysFont('Comic sans', 20) 
 font_small = pygame.font.SysFont('Comic sans', 16)    
 font_med = pygame.font.SysFont('Comic sans', 18)
 font_huge = pygame.font.SysFont('Comic sans', 48)
-    
 
 #Text creation
 def draw_text(text, font, colour, x, y):
@@ -133,7 +131,6 @@ def draw_target(target, ability, hero):
     draw_text(f"DODGE: {dodge}%", font_small, grey, 1000, 672)
 
 #incision does not round critical for some unknown reason
-
 def draw_ability(hero, button):
     #draw selected ability
     if button.ability.Type != "Pass":
@@ -192,6 +189,7 @@ def draw_ability(hero, button):
         draw_text(f"+{button.ability.speed}% SPD", font_small, white, 600, 735)
         draw_text(f"+{button.ability.crit}% CRIT", font_small, white, 460, 750)
     
+    
 class DamageText(pygame.sprite.Sprite):
     def __init__(self, x, y, damage, colour,icon = None):
         pygame.sprite.Sprite.__init__(self)
@@ -209,14 +207,6 @@ class DamageText(pygame.sprite.Sprite):
         self.counter += 1
         if self.counter > 100:
             self.kill()
-        # if not animation:
-        #     for i in range(0,tiles):
-        #         display.blit(bg, (i * bg.get_width() + scroll,0))
-        #     for enemy in enemy_list:
-        #         enemy.draw(enemy.current_hp,flip=True)
-        #     for member in party:
-        #         member.draw(member.current_hp)
-
 
 
 class hit_or_miss(pygame.sprite.Sprite): # i guess they never miss, huh?
@@ -239,15 +229,7 @@ class hit_or_miss(pygame.sprite.Sprite): # i guess they never miss, huh?
 
         if self.counter > 100:
             self.kill()
-        # if not animation:
-        #     for i in range(0,tiles):
-        #         display.blit(bg, (i * bg.get_width() + scroll,0))
-        #     for enemy in enemy_list:
-        #         enemy.draw(enemy.current_hp,flip=True)
-        #     for member in party:
-        #         member.draw(member.current_hp)
-
-                
+              
 
 #Colours
 red = (255,0,0)
@@ -301,12 +283,10 @@ class Person():
         self.action_wait_time = 100
         self.action_cooldown = 0
         
-        
     def draw(self,hp, flip = False, animation = None):
         self.current_hp = hp
         ratio = self.current_hp / self.max_hp
         if flip == True:
-            
             if animation == self.defend:
                 a = pygame.transform.flip(animation, True, False)
                 a = pygame.transform.scale(a, (a.get_width() * 0.5, a.get_height() * 0.5))
@@ -315,7 +295,6 @@ class Person():
                 a = pygame.transform.flip(animation, True, False)
                 a = pygame.transform.scale(a, (a.get_width() * 0.5, a.get_height() * 0.5))
                 display.blit(a, (600,250))
-
             else:
                 display.blit(pygame.transform.flip(self.image, True, False), self.rect)
             pygame.draw.rect(display, dark_grey, (self.x-40,self.y+180,100,10))
@@ -345,7 +324,6 @@ class Person():
                 else:
                     self.isStunned = False
         else:
-
             if animation == self.defend:
                 a = pygame.transform.scale(animation, (animation.get_width() * 0.5, animation.get_height() * 0.5))
                 display.blit(a, (self.rect.x,self.rect.y))
@@ -384,8 +362,7 @@ class Person():
                     display.blit(stun_icon, (self.rect.center[0],self.rect.center[1]-150))    
                 else:
                     self.isStunned = False
-        
-        
+               
     def check_meltdown(self):
         if self.stress == 10:
             roll = random.random()
@@ -405,7 +382,6 @@ class Person():
                 icon_txt = DamageText(650,250,'', white,icon = virtuous)
                 damage_text_group.add(icon_txt)
                 damage_text_group.add(damage_text)
-            
          
     def roll_dmg(self):
         damage = random.choice(self.dmg_range) * self.dmg_amp
@@ -423,6 +399,7 @@ def roll_to_hit(ability,target):
         return True
     else:
         return False
+
 
 class Highwayman(Person):
     def __init__(self, x, y, name, position):
@@ -445,6 +422,7 @@ class Highwayman(Person):
         self.abilities.append(self.open_vein)
         self.abilities.append(self.take_aim)
         self.abilities.append(self.PASS)
+        
         
 class Crusader(Person):
     def __init__(self, x, y, name, position):
@@ -470,6 +448,7 @@ class Crusader(Person):
         self.abilities.append(self.battle_heal)
         self.abilities.append(self.PASS)
         
+        
 class Plague_Doctor(Person):
     def __init__(self, x, y, name, position):
 
@@ -492,6 +471,7 @@ class Plague_Doctor(Person):
         self.abilities.append(self.battlefield_medicine)
         self.abilities.append(self.incision)
         self.abilities.append(self.PASS)
+        
         
 class Vestal(Person):
     def __init__(self, x, y, name, position):
@@ -517,9 +497,8 @@ class Vestal(Person):
         self.abilities.append(self.illumination)
         self.abilities.append(self.PASS)
         
+        
 #Enemy classes
-            
-
 class Cutthroat(Person):
     def __init__(self,x,y,name,position):
         #fixer pls
@@ -549,7 +528,6 @@ class Cutthroat(Person):
                                     crit = self.roll_crit()
                                     if random_action.Type == 'Stress_damage':
                                         random_action.proc(2,member,crit)
-                                    
                                     else:
                                         dmg = self.roll_dmg()
                                         random_action.proc(dmg,member,crit)
@@ -558,7 +536,6 @@ class Cutthroat(Person):
                         crit = self.roll_crit()
                         if random_action.Type == 'Stress_damage':
                             random_action.proc(2,target,crit)
-                        
                         else:
                             dmg = self.roll_dmg()
                             random_action.proc(dmg,target,crit)
@@ -591,7 +568,6 @@ class Fusilier(Person):
                                     crit = self.roll_crit()
                                     if random_action.Type == 'Stress_damage':
                                         random_action.proc(2,member,crit)
-                                    
                                     else:
                                         dmg = self.roll_dmg()
                                         random_action.proc(dmg,member,crit)
@@ -600,7 +576,6 @@ class Fusilier(Person):
                         crit = self.roll_crit()
                         if random_action.Type == 'Stress_damage':
                             random_action.proc(2,target,crit)
-                        
                         else:
                             dmg = self.roll_dmg()
                             random_action.proc(dmg,target,crit)
@@ -609,6 +584,7 @@ class Fusilier(Person):
             hit_text_group.update()
             damage_text_group.draw(display)
             hit_text_group.draw(display)
+
 
 class Witch(Person):
     def __init__(self, x, y, name,position):
@@ -636,7 +612,6 @@ class Witch(Person):
                                     if random_action.Type == 'Stress_damage':
                                         dmg = self.roll_dmg()
                                         random_action.proc(1 + dmg,member,crit)
-                                    
                                     else:
                                         dmg = self.roll_dmg() * 2
                                         random_action.proc(dmg,member,crit)
@@ -655,14 +630,13 @@ class Witch(Person):
             damage_text_group.draw(display)
             hit_text_group.draw(display)
             
+            
 class Brawler(Person):
     def __init__(self, x, y, name,position):
         dmg_range = [i for i in range(2,6)]
         super().__init__(x, y, name,name, 60, 0.2, 0.08, 5, position, dmg_range, 0.25, 0.2, 0.2)
         self.abilities = []
         self.rend = ability('rend',self,'images/Brawler/attack_anim.png', [0,1,2,3], [0,1],'Attack' ,self.crit,0.825, "rend.wav",status = 'Bleed',rounds = 3,dot = 1)
-
-        
         self.abilities.append(self.rend)
         
     def take_action(self):
@@ -679,7 +653,6 @@ class Brawler(Person):
                                     crit = self.roll_crit()
                                     if random_action.Type == 'Stress_damage':
                                         random_action.proc(2,member,crit)
-                                    
                                     else:
                                         dmg = self.roll_dmg()
                                         random_action.proc(dmg,member,crit)
@@ -697,7 +670,6 @@ class Brawler(Person):
             hit_text_group.update()
             damage_text_group.draw(display)
             hit_text_group.draw(display)
-
 
 
 class ability():
@@ -732,7 +704,6 @@ class ability():
         if self.sound_played == 0:
             self.sound.play()
             self.sound_played += 1
-        #target.draw(target.current_hp)
         if self.Type == 'Attack':
             #if the attack hits
             if to_hit < self.accuracy - target.dodge:
@@ -917,7 +888,6 @@ def apply_dmg(target,dmg):
         target.draw(target.current_hp,flip = True)
     else:
         target.draw(target.current_hp)
-  
         
 def apply_blight(target,damage,rounds):
     target.blight.append((damage,rounds))
@@ -966,8 +936,6 @@ def apply_buff(target,dps_buff = 0,speed_buff = 0,crit_buff = 0):
         if ability.Type == 'Attack':
             ability.crit += crit_buff
 
-
-#ADD DOT ICON HERE
 def resolve_dots(target):
     if target.bleed:
         for dot,Round in target.bleed:
@@ -1002,7 +970,7 @@ def resolve_dots(target):
         target.blight[:] = [(x,y-1) for x,y in target.blight if y-1 > 0]
 
 
-#REMINDER TO REVERT BUFFS AFTER ONE FIGHT!!!!!!!!!!
+#REMINDER TO REVERT BUFFS AFTER ONE FIGHT       #actually its a feature now, go ahead spam it!
 #def revert_buffs(target)
 
 #the main function for the player taking turns
@@ -1229,7 +1197,6 @@ party.append(reynauld)
 party.append(paracelsus)
 party.append(junia)
 
-   
 enemy1 = Cutthroat(900, 375, 'Cutthroat', 0)        
 enemy2 = Cutthroat(1050, 375, 'Cutthroat', 1)
 enemy3 = Fusilier(1200, 375, 'Fusilier', 2)
@@ -1269,19 +1236,16 @@ pygame.mixer.music.play(-1)
 
 while run:
     clock.tick(FPS)
-    
     key = pygame.key.get_pressed()
     #update scroll only when d is pressed
     if fighting == False:
         if key[pygame.K_d]:
             scroll -= 3
             party_position += 10
-            
         if key[pygame.K_a]:
             scroll += 2
             party_position -= 2
 
-    
     #insert the background image into the screen queue while scrolling
     for i in range(0,tiles):
         display.blit(bg, (i * bg.get_width() + scroll,0))
@@ -1391,8 +1355,7 @@ while run:
             x = 650
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    run = False
-                    
+                    run = False   
             
         display.blit(end, (0,0))
         draw_text(text, font_huge, colour, x, 100)
