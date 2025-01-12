@@ -190,7 +190,7 @@ def draw_ability(hero, button):
 class DamageText(pygame.sprite.Sprite):
     def __init__(self, x, y, damage, colour, next_hero):
         pygame.sprite.Sprite.__init__(self)
-        self.image = font.render(damage, True, colour)
+        self.image = font.render(str(damage), True, colour)
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.counter = 0
@@ -362,7 +362,7 @@ class Crusader(Person):
         self.abilities = []
         self.smite = ability('smite', [0,1], [0,1],'Attack', self.crit, 0.85)
         self.zealous_accusation = ability('zealous_accusation', [0,1], [(0,1)], 'Attack', self.crit - 0.04, 0.85,dmg_mod = 0.5)
-        self.stunning_blow = ability('stunning_blow', [0,1], [0,1], 'Attack', self.crit, 0.9,dmg_mod = 0.5)
+        self.stunning_blow = ability('stunning_blow', [0,1], [0,1], 'Attack', self.crit, 0.9,status = 'Stun',dmg_mod = 0.5)
         #fix dmg
         self.inspiring_cry = ability('inspiring_cry', [0,1,2,3], [0,1,2,3],'Stress_heal', self.crit, 1,heal = 1,stress = -2)
         #fix dmg
@@ -595,21 +595,43 @@ class ability():
                                                      "Resist!", red, next_hero)
                             damage_text_group.add(damage_text)
                     elif self.status == 'Stun':
-                        apply_stun(target)
+                        if dot_stick > target.stun_res:
+                            apply_stun(target)
+                            damage_text = DamageText(target.x, target.y-240, 
+                                                     "Stun!", yellow, next_hero)
+                            damage_text_group.add(damage_text)
+                        else:
+                            damage_text = DamageText(target.x, target.y-240, 
+                                                     "Stun resisted", yellow, next_hero)
+                            damage_text_group.add(damage_text) 
                 else:
-                    apply_dmg(target, 2*dmg)
-                    damage_text = DamageText(target.x, target.y-200, 2*dmg,
-                                             red, next_hero)
+
+                    apply_dmg(target, round(2 * roll_number * self.dmg_mod))
+                    damage_text = DamageText(target.x, target.y-200, 
+                                             f"{round(2 * roll_number * self.dmg_mod)} CRIT!", red, next_hero)
                     damage_text_group.add(damage_text)
                     if self.status == 'Blight':
                         apply_blight(target, self.dot, self.rounds+2)
+                        damage_text = DamageText(target.x, target.y-240, 
+                                                 "Blight Applied!", vomit, next_hero)
+                        damage_text_group.add(damage_text)
                     elif self.status == 'Bleed':
-                        apply_bleed(target, self.dot, self.rounds+2)
+                        apply_bleed(target, self.dot, self.rounds + 2)
+                        damage_text = DamageText(target.x, target.y-240, 
+                                                 "Bleed Applied!", vomit, next_hero)
+                        damage_text_group.add(damage_text)
                     elif self.status == 'Stun':
                         apply_stun(target)
+                        damage_text = DamageText(target.x, target.y-240, 
+                                                 "Stun!", yellow, next_hero)
+                        damage_text_group.add(damage_text)
+
             else:
                 hit_text = hit_or_miss(target.x, False, next_hero)
                 hit_text_group.add(hit_text)
+
+
+
         elif self.Type == 'Heal':
             
             if self.status == 'Cure':
@@ -625,7 +647,7 @@ class ability():
             else:
                 apply_heal(target, round(2 * roll_number * self.dmg_mod),cure)
                 damage_text = DamageText(target.x, target.y-200, 
-                                         str(roll_number), green, next_hero)
+                                         f"{roll_number} CRIT!", green, next_hero)
                 damage_text_group.add(damage_text)
         elif self.Type == 'Stress_heal':
             apply_stress(target,roll_number)
