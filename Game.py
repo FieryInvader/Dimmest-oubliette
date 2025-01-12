@@ -404,7 +404,6 @@ class Cutthroat(Person):
             if self.alive and (self.action_token > 0):
                 self.action_cooldown += 1
                 if self.action_cooldown == self.action_wait_time:
-                    resolve_dots(self)
                     random_action = random.choice(self.abilities)
                     if type(random_action) is tuple():
                         for target in random_action.target[0]:
@@ -442,7 +441,7 @@ class Cutthroat(Person):
 
 class Fusilier(Person):
     def __init__(self, x, y, name,position):
-        dmg_range = [i for i in range(4,10)]
+        dmg_range = [i for i in range(2,6)]
         super().__init__(x, y, name, 20, 0.01, 0.075, 6, position, dmg_range, 0.25, 0.2, 0.2)
         self.abilities = []
         self.Blanket = ability('Blanket', [1,2,3], [(0,1,2,3)],'Attack' ,self.crit + 0.02 ,0.8)
@@ -639,7 +638,6 @@ def wait_action(buttons,hero):
     action = False
     selected_displayed = False
     targeting_displayed = False
-    resolve_dots(hero)
     while not action:
         if not selected_displayed:
             selected = pygame.image.load("images/targets/selected.png")
@@ -942,6 +940,7 @@ while run:
                 member.draw(member.current_hp)
             draw_panel()
             pygame.display.update()
+            resolve_dots(person)
             if team == 0:
                 if person.alive:
                     if person.action_token:
