@@ -1169,11 +1169,12 @@ def wait_action(buttons,hero):
                                         selected_button.ability.proc(selected_button.ability.dmg_mod,member,crit)
                                     action = True
                 elif selected_button.ability.Type == 'Pass':
+                    if not action:           
+                        selected_button.ability.proc(2,member,False)
+                        pygame.mixer.Sound("sounds/stress.wav").play()
+                        #if not attack or util, then ability.Type == Pass
                     action = True
-        if action:           
-            selected_button.ability.proc(2,member,False)
-            pygame.mixer.Sound("sounds/stress.wav").play()
-            #if not attack or util, then ability.Type == Pass
+
                     
         damage_text_group.update()
         damage_text_group.draw(display)
