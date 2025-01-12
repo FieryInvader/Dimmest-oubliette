@@ -393,12 +393,12 @@ class Highwayman(Person):
         super().__init__(x, y, name, 23, 0.05, 0.1, 5, position, dmg_range, 0.3, 0.3, 0.3)
         
         self.abilities = []
-        self.wicked_slice = ability('wicked_slice',[0,1,2], [0,1], 'Attack', self.crit + 0.05 ,0.85, dmg_mod = 1.15)
-        self.pistol_shot = ability('pistol_shot',[1,2,3], [1,2,3], 'Attack', self.crit + 0.075, 0.85,dmg_mod = 0.9)
-        self.grapeshot_blast = ability('grapeshot_blast',[1,2], [(0,1,2)], 'Attack', self.crit - 0.09, 0.75, dmg_mod = 0.5)
-        self.open_vein = ability('open_vein',[0,1,2], [0,1],'Attack', self.crit, 0.95, status = 'Bleed', rounds = 2, dot = 3, dmg_mod = 0.85)
+        self.wicked_slice = ability('wicked_slice','melee_anim.png',[0,1,2], [0,1], 'Attack', self.crit + 0.05 ,0.85, dmg_mod = 1.15)
+        self.pistol_shot = ability('pistol_shot','pistol_anim.png',[1,2,3], [1,2,3], 'Attack', self.crit + 0.075, 0.85,dmg_mod = 0.9)
+        self.grapeshot_blast = ability('grapeshot_blast','pistol_anim.png',[1,2], [(0,1,2)], 'Attack', self.crit - 0.09, 0.75, dmg_mod = 0.5)
+        self.open_vein = ability('open_vein','melee_anim.png',[0,1,2], [0,1],'Attack', self.crit, 0.95, status = 'Bleed', rounds = 2, dot = 3, dmg_mod = 0.85)
         #fix dmg || dmg mod - crit mod - speed mod (numbers)
-        self.take_aim = ability('take_aim',[0,1,2,3], [1],'Buff', 0.1,1, speed = 1,dmg_mod = 0.12)#last arguement will add speed to dismas
+        self.take_aim = ability('take_aim','take_aim_anim.png',[0,1,2,3], [1],'Buff', 0.1,1, speed = 1,dmg_mod = 0.12)#last arguement will add speed to dismas
         self.PASS = ability('pass',[0,1,2,3],[0,1,2,3],'Pass',0,0)
         
         self.abilities.append(self.wicked_slice)
@@ -416,13 +416,13 @@ class Crusader(Person):
         super().__init__(x, y, name, 33, 0.03, 0.05, 1, position, dmg_range, 0.2, 0.6, 0.2)
         
         self.abilities = []
-        self.smite = ability('smite', [0,1], [0,1],'Attack', self.crit, 0.85)
-        self.zealous_accusation = ability('zealous_accusation', [0,1], [(0,1)], 'Attack', self.crit - 0.04, 0.85,dmg_mod = 0.5)
-        self.stunning_blow = ability('stunning_blow', [0,1], [0,1], 'Attack', self.crit, 0.9,status = 'Stun',dmg_mod = 0.5)
+        self.smite = ability('smite','melee_anim.png', [0,1], [0,1],'Attack', self.crit, 0.85)
+        self.zealous_accusation = ability('zealous_accusation','tileeiedo_anim.png', [0,1], [(0,1)], 'Attack', self.crit - 0.04, 0.85,dmg_mod = 0.5)
+        self.stunning_blow = ability('stunning_blow','stun_anim.png', [0,1], [0,1], 'Attack', self.crit, 0.9,status = 'Stun',dmg_mod = 0.5)
         #fix dmg
-        self.inspiring_cry = ability('inspiring_cry', [0,1,2,3], [0,1,2,3],'Stress_heal', self.crit, 1,heal = 1,stress = -2)
+        self.inspiring_cry = ability('inspiring_cry','stress_anim.png', [0,1,2,3], [0,1,2,3],'Stress_heal', self.crit, 1,heal = 1,stress = -2)
         #fix dmg
-        self.battle_heal = ability('battle_heal', [0,1,2,3], [0,1,2,3],'Heal', self.crit, 1, heal = 4)
+        self.battle_heal = ability('battle_heal','heal_anim.png', [0,1,2,3], [0,1,2,3],'Heal', self.crit, 1, heal = 4)
         self.PASS = ability('pass',[0,1,2,3],[0,1,2,3],'Pass',0,0)
       
         self.abilities.append(self.smite)
@@ -568,7 +568,7 @@ class Fusilier(Person):
 
 
 class ability():
-    def __init__(self, name, position, target,  Type, crit, accuracy,
+    def __init__(self, name,anim, position, target,  Type, crit, accuracy,
                  dmg_mod = 1,status = '', rounds = 0, dot = 0, heal = 0, stress = 0,speed = 0):
         self.name = name
         self.heal = heal
@@ -583,6 +583,7 @@ class ability():
         self.dot = dot
         self.stress = stress
         self.speed = speed
+        self.anim = anim
                     
         
     #Function to fire the effect of the ability depending on its Type
