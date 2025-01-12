@@ -408,13 +408,13 @@ class Highwayman(Person):
         super().__init__(x, y, name, 23, 0.05, 0.1, 5, position, dmg_range, 0.3, 0.3, 0.3)
         
         self.abilities = []
-        self.wicked_slice = ability('wicked_slice',self,f'images/{self.hero_class}/melee_anim.png',[0,1,2], [0,1], 'Attack', self.crit + 0.05 ,0.85, dmg_mod = 1.15)
-        self.pistol_shot = ability('pistol_shot',self,f'images/{self.hero_class}/pistol_anim.png',[1,2,3], [1,2,3], 'Attack', self.crit + 0.075, 0.85,dmg_mod = 0.9)
-        self.grapeshot_blast = ability('grapeshot_blast',self,f'images/{self.hero_class}/pistol_anim.png',[1,2], [(0,1,2)], 'Attack', self.crit - 0.09, 0.75, dmg_mod = 0.5)
-        self.open_vein = ability('open_vein',self,f'images/{self.hero_class}/melee_anim.png',[0,1,2], [0,1],'Attack', self.crit, 0.95, status = 'Bleed', rounds = 2, dot = 3, dmg_mod = 0.85)
+        self.wicked_slice = ability('wicked_slice',self,f'images/{self.hero_class}/melee_anim.png',[0,1,2], [0,1], 'Attack', self.crit + 0.05 ,0.85, "wickedslice.wav", dmg_mod = 1.15)
+        self.pistol_shot = ability('pistol_shot',self,f'images/{self.hero_class}/pistol_anim.png',[1,2,3], [1,2,3], 'Attack', self.crit + 0.075, 0.85, "pistolshot.wav", dmg_mod = 0.9)
+        self.grapeshot_blast = ability('grapeshot_blast',self,f'images/{self.hero_class}/pistol_anim.png',[1,2], [(0,1,2)], 'Attack', self.crit - 0.09, 0.75, "grapeshot.wav", dmg_mod = 0.5)
+        self.open_vein = ability('open_vein',self,f'images/{self.hero_class}/melee_anim.png',[0,1,2], [0,1],'Attack', self.crit, 0.95, "openvein.wav", status = 'Bleed', rounds = 2, dot = 3, dmg_mod = 0.85)
         #fix dmg || dmg mod - crit mod - speed mod (numbers)
-        self.take_aim = ability('take_aim',self,f'images/{self.hero_class}/take_aim_anim.png',[0,1,2,3], [1],'Buff', 0.1,1, speed = 1,dmg_mod = 0.12)#last arguement will add speed to dismas
-        self.PASS = ability('pass',self,f'images/{self.hero_class}/defend_anim.png',[0,1,2,3],[0,1,2,3],'Pass',0,0)
+        self.take_aim = ability('take_aim',self,f'images/{self.hero_class}/take_aim_anim.png',[0,1,2,3], [1],'Buff', 0.1, 1, "takeaim.wav", speed = 1,dmg_mod = 0.12)#last arguement will add speed to dismas
+        self.PASS = ability('pass',self,f'images/{self.hero_class}/defend_anim.png',[0,1,2,3],[0,1,2,3],'Pass',0,0, "stress.wav")
         
         self.abilities.append(self.wicked_slice)
         self.abilities.append(self.pistol_shot)
@@ -431,14 +431,14 @@ class Crusader(Person):
         super().__init__(x, y, name, 33, 0.03, 0.05, 1, position, dmg_range, 0.2, 0.6, 0.2)
         
         self.abilities = []
-        self.smite = ability('smite',self,f'images/{self.hero_class}/melee_anim.png', [0,1], [0,1],'Attack', self.crit, 0.85)
-        self.zealous_accusation = ability('zealous_accusation',self,f'images/{self.hero_class}/tileeiedo_anim.png', [0,1], [(0,1)], 'Attack', self.crit - 0.04, 0.85,dmg_mod = 0.5)
-        self.stunning_blow = ability('stunning_blow',self,f'images/{self.hero_class}/stun_anim.png', [0,1], [0,1], 'Attack', self.crit, 0.9,status = 'Stun',dmg_mod = 0.5)
+        self.smite = ability('smite',self,f'images/{self.hero_class}/melee_anim.png', [0,1], [0,1],'Attack', self.crit, 0.85, "smite.wav")
+        self.zealous_accusation = ability('zealous_accusation',self,f'images/{self.hero_class}/tileeiedo_anim.png', [0,1], [(0,1)], 'Attack', self.crit - 0.04, 0.85,"zealousacc.wav", dmg_mod = 0.5)
+        self.stunning_blow = ability('stunning_blow',self,f'images/{self.hero_class}/stun_anim.png', [0,1], [0,1], 'Attack', self.crit, 0.9, "stunningblow.wav", status = 'Stun',dmg_mod = 0.5)
         #fix dmg
-        self.inspiring_cry = ability('inspiring_cry',self,f'images/{self.hero_class}/stress_anim.png', [0,1,2,3], [0,1,2,3],'Stress_heal', self.crit, 1,heal = 1,stress = -2)
+        self.inspiring_cry = ability('inspiring_cry',self,f'images/{self.hero_class}/stress_anim.png', [0,1,2,3], [0,1,2,3],'Stress_heal', self.crit, 1, "inspiringcry.wav", heal = 1,stress = -2)
         #fix dmg
-        self.battle_heal = ability('battle_heal',self,f'images/{self.hero_class}/heal_anim.png', [0,1,2,3], [0,1,2,3],'Heal', self.crit, 1, heal = 4)
-        self.PASS = ability('pass',self,f'images/{self.hero_class}/defend_anim.png',[0,1,2,3],[0,1,2,3],'Pass',0,0)
+        self.battle_heal = ability('battle_heal',self,f'images/{self.hero_class}/heal_anim.png', [0,1,2,3], [0,1,2,3],'Heal', self.crit, 1, "battleheal.wav", heal = 4)
+        self.PASS = ability('pass',self,f'images/{self.hero_class}/defend_anim.png',[0,1,2,3],[0,1,2,3],'Pass',0,0, "stress.wav")
       
         self.abilities.append(self.smite)
         self.abilities.append(self.zealous_accusation)
@@ -455,13 +455,13 @@ class Plague_Doctor(Person):
         super().__init__(x, y, name, 22, 0.02, 0.01, 7, position, dmg_range, 0.3, 0.3, 0.3)
         
         self.abilities = []
-        self.noxious_blast = ability("noxious_blast",self,f'images/{self.hero_class}/blast_anim.png' ,[1,2,3], [0,1],'Attack', self.crit, 0.95,dmg_mod = 0.2, status = 'Blight', rounds = 3, dot= 5)
-        self.plague_grenade = ability("plague_grenade",self,f'images/{self.hero_class}/throw_anim.png', [1,2,3], [(2,3)],'Attack', self.crit, 0.95,dmg_mod = 0.1,status = 'Blight', rounds = 3, dot= 4)
-        self.blinding_gas = ability("blinding_gas",self,f'images/{self.hero_class}/throw_anim.png', [2,3], [(2,3)],'Attack',0,0.95, dmg_mod = 0,status = 'Stun')   
+        self.noxious_blast = ability("noxious_blast",self,f'images/{self.hero_class}/blast_anim.png' ,[1,2,3], [0,1],'Attack', self.crit, 0.95, "noxiousblast.wav", dmg_mod = 0.2, status = 'Blight', rounds = 3, dot= 5)
+        self.plague_grenade = ability("plague_grenade",self,f'images/{self.hero_class}/throw_anim.png', [1,2,3], [(2,3)],'Attack', self.crit, 0.95, "plaguegrenade.wav", dmg_mod = 0.1,status = 'Blight', rounds = 3, dot= 4)
+        self.blinding_gas = ability("blinding_gas",self,f'images/{self.hero_class}/throw_anim.png', [2,3], [(2,3)],'Attack',0,0.95, "blindinggas.wav", dmg_mod = 0,status = 'Stun')   
         #fix dmg
-        self.battlefield_medicine = ability("battlefield_medicine",self,f'images/{self.hero_class}/heal_anim.png', [2,3], [0,1,2,3],'Heal', self.crit, 1, status = 'Cure', heal = 1)
-        self.incision = ability('incision',self,f'images/{self.hero_class}/melee_anim.png', [0,1,2], [0,1],'Attack', self.crit + 0.05, 0.85, status = 'Bleed', rounds = 3, dot = 2)
-        self.PASS = ability('pass',self,f'images/{self.hero_class}/defend_anim.png',[0,1,2,3],[0,1,2,3],'Pass',0,0)
+        self.battlefield_medicine = ability("battlefield_medicine",self,f'images/{self.hero_class}/heal_anim.png', [2,3], [0,1,2,3],'Heal', self.crit, 1, "battlemed.wav", status = 'Cure', heal = 1)
+        self.incision = ability('incision',self,f'images/{self.hero_class}/melee_anim.png', [0,1,2], [0,1],'Attack', self.crit + 0.05, 0.85, "incision.wav", status = 'Bleed', rounds = 3, dot = 2)
+        self.PASS = ability('pass',self,f'images/{self.hero_class}/defend_anim.png',[0,1,2,3],[0,1,2,3],'Pass',0,0, "stress.wav")
              
         self.abilities.append(self.noxious_blast)
         self.abilities.append(self.plague_grenade)
@@ -478,14 +478,14 @@ class Vestal(Person):
         super().__init__(x, y, name, 24, 0.01, 0.01, 4, position, dmg_range, 0.25, 0.3, 0.3)
         
         self.abilities = []
-        self.dazzling_light = ability("dazzling_light",self,f'images/{self.hero_class}/stun_anim.png', [1,2,3], [0,1,2],'Attack', self.crit + 0.05, 0.9,dmg_mod = 0.2, status = 'Stun')
+        self.dazzling_light = ability("dazzling_light",self,f'images/{self.hero_class}/stun_anim.png', [1,2,3], [0,1,2],'Attack', self.crit + 0.05, 0.9, "dazzlinglight.wav", dmg_mod = 0.2, status = 'Stun')
         #fix dmg
-        self.divine_grace = ability("divine_grace",self,f'images/{self.hero_class}/talktothehand_anim.png', [2,3], [0,1,2,3],'Heal', self.crit, 1,heal = 4)
+        self.divine_grace = ability("divine_grace",self,f'images/{self.hero_class}/talktothehand_anim.png', [2,3], [0,1,2,3],'Heal', self.crit, 1, "divinegrace.wav", heal = 4)
         #fix dmg
-        self.divine_comfort = ability("divine_comfort",self,f'images/{self.hero_class}/talktothehand_anim.png', [2,3], [(0,1,2,3)],'Heal', self.crit, 1,heal = 1)
-        self.judgement = ability("judgement",self,f'images/{self.hero_class}/attack_anim.png', [0,1,2,3], [(2,3)],'Attack', self.crit + 0.05, 0.85, dmg_mod = 0.5)
-        self.illumination = ability('illumination',self,f'images/{self.hero_class}/attack_anim.png', [0,1,2,3], [0,1,2,3],'Attack', self.crit, 0.9)
-        self.PASS = ability('pass',self,f'images/{self.hero_class}/defend_anim.png',[0,1,2,3],[0,1,2,3],'Pass',0,0)
+        self.divine_comfort = ability("divine_comfort",self,f'images/{self.hero_class}/talktothehand_anim.png', [2,3], [(0,1,2,3)],'Heal', self.crit, 1, "divinecomfort.wav", heal = 1)
+        self.judgement = ability("judgement",self,f'images/{self.hero_class}/attack_anim.png', [0,1,2,3], [(2,3)],'Attack', self.crit + 0.05, 0.85, "judgement.wav", dmg_mod = 0.5)
+        self.illumination = ability('illumination',self,f'images/{self.hero_class}/attack_anim.png', [0,1,2,3], [0,1,2,3],'Attack', self.crit, 0.9, "illumination.wav")
+        self.PASS = ability('pass',self,f'images/{self.hero_class}/defend_anim.png',[0,1,2,3],[0,1,2,3],'Pass',0,0, "stress.wav")
         
         self.abilities.append(self.dazzling_light)
         self.abilities.append(self.divine_grace)
@@ -503,9 +503,9 @@ class Cutthroat(Person):
         dmg_range = [i for i in range(2,5)]
         super().__init__(x, y, name, 30, 0.12, 0.025, 3, position, dmg_range, 0.45, 0.4, 0.4)
         
-        self.Slice_and_dice = ability('Slice_and_dice',self,'images/Cutthroat/slice_anim.png', [0,1,2], [(0,1)],'Attack', self.crit, 0.85,dmg_mod = 1.5,status = 'Bleed', rounds = 3, dot = 1)
-        self.Uppercut_Slice = ability('Uppercut_Slice',self,'images/Cutthroat/uppercut_anim.png', [0,1], [0,1],'Attack', self.crit + 0.05, 0.85,status = 'Bleed', rounds = 3, dot = 3)
-        self.Shank = ability('Shank',self,'images/Cutthroat/uppercut_anim.png', [0,1,2], [0,1,2,3],'Attack',self.crit + 0.06, 0.85,dmg_mod = 2, status = 'Bleed', rounds = 3, dot = 2)
+        self.Slice_and_dice = ability('Slice_and_dice',self,'images/Cutthroat/slice_anim.png', [0,1,2], [(0,1)],'Attack', self.crit, 0.85, "wickedslice.wav", dmg_mod = 1.5,status = 'Bleed', rounds = 3, dot = 1)
+        self.Uppercut_Slice = ability('Uppercut_Slice',self,'images/Cutthroat/uppercut_anim.png', [0,1], [0,1],'Attack', self.crit + 0.05, 0.85,"smite.wav",status = 'Bleed', rounds = 3, dot = 3)
+        self.Shank = ability('Shank',self,'images/Cutthroat/uppercut_anim.png', [0,1,2], [0,1,2,3],'Attack',self.crit + 0.06, 0.85, "incision.wav", dmg_mod = 2, status = 'Bleed', rounds = 3, dot = 2)
         
         self.abilities =[]
         self.abilities.append(self.Slice_and_dice)
@@ -547,7 +547,7 @@ class Fusilier(Person):
         dmg_range = [i for i in range(2,6)]
         super().__init__(x, y, name, 20, 0.01, 0.075, 6, position, dmg_range, 0.25, 0.2, 0.2)
         self.abilities = []
-        self.Blanket = ability('Blanket',self,'images/Fusilier/attack_anim.png', [1,2,3], [(0,1,2,3)],'Attack' ,self.crit + 0.02 ,0.8)
+        self.Blanket = ability('Blanket',self,'images/Fusilier/attack_anim.png', [1,2,3], [(0,1,2,3)],'Attack' ,self.crit + 0.02 ,0.8, "grapeshot.wav")
         self.abilities.append(self.Blanket)
         
     def take_action(self,next_ally):
@@ -583,7 +583,7 @@ class Fusilier(Person):
 
 
 class ability():
-    def __init__(self, name,hero,anim, position, target,  Type, crit, accuracy,
+    def __init__(self, name,hero,anim, position, target,  Type, crit, accuracy, sound,
                  dmg_mod = 1,status = '', rounds = 0, dot = 0, heal = 0, stress = 0,speed = 0):
         self.name = name
         self.hero = hero
@@ -594,6 +594,7 @@ class ability():
         self.Type = Type
         self.crit = crit
         self.accuracy = accuracy
+        self.sound = pygame.mixer.Sound(f"sounds/{sound}")
         self.status = status
         self.rounds = rounds
         self.dot = dot
@@ -604,16 +605,15 @@ class ability():
         
     #Function to fire the effect of the ability depending on its Type
     #Using the calculation functions, while checking to apply buffs
-    def proc(self, roll_number, target, crit, next_hero):
+    def proc(self, roll_number, target, crit, next_hero, soundplayed = False):
         cure = False
         to_hit = random.random()
         dot_stick = random.random()
         anim = pygame.image.load(self.anim)
-        
-
+        if not soundplayed:
+            self.sound.play()
         #target.draw(target.current_hp)
         if self.Type == 'Attack':
-            
             #if the attack hits
             if to_hit < self.accuracy - target.dodge:
                 hit_text = hit_or_miss(target.x, True, next_hero)
@@ -637,7 +637,6 @@ class ability():
                             icon_txt = DamageText(target.x,target.y-150,'',vomit,next_hero,icon)
                             damage_text_group.add(icon_txt)
                             damage_text_group.add(damage_text)
-
                         else:
                             damage_text = DamageText(target.x, target.y-150, 
                                                      "Resist!", vomit, next_hero)
@@ -676,7 +675,6 @@ class ability():
                                                      "Stun resisted", yellow, next_hero)
                             damage_text_group.add(damage_text) 
                 else:
-
                     apply_dmg(target, round(2 * roll_number * self.dmg_mod))
                     damage_text = DamageText(target.x, target.y-200, 
                                              f"{round(2 * roll_number * self.dmg_mod)} CRIT!", red, next_hero)
@@ -709,11 +707,7 @@ class ability():
             else:
                 hit_text = hit_or_miss(target.x, False, next_hero)
                 hit_text_group.add(hit_text)
-
-
-
         elif self.Type == 'Heal':
-            
             if self.status == 'Cure':
                 damage_text = DamageText(target.x, target.y-220, 
                                          'Cured!', white, next_hero)
@@ -887,6 +881,7 @@ def wait_action(buttons,hero,next_ally):
     action = False
     selected_displayed = False
     targeting_displayed = False
+    soundplayed=False
     damage_text_group.update()
     damage_text_group.draw(display)
     hit_text_group.update()
@@ -961,9 +956,10 @@ def wait_action(buttons,hero,next_ally):
                                     #we roll dmg here so its different every time
                                     damage = hero.roll_dmg()
                                     crit = hero.roll_crit()
-                                    selected_button.ability.proc(damage, enemy, crit, next_ally)
+                                    selected_button.ability.proc(damage, enemy, crit, next_ally, soundplayed)
                                     #if we roll dmg when we initialize ability,
                                     #it will deal the same dmg every time
+                                    soundplayed = True
                     else:
                         #if ability is single target
                         target_icon = pygame.image.load("images/targets/target_1.png")
@@ -1018,11 +1014,12 @@ def wait_action(buttons,hero,next_ally):
                                 #because for enemy in enemy_list
                                 crit = hero.roll_crit()
                                 if selected_button.ability.Type == 'Stress_heal':
-                                    selected_button.ability.proc(selected_button.ability.stress,member,crit, next_ally)
+                                    selected_button.ability.proc(selected_button.ability.stress,member,crit, next_ally, soundplayed)
                                 elif selected_button.ability.Type == 'Heal':
-                                    selected_button.ability.proc(selected_button.ability.heal,member,crit, next_ally)
+                                    selected_button.ability.proc(selected_button.ability.heal,member,crit, next_ally, soundplayed)
                                 else:
-                                    selected_button.ability.proc(selected_button.ability.dmg_mod,member,crit, next_ally)
+                                    selected_button.ability.proc(selected_button.ability.dmg_mod,member,crit, next_ally, soundplayed)
+                                soundplayed = True
                                 
                     else:
                         #if ability is single target
@@ -1165,7 +1162,6 @@ while run:
             initiative = []
 
     if fighting:
-
         loc = (i-1 * bg.get_width()) + scroll
         for member in party:
             member.action_token += 1
