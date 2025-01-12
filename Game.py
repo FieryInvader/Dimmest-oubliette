@@ -223,6 +223,7 @@ grey = (200,200,200)
 black = (0,0,0)
 white = (200,200,200)
 dark_grey = (100,100,100)
+sky_blue = (180,180,255)
 
 empty_stress = pygame.image.load("images/heroes/stress_empty.png")
 full_stress = pygame.image.load("images/heroes/stress_full.png")
@@ -249,7 +250,7 @@ class Person():
         self.dmg_range = dmg_range
         self.dmg_amp = 1
         self.stun_res = stun_res
-        self.blightres = blight_res
+        self.blight_res = blight_res
         self.bleed_res = bleed_res
         self.blight = []
         self.bleed = []
@@ -522,6 +523,7 @@ class ability():
     def proc(self, roll_number, target, crit, next_hero):
         cure = False
         to_hit = random.random()
+        dot_stick = random.random()
         if self.Type == 'Attack':
             if to_hit < self.accuracy - target.dodge:
                 if not crit:
@@ -530,9 +532,25 @@ class ability():
                                              str(round(roll_number * self.dmg_mod)), red, next_hero)
                     damage_text_group.add(damage_text)
                     if self.status == 'Blight':
-                        apply_blight(target, self.dot, self.rounds)
+                        if dot_stick > target.blight_res:
+                            apply_blight(target, self.dot, self.rounds)
+                            damage_text = DamageText(target.x, target.y-240, 
+                                                     "Blight Applied!", vomit, next_hero)
+                            damage_text_group.add(damage_text)
+                        else:
+                            damage_text = DamageText(target.x, target.y-240, 
+                                                     "Resist!", vomit, next_hero)
+                            damage_text_group.add(damage_text)
                     elif self.status == 'Bleed':
-                        apply_bleed(target, self.dot, self.rounds)
+                        if dot_stick > target.bleed_res:
+                            apply_bleed(target, self.dot, self.rounds)
+                            damage_text = DamageText(target.x, target.y-240, 
+                                                     "Bleed Applied!", red, next_hero)
+                            damage_text_group.add(damage_text)
+                        else:
+                            damage_text = DamageText(target.x, target.y-240, 
+                                                     "Resist!", red, next_hero)
+                            damage_text_group.add(damage_text)
                     elif self.status == 'Stun':
                         apply_stun(target)
                 else:
@@ -544,16 +562,43 @@ class ability():
                     elif self.status == 'Stun':
                         apply_stun(target)
         elif self.Type == 'Heal':
+            
             if self.status == 'Cure':
+                damage_text = DamageText(target.x, target.y-220, 
+                                         'Cured!', white, next_hero)
+                damage_text_group.add(damage_text)
                 cure = True
             if not crit:
                 apply_heal(target, round(roll_number * self.dmg_mod),cure)
+                damage_text = DamageText(target.x, target.y-200, 
+                                         str(roll_number), green, next_hero)
+                damage_text_group.add(damage_text)
             else:
                 apply_heal(target, round(2 * roll_number * self.dmg_mod),cure)
+                damage_text = DamageText(target.x, target.y-200, 
+                                         str(roll_number), green, next_hero)
+                damage_text_group.add(damage_text)
         elif self.Type == 'Stress_heal':
+            apply_stress(target,roll_number)
+            if self.heal != 0:
+                apply_heal(target, self.heal ,cure)
+                damage_text = DamageText(target.x, target.y-220, 
+                                         f"{roll_number} stress", white, next_hero)
+                damage_text_group.add(damage_text)
+                damage_text = DamageText(target.x, target.y-200, 
+                                         str(self.heal), green, next_hero)
+                damage_text_group.add(damage_text)
+            else:
+                damage_text = DamageText(target.x, target.y-200, 
+                                         f"{roll_number} stress", white, next_hero)
+                damage_text_group.add(damage_text)
+        elif self.Type == 'Stress_damage':
             apply_stress(target,roll_number)
         elif self.Type == 'Buff':
             apply_buff(target,dps_buff = self.dmg_mod,crit_buff = self.crit,speed_buff = self.speed)
+            damage_text = DamageText(target.x, target.y-200, 
+                                     "Buffed!", sky_blue, next_hero)
+            damage_text_group.add(damage_text)
 
 
 #functions to calculate things
