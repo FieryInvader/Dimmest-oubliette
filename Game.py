@@ -521,7 +521,7 @@ class Cutthroat(Person):
                                 if member.position == position:
                                     crit = self.roll_crit()
                                     dmg = self.roll_dmg()
-                                    random_action.proc(dmg,member,crit,soundplayed = position)
+                                    random_action.proc(dmg,member,crit)
                     else:
                         target = random.choice(party)
                         hits = roll_to_hit(random_action, target)
@@ -558,7 +558,7 @@ class Fusilier(Person):
                                 if member.position == position:
                                     crit = self.roll_crit()
                                     dmg = self.roll_dmg()
-                                    random_action.proc(dmg,member,crit,soundplayed = position)
+                                    random_action.proc(dmg,member,crit)
                     else:
                         target = random.choice(party)
                         hits = roll_to_hit(random_action, target)
@@ -1113,6 +1113,11 @@ fighting = False
 condition = lambda x: x.alive == True
 tmp = []
 wins = 0
+
+#loop music forever (-1)
+pygame.mixer.music.load("sounds/music.mp3")
+pygame.mixer.music.play(-1)
+
 while run:
     clock.tick(FPS)
     
